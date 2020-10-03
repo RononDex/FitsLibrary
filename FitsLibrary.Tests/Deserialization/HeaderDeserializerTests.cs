@@ -54,7 +54,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithByteStreamOfValidLengthAndAEndMark_ThrowsNoException()
+        public void Deserialize_WithByteStreamOfValidLengthAndEndMarkAtBeginning_ReturnsEmptyHeader()
         {
             // Arrange
             var testData = new byte[3000];
@@ -70,6 +70,7 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Assert
             result.Should().NotBe(null);
+            result.Entries.Should().BeEmpty();
         }
     }
 }

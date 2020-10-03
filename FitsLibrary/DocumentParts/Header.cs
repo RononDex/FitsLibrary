@@ -6,12 +6,12 @@ namespace FitsLibrary.DocumentParts
 {
     public class Header
     {
-        private readonly IList<HeaderEntry> _entries;
+        private readonly List<HeaderEntry> _entries;
 
         /// <summary>
         /// A list of entries contained within the header
         /// </summary>
-        public IReadOnlyList<HeaderEntry> Entries { get; }
+        public IReadOnlyList<HeaderEntry> Entries => _entries;
 
         /// <summary>
         /// Gets the entry with the given key.
@@ -37,7 +37,7 @@ namespace FitsLibrary.DocumentParts
         /// </summary>
         /// <param name="entries">A list of entries used to initialize the
         /// header</param>
-        public Header(IList<HeaderEntry> entries)
+        public Header(List<HeaderEntry> entries)
         {
             _entries = entries;
         }
