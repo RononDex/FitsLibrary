@@ -27,7 +27,7 @@ namespace FitsLibrary.Tests.Desersialization
         public void Deserialize_WithByteStreamOfSizeLessThan2880_ThrowsException()
         {
             // Arrange
-            var testData = new byte[1568];
+            var testData = new byte[2879];
             var testStream = TestUtils.ByteArrayToStream(testData);
             var testee = new HeaderDeserializer();
 
@@ -42,7 +42,7 @@ namespace FitsLibrary.Tests.Desersialization
         public void Deserialize_WithByteStreamOfValidLengthButNoEndMark_ThrowsException()
         {
             // Arrange
-            var testData = new byte[3000];
+            var testData = new byte[2881];
             var testStream = TestUtils.ByteArrayToStream(testData);
             var testee = new HeaderDeserializer();
 
@@ -57,7 +57,7 @@ namespace FitsLibrary.Tests.Desersialization
         public void Deserialize_WithByteStreamOfValidLengthAndEndMarkAtBeginning_ReturnsEmptyHeader()
         {
             // Arrange
-            var testData = new byte[3000];
+            var testData = new byte[2881];
             testData = TestUtils.AddContentToArray(
                 data: testData,
                 index: 0,
