@@ -15,5 +15,15 @@ namespace FitsLibrary.Tests
             var bytes = Encoding.ASCII.GetBytes(data);
             return ByteArrayToStream(bytes);
         }
+
+        public static byte[] AddContentToArray(byte[] data, int index, byte[] content)
+        {
+            for (var i = index; (i-index)<content.Length; i++)
+            {
+                data[i] = content[i-index];
+            }
+
+            return data;
+        }
     }
 }

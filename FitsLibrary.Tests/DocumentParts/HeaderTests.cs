@@ -1,18 +1,12 @@
+using System;
+using System.IO;
+using FitsLibrary.DocumentParts;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace FitsLibrary.Tests.DocumentParts
 {
-    public class HeaderTests
+    public partial class HeaderTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
-        [Test]
-        public void Test1()
-        {
-            Assert.Pass();
-        }
     }
 }

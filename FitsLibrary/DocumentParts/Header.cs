@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using FitsLibrary.DocumentParts.Objects;
 
@@ -34,7 +33,7 @@ namespace FitsLibrary.DocumentParts
         }
 
         /// <summary>
-        ///
+        /// Initializes a header with the given entries
         /// </summary>
         /// <param name="entries">A list of entries used to initialize the
         /// header</param>
@@ -44,11 +43,11 @@ namespace FitsLibrary.DocumentParts
         }
 
         /// <summary>
-        /// Initializes the header from a given stream
+        /// Initializes an empty header
         /// </summary>
-        /// <param name="readStream">The stream from which to read from</param>
-        public Header(Stream readStream)
+        public Header()
         {
+            _entries = new List<HeaderEntry>();
         }
     }
 }
