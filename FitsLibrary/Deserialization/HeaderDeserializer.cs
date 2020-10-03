@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Extensions;
@@ -21,7 +22,7 @@ namespace FitsLibrary.Deserialization
         /// "END" + 77 spaces in ASCII
         /// </summary>
         public static readonly byte[] END_MARKER =
-            new List<byte>{ 0x45, 0x4e, 0x44}
+            new List<byte> { 0x45, 0x4e, 0x44 }
                 .Concat(Enumerable.Repeat(element: (byte)0x20, count: 77))
                 .ToArray();
 
@@ -46,26 +47,64 @@ namespace FitsLibrary.Deserialization
                 var headerBlock = new byte[HeaderBlockSize];
                 dataStream.Read(headerBlock, 0, headerBlock.Length);
 
-                endOfHeaderReached = ParseHeaderBlock(headerBlock);
+                headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
             }
 
             return new Header(headerEntries);
         }
 
-        private bool ParseHeaderBlock(byte[] headerBlock)
+        private List<HeaderEntry> ParseHeaderBlock(byte[] headerBlock, out bool endOfHeaderReached)
         {
-            var endOfHeaderReached = false;
-            var headerEntryChunks = headerBlock.Split(HaderEntryChunkSize);
+            endOfHeaderReached = false;
+            var headerEntryChunks = headerBlock.Split(HaderEntryChunkSize).Select(arr => arr.ToArray());
+            var headerEntries = new List<HeaderEntry>();
 
             foreach (var headerEntryChunk in headerEntryChunks)
             {
                 if (headerEntryChunk.SequenceEqual(END_MARKER))
                 {
                     endOfHeaderReached = true;
+                    break;
                 }
+
+                headerEntries.Add(ParseHeaderEntryChunk(headerEntryChunk));
             }
 
-            return endOfHeaderReached;
+            return headerEntries;
+        }
+
+        private static HeaderEntry ParseHeaderEntryChunk(byte[] headerEntryChunk)
+        {
+            var key = Encoding.ASCII.GetString(headerEntryChunk[0..7]).Trim();
+            if (HeaderEntryChunkHasValueMarker(headerEntryChunk))
+            {
+                var value = Encoding.ASCII.GetString(headerEntryChunk[10..]).Trim();
+                if (value.Contains('/'))
+                {
+                    var comment = value[(value.IndexOf('/') + 1)..].Trim();
+                    value = value[0..value.IndexOf('/')].Trim();
+                    return new HeaderEntry(key, value, comment);
+                }
+                else
+                {
+                    return new HeaderEntry(
+                        key: key,
+                        value: value,
+                        comment: null);
+                }
+            }
+            else
+            {
+                return new HeaderEntry(
+                    key: key,
+                    value: null,
+                    comment: null);
+            }
+        }
+
+        private static bool HeaderEntryChunkHasValueMarker(byte[] headerEntryChunk)
+        {
+            return headerEntryChunk[8] == 0x3D && headerEntryChunk[9] == 0x20;
         }
 
         private void PreValidateStream(Stream dataStream)

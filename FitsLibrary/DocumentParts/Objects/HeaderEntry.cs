@@ -4,11 +4,11 @@ namespace FitsLibrary.DocumentParts.Objects
     {
         public string Key { get; }
 
-        public string Value { get; }
+        public string? Value { get; }
 
         public string? Comment { get; }
 
-        public HeaderEntry(string key, string value, string? comment)
+        public HeaderEntry(string key, string? value, string? comment)
         {
             Key = key;
             Value = value;
