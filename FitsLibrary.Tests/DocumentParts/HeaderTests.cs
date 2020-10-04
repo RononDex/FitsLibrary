@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace FitsLibrary.Tests.DocumentParts
 {
-    public partial class HeaderTests
+    public class HeaderTests
     {
     }
 }

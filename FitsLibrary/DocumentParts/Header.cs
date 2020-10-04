@@ -18,7 +18,7 @@ namespace FitsLibrary.DocumentParts
         /// Returns null if no entry exists with the given key
         /// </summary>
         /// <param name="key"></param>
-        public string? this[string key]
+        public object? this[string key]
         {
             get
             {

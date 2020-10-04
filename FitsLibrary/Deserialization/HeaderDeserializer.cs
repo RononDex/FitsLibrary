@@ -14,8 +14,9 @@ namespace FitsLibrary.Deserialization
         /// <summary>
         /// Length of a header entry chunk, containing a single header entry
         /// </summary>
-        private const int HaderEntryChunkSize = 80;
-        private const int HeaderBlockSize = 2880;
+        public const int HaderEntryChunkSize = 80;
+        public const int HeaderBlockSize = 2880;
+        public const int LogicalValuePosition = 20;
 
         /// <summary>
         /// Representation of the Headers END marker
@@ -83,13 +84,16 @@ namespace FitsLibrary.Deserialization
                 {
                     var comment = value[(value.IndexOf('/') + 1)..].Trim();
                     value = value[0..value.IndexOf('/')].Trim();
-                    return new HeaderEntry(key, value, comment);
+                    var parsedValue = ParseValue(value);
+                    return new HeaderEntry(key, parsedValue, comment);
                 }
                 else
                 {
+
+                    var parsedValue = ParseValue(value);
                     return new HeaderEntry(
                         key: key,
-                        value: value,
+                        value: parsedValue,
                         comment: null);
                 }
             }
@@ -99,6 +103,27 @@ namespace FitsLibrary.Deserialization
                     key: key,
                     value: null,
                     comment: null);
+            }
+        }
+
+        private static object ParseValue(string value)
+        {
+            if (value.StartsWith('\''))
+            {
+                return value.Replace("\'", string.Empty, StringComparison.Ordinal);
+            }
+            else if (value.Contains("."))
+            {
+                return Convert.ToDouble(value);
+            }
+            else if (value.Length >= LogicalValuePosition
+                    && (value[LogicalValuePosition - 1] == 'T' || value[LogicalValuePosition - 1] == 'F'))
+            {
+                return value[LogicalValuePosition - 1] == 'T';
+            }
+            else
+            {
+                return Convert.ToInt64(value);
             }
         }
 
