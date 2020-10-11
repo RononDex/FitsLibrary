@@ -277,6 +277,76 @@ namespace FitsLibrary.Tests.Desersialization
             result.Entries.First().Comment.Should().BeNull();
         }
 
-        // TODO Add more tests for header parsing (error cases)
+        [Test]
+        public void Deserilaize_WithMultiKeywordValue_ReturnsConcattedValue()
+        {
+            // Arrange
+            var testData = new byte[2881];
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 0,
+                key: "TEST",
+                value: "Some very looooong test value",
+                comment: null);
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 80,
+                key: "CONTINUE",
+                value: " AND some moooore from previous value",
+                comment: null);
+            testData = TestUtils.AddContentToArray(
+                data: testData,
+                startIndex: 160,
+                content: HeaderDeserializer.END_MARKER);
+            var testStream = TestUtils.ByteArrayToStream(testData);
+            var testee = new HeaderDeserializer();
+
+            // Act
+            var result = testee.Deserialize(testStream);
+
+            // Assert
+            result.Should().NotBe(null);
+            result.Entries.Should().HaveCount(1);
+            result.Entries.First().Key.Should().Be("TEST");
+            result.Entries.First().Value.Should().Be("Some very looooong test value AND some moooore from previous value");
+            result.Entries.First().Comment.Should().BeNull();
+        }
+
+        [Test]
+        public void Deserilaize_WithMultiKeywordComment_ReturnsConcattedValue()
+        {
+            // Arrange
+            var testData = new byte[2881];
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 0,
+                key: "TEST",
+                value: 0.58,
+                comment: "Test some very looong comment");
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 80,
+                key: "CONTINUE",
+                value: null,
+                comment: " continuation of some very long comment");
+            testData = TestUtils.AddContentToArray(
+                data: testData,
+                startIndex: 160,
+                content: HeaderDeserializer.END_MARKER);
+            var testStream = TestUtils.ByteArrayToStream(testData);
+            var testee = new HeaderDeserializer();
+
+            // Act
+            var result = testee.Deserialize(testStream);
+
+            // Assert
+            result.Should().NotBe(null);
+            result.Entries.Should().HaveCount(1);
+            result.Entries.First().Key.Should().Be("TEST");
+            result.Entries.First().Value.Should().Be(0.58);
+            result.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
+        }
+
+        // TODO Add mote tests for header parsing (error cases)
     }
 }

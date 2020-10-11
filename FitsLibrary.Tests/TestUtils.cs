@@ -21,7 +21,15 @@ namespace FitsLibrary.Tests
         public static byte[] AddHeaderEntry(byte[] data, int startIndex, string key, object value, string comment)
         {
             var combinedValue = value.ToString().PadRight(70);
-            if (comment != null)
+            if (key == "CONTINUE")
+            {
+                combinedValue = $"{key} {value}";
+                if (comment != null)
+                {
+                    combinedValue = $"{combinedValue} / {comment}";
+                }
+            }
+            else if (comment != null)
             {
                 combinedValue = $"{value} / {comment}".PadRight(70);
             }
