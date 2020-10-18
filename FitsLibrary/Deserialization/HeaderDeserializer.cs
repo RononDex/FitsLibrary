@@ -54,7 +54,7 @@ namespace FitsLibrary.Deserialization
             return new Header(headerEntries);
         }
 
-        private List<HeaderEntry> ParseHeaderBlock(byte[] headerBlock, out bool endOfHeaderReached)
+        private static List<HeaderEntry> ParseHeaderBlock(byte[] headerBlock, out bool endOfHeaderReached)
         {
             endOfHeaderReached = false;
             var headerEntryChunks = headerBlock.Split(HaderEntryChunkSize).Select(arr => arr.ToArray());
@@ -76,7 +76,7 @@ namespace FitsLibrary.Deserialization
 
         private static HeaderEntry ParseHeaderEntryChunk(byte[] headerEntryChunk)
         {
-            var key = Encoding.ASCII.GetString(headerEntryChunk[0..7]).Trim();
+            var key = Encoding.ASCII.GetString(headerEntryChunk[0..8]).Trim();
             if (HeaderEntryChunkHasValueMarker(headerEntryChunk))
             {
                 var value = Encoding.ASCII.GetString(headerEntryChunk[10..]).Trim();
@@ -99,32 +99,39 @@ namespace FitsLibrary.Deserialization
             }
             else
             {
-                return new HeaderEntry(
-                    key: key,
-                    value: null,
-                    comment: null);
+                // TODO Continue keyword
             }
+
+            return new HeaderEntry(
+                key: key,
+                value: null,
+                comment: null);
         }
 
-        private static object ParseValue(string value)
+        private static object? ParseValue(string value)
         {
+            if (string.IsNullOrEmpty(value.Trim()))
+            {
+                return null;
+            }
+
             if (value.StartsWith('\''))
             {
                 return value.Replace("\'", string.Empty, StringComparison.Ordinal);
             }
-            else if (value.Contains("."))
+
+            if (value.Contains("."))
             {
                 return Convert.ToDouble(value);
             }
-            else if (value.Length >= LogicalValuePosition
+
+            if (value.Length >= LogicalValuePosition
                     && (value[LogicalValuePosition - 1] == 'T' || value[LogicalValuePosition - 1] == 'F'))
             {
                 return value[LogicalValuePosition - 1] == 'T';
             }
-            else
-            {
-                return Convert.ToInt64(value);
-            }
+
+            return Convert.ToInt64(value);
         }
 
         private static bool HeaderEntryChunkHasValueMarker(byte[] headerEntryChunk)

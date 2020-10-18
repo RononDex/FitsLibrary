@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text;
 using FitsLibrary.Deserialization;
@@ -18,9 +17,9 @@ namespace FitsLibrary.Tests
             return ByteArrayToStream(bytes);
         }
 
-        public static byte[] AddHeaderEntry(byte[] data, int startIndex, string key, object value, string comment)
+        public static byte[] AddHeaderEntry(byte[] data, int startIndex, string key, object? value, string comment)
         {
-            var combinedValue = value.ToString().PadRight(70);
+            var combinedValue = (value ?? string.Empty).ToString().PadRight(70);
             if (key == "CONTINUE")
             {
                 combinedValue = $"{key} {value}";
@@ -33,12 +32,16 @@ namespace FitsLibrary.Tests
             {
                 combinedValue = $"{value} / {comment}".PadRight(70);
             }
-            if (value is bool)
+            if (value is bool valueBool)
             {
-                combinedValue = (((bool)value) ? "T" : "F").PadLeft(HeaderDeserializer.LogicalValuePosition);
+                combinedValue = (valueBool ? "T" : "F").PadLeft(HeaderDeserializer.LogicalValuePosition);
             }
 
-            var headerEntryBytes = Encoding.ASCII.GetBytes($"{key.PadRight(8)}= {combinedValue}");
+            var headerEntryBytes = Encoding.ASCII.GetBytes($"{combinedValue}");
+            if (value != null)
+            {
+                headerEntryBytes = Encoding.ASCII.GetBytes($"{key.PadRight(8)}= {combinedValue}");
+            }
 
             return AddContentToArray(
                 data,

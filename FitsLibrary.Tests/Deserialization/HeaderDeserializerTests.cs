@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace FitsLibrary.Tests.Desersialization
 {
-    public class HeaderTests
+    public class HeaderDeserializerTests
     {
         [Test]
         public void Deserialize_WithEmptyByteStream_ThrowsException()
