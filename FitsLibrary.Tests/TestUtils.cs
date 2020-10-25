@@ -22,7 +22,7 @@ namespace FitsLibrary.Tests
             var combinedValue = (value ?? string.Empty).ToString().PadRight(70);
             if (key == "CONTINUE")
             {
-                combinedValue = $"{key} {value}";
+                combinedValue = $"{key}   {value}";
                 if (comment != null)
                 {
                     combinedValue = $"{combinedValue} / {comment}";
@@ -35,10 +35,15 @@ namespace FitsLibrary.Tests
             if (value is bool valueBool)
             {
                 combinedValue = (valueBool ? "T" : "F").PadLeft(HeaderDeserializer.LogicalValuePosition);
+                if (comment != null)
+                {
+                    combinedValue = $"{combinedValue} / {comment}".PadRight(70);
+                }
+;
             }
 
             var headerEntryBytes = Encoding.ASCII.GetBytes($"{combinedValue}");
-            if (value != null)
+            if (value != null && key != "CONTINUE")
             {
                 headerEntryBytes = Encoding.ASCII.GetBytes($"{key.PadRight(8)}= {combinedValue}");
             }
@@ -59,9 +64,9 @@ namespace FitsLibrary.Tests
 
         public static byte[] AddContentToArray(byte[] data, int startIndex, byte[] content)
         {
-            for (var i = startIndex; (i-startIndex)<content.Length; i++)
+            for (var i = startIndex; (i - startIndex) < content.Length; i++)
             {
-                data[i] = content[i-startIndex];
+                data[i] = content[i - startIndex];
             }
 
             return data;

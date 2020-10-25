@@ -104,6 +104,37 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
+        public void Deserialize_WithTwoHeaderEntriesWithSameKey_ThrowsException()
+        {
+            // Arrange
+            var testData = new byte[2881];
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 0,
+                key: "TEST",
+                value: 1,
+                comment: "some test comment");
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 80,
+                key: "TEST",
+                value: 1,
+                comment: "some test comment");
+            testData = TestUtils.AddContentToArray(
+                data: testData,
+                startIndex: 160,
+                content: HeaderDeserializer.END_MARKER);
+            var testStream = TestUtils.ByteArrayToStream(testData);
+            var testee = new HeaderDeserializer();
+
+            // Act
+            Action act = () => testee.Deserialize(testStream);
+
+            // Assert
+            act.Should().Throw<InvalidDataException>().WithMessage("Duplicate header key TEST found");
+        }
+
+        [Test]
         public void Deserialize_WithOneHeaderEntryHavingBooleanValue_ReturnsHeaderWithOneEntry()
         {
             // Arrange
@@ -286,13 +317,13 @@ namespace FitsLibrary.Tests.Desersialization
                 data: testData,
                 startIndex: 0,
                 key: "TEST",
-                value: "Some very looooong test value",
+                value: "'Some very looooong test value&'",
                 comment: null);
             testData = TestUtils.AddHeaderEntry(
                 data: testData,
                 startIndex: 80,
                 key: "CONTINUE",
-                value: " AND some moooore from previous value",
+                value: "' AND some moooore from previous value'",
                 comment: null);
             testData = TestUtils.AddContentToArray(
                 data: testData,
@@ -321,13 +352,13 @@ namespace FitsLibrary.Tests.Desersialization
                 data: testData,
                 startIndex: 0,
                 key: "TEST",
-                value: 0.58,
+                value: "'&'",
                 comment: "Test some very looong comment");
             testData = TestUtils.AddHeaderEntry(
                 data: testData,
                 startIndex: 80,
                 key: "CONTINUE",
-                value: null,
+                value: "'&'",
                 comment: " continuation of some very long comment");
             testData = TestUtils.AddContentToArray(
                 data: testData,
@@ -343,8 +374,80 @@ namespace FitsLibrary.Tests.Desersialization
             result.Should().NotBe(null);
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(0.58);
+            result.Entries.First().Value.Should().Be(string.Empty);
             result.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
+        }
+
+        [Test]
+        public void Deserilaize_WithMultiKeywordValueOf3HeaderChunks_ReturnsCombinedValue()
+        {
+            // Arrange
+            var testData = new byte[2881];
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 0,
+                key: "TEST",
+                value: "'Some test value &'",
+                comment: "Test some very looong comment");
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 80,
+                key: "CONTINUE",
+                value: "'Spaning over 3 values &'",
+                comment: " continuation of some very long comment");
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 160,
+                key: "CONTINUE",
+                value: "'TEST TEST TESTING TEST'",
+                comment: null);
+            testData = TestUtils.AddContentToArray(
+                data: testData,
+                startIndex: 240,
+                content: HeaderDeserializer.END_MARKER);
+            var testStream = TestUtils.ByteArrayToStream(testData);
+            var testee = new HeaderDeserializer();
+
+            // Act
+            var result = testee.Deserialize(testStream);
+
+            // Assert
+            result.Should().NotBe(null);
+            result.Entries.Should().HaveCount(1);
+            result.Entries.First().Key.Should().Be("TEST");
+            result.Entries.First().Value.Should().Be("Some test value Spaning over 3 values TEST TEST TESTING TEST");
+            result.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
+        }
+
+        [Test]
+        public void Deserilaize_WithMultiKeywordValueButMissingContinuation_ThrowsException()
+        {
+            // Arrange
+            var testData = new byte[2881];
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 0,
+                key: "TEST",
+                value: "'Some test value &'",
+                comment: "Test some very looong comment");
+            testData = TestUtils.AddHeaderEntry(
+                data: testData,
+                startIndex: 80,
+                key: "TEST2",
+                value: "'Spaning over 3 values'",
+                comment: " continuation of some very long comment");
+            testData = TestUtils.AddContentToArray(
+                data: testData,
+                startIndex: 160,
+                content: HeaderDeserializer.END_MARKER);
+            var testStream = TestUtils.ByteArrayToStream(testData);
+            var testee = new HeaderDeserializer();
+
+            // Act
+            Action act = () => testee.Deserialize(testStream);
+
+            // Assert
+            act.Should().Throw<InvalidDataException>();
         }
 
         // TODO Add mote tests for header parsing (error cases)

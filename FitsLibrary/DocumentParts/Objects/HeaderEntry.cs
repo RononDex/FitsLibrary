@@ -2,11 +2,11 @@ namespace FitsLibrary.DocumentParts.Objects
 {
     public class HeaderEntry
     {
-        public string Key { get; }
+        public string Key { get; set; }
 
-        public object? Value { get; }
+        public object? Value { get; set; }
 
-        public string? Comment { get; }
+        public string? Comment { get; set; }
 
         public HeaderEntry(string key, object? value, string? comment)
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,8 @@ namespace FitsLibrary.Deserialization
         public const int HaderEntryChunkSize = 80;
         public const int HeaderBlockSize = 2880;
         public const int LogicalValuePosition = 20;
+        public const char ContinuedStringMarker = '&';
+        private const string ContinueKeyWord = "CONTINUE";
 
         /// <summary>
         /// Representation of the Headers END marker
@@ -31,6 +34,7 @@ namespace FitsLibrary.Deserialization
         /// Deserializes the header part of the fits document
         /// </summary>
         /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
+        /// <exception cref="InvalidDataException"></exception>
         public override Header Deserialize(Stream dataStream)
         {
             PreValidateStream(dataStream);
@@ -59,6 +63,7 @@ namespace FitsLibrary.Deserialization
             endOfHeaderReached = false;
             var headerEntryChunks = headerBlock.Split(HaderEntryChunkSize).Select(arr => arr.ToArray());
             var headerEntries = new List<HeaderEntry>();
+            var isContinued = false;
 
             foreach (var headerEntryChunk in headerEntryChunks)
             {
@@ -68,38 +73,76 @@ namespace FitsLibrary.Deserialization
                     break;
                 }
 
-                headerEntries.Add(ParseHeaderEntryChunk(headerEntryChunk));
+                var parsedHeaderEntry = ParseHeaderEntryChunk(headerEntryChunk);
+                if (!isContinued)
+                {
+                    if (ValueIsStringAndHasContinueMarker(parsedHeaderEntry.Value))
+                    {
+                        isContinued = true;
+                        parsedHeaderEntry.Value = (parsedHeaderEntry.Value as string)!.Trim()[..^1];
+                    }
+                    if (headerEntries.Any(entry => string.Equals(entry.Key, parsedHeaderEntry.Key, StringComparison.Ordinal)))
+                    {
+                        throw new InvalidDataException($"Duplicate header key {parsedHeaderEntry.Key} found");
+                    }
+                    headerEntries.Add(parsedHeaderEntry);
+                }
+                else
+                {
+                    if (!string.Equals(parsedHeaderEntry.Key, ContinueKeyWord, StringComparison.Ordinal))
+                    {
+                        throw new InvalidDataException("Unfinished continued value found");
+                    }
+                    var valueToAppend = parsedHeaderEntry.Value as string;
+                    if (ValueIsStringAndHasContinueMarker(parsedHeaderEntry.Value))
+                    {
+                        valueToAppend = valueToAppend!.Trim()[..^1];
+                        isContinued = true;
+                    }
+                    else
+                    {
+                        isContinued = false;
+                    }
+                    headerEntries[^1].Value = $"{(headerEntries[^1].Value as string)}{valueToAppend}";
+                    if (parsedHeaderEntry.Comment != null)
+                    {
+                        headerEntries[^1].Comment += $" {parsedHeaderEntry.Comment}";
+                    }
+                }
             }
 
             return headerEntries;
         }
 
+        private static bool ValueIsStringAndHasContinueMarker(object? value)
+        {
+            return value is string parsedString && parsedString.Trim().EndsWith(ContinuedStringMarker);
+        }
+
         private static HeaderEntry ParseHeaderEntryChunk(byte[] headerEntryChunk)
         {
             var key = Encoding.ASCII.GetString(headerEntryChunk[0..8]).Trim();
-            if (HeaderEntryChunkHasValueMarker(headerEntryChunk))
+            if (HeaderEntryChunkHasValueMarker(headerEntryChunk)
+                    || HeaderEntryEntryChunkHasContinueMarker(headerEntryChunk))
             {
                 var value = Encoding.ASCII.GetString(headerEntryChunk[10..]).Trim();
-                if (value.Contains('/'))
+                if (value.Contains('/', StringComparison.Ordinal))
                 {
-                    var comment = value[(value.IndexOf('/') + 1)..].Trim();
-                    value = value[0..value.IndexOf('/')].Trim();
+                    var comment = value[(value.IndexOf('/', StringComparison.Ordinal) + 1)..].Trim().Trim('\0');
+                    value = value[0..value.IndexOf('/', StringComparison.Ordinal)].Trim();
                     var parsedValue = ParseValue(value);
+                    Console.WriteLine(parsedValue);
                     return new HeaderEntry(key, parsedValue, comment);
                 }
                 else
                 {
-
                     var parsedValue = ParseValue(value);
+                    Console.WriteLine(parsedValue);
                     return new HeaderEntry(
                         key: key,
                         value: parsedValue,
                         comment: null);
                 }
-            }
-            else
-            {
-                // TODO Continue keyword
             }
 
             return new HeaderEntry(
@@ -108,30 +151,35 @@ namespace FitsLibrary.Deserialization
                 comment: null);
         }
 
+        private static bool HeaderEntryEntryChunkHasContinueMarker(byte[] headerEntryChunk)
+        {
+            return string.Equals(Encoding.ASCII.GetString(headerEntryChunk[..8]), ContinueKeyWord, StringComparison.Ordinal);
+        }
+
         private static object? ParseValue(string value)
         {
+            value = value.Trim('\0');
             if (string.IsNullOrEmpty(value.Trim()))
             {
                 return null;
             }
 
-            if (value.StartsWith('\''))
+            if (value.Trim().StartsWith('\''))
             {
-                return value.Replace("\'", string.Empty, StringComparison.Ordinal);
+                return value.Trim()[1..^1];
             }
 
-            if (value.Contains("."))
+            if (value.Contains(".", StringComparison.Ordinal))
             {
-                return Convert.ToDouble(value);
+                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
             }
 
-            if (value.Length >= LogicalValuePosition
-                    && (value[LogicalValuePosition - 1] == 'T' || value[LogicalValuePosition - 1] == 'F'))
+            if (string.Equals(value, "T", StringComparison.Ordinal) || string.Equals(value, "F", StringComparison.Ordinal))
             {
-                return value[LogicalValuePosition - 1] == 'T';
+                return string.Equals(value, "T", StringComparison.Ordinal);
             }
 
-            return Convert.ToInt64(value);
+            return Convert.ToInt64(value, CultureInfo.InvariantCulture);
         }
 
         private static bool HeaderEntryChunkHasValueMarker(byte[] headerEntryChunk)
