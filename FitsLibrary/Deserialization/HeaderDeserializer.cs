@@ -81,10 +81,7 @@ namespace FitsLibrary.Deserialization
                         isContinued = true;
                         parsedHeaderEntry.Value = (parsedHeaderEntry.Value as string)!.Trim()[..^1];
                     }
-                    if (headerEntries.Any(entry => string.Equals(entry.Key, parsedHeaderEntry.Key, StringComparison.Ordinal)))
-                    {
-                        throw new InvalidDataException($"Duplicate header key {parsedHeaderEntry.Key} found");
-                    }
+
                     headerEntries.Add(parsedHeaderEntry);
                 }
                 else

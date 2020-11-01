@@ -104,37 +104,6 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithTwoHeaderEntriesWithSameKey_ThrowsException()
-        {
-            // Arrange
-            var testData = new byte[2881];
-            testData = TestUtils.AddHeaderEntry(
-                data: testData,
-                startIndex: 0,
-                key: "TEST",
-                value: 1,
-                comment: "some test comment");
-            testData = TestUtils.AddHeaderEntry(
-                data: testData,
-                startIndex: 80,
-                key: "TEST",
-                value: 1,
-                comment: "some test comment");
-            testData = TestUtils.AddContentToArray(
-                data: testData,
-                startIndex: 160,
-                content: HeaderDeserializer.END_MARKER);
-            var testStream = TestUtils.ByteArrayToStream(testData);
-            var testee = new HeaderDeserializer();
-
-            // Act
-            Action act = () => testee.Deserialize(testStream);
-
-            // Assert
-            act.Should().Throw<InvalidDataException>().WithMessage("Duplicate header key TEST found");
-        }
-
-        [Test]
         public void Deserialize_WithOneHeaderEntryHavingBooleanValue_ReturnsHeaderWithOneEntry()
         {
             // Arrange

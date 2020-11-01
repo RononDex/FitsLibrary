@@ -28,6 +28,7 @@ namespace FitsLibrary
         /// <param name="readStream">The stream from which to read the document from</param>
         public FitsDocument(Stream readStream)
         {
+            Header = new Deserialization.HeaderDeserializer().Deserialize(readStream);
         }
     }
 }
