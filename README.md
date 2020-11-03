@@ -1,7 +1,21 @@
 # FitsLibrary
-[![License](https://img.shields.io/badge/license-GNU%20AGPLv3%20-green)](https://choosealicense.com/licenses/agpl-3.0/)
+[![License](https://img.shields.io/badge/license-GNU%20GPLv3%20-green)](https://choosealicense.com/licenses/gpl-3.0/)
 
-**This project is currently in early WIP, use at own risk!**
+**This project is currently a very early WIP, use at own risk!**
+**There is no nuget package released until the first "release" version is ready**
 
 FitsLibrary is a native C# / dotnet core implementation using up to date FITS specification for writing and reading astronomical FITS files.
 
+# What currently works
+ - Loading of header data, including "CONTINUE" keywords for values spanning over multiple entries
+
+# What doesn't work
+ - Everything else
+
+# Usage
+Open a fits file using
+```csharp
+var testee = new FitsDocument(File.OpenRead("Path/To/FitsFile.fits"));
+```
+
+The FitsDocument can take any I/O Stream and work with it.
