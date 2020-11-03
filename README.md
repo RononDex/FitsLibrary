@@ -6,6 +6,8 @@
 
 FitsLibrary is a native C# / dotnet core implementation using up to date FITS specification for writing and reading astronomical FITS files.
 
+The library focuses on being fast and easy to use.
+
 # What currently works
  - Loading of header data, including "CONTINUE" keywords for values spanning over multiple entries
 
@@ -19,3 +21,12 @@ var fitsFile = new FitsDocument(File.OpenRead("Path/To/FitsFile.fits"));
 ```
 
 The FitsDocument can take any I/O Stream and work with it.
+
+## Accessing Header values
+Header values can have different data types (string, integer, float, ...)
+
+They can be read using
+```csharp
+fitsFile.Header.Entries.Single(h => h.Key == "TestHeaderKey").Value as string
+```
+
