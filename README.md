@@ -15,7 +15,7 @@ FitsLibrary is a native C# / dotnet core implementation using up to date FITS sp
 # Usage
 Open a fits file using
 ```csharp
-var testee = new FitsDocument(File.OpenRead("Path/To/FitsFile.fits"));
+var fitsFile = new FitsDocument(File.OpenRead("Path/To/FitsFile.fits"));
 ```
 
 The FitsDocument can take any I/O Stream and work with it.
