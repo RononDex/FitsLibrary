@@ -4,7 +4,7 @@
 **This project is currently a very early WIP, use at own risk!**
 **There is no nuget package released until the first "release" version is ready**
 
-FitsLibrary is a native C# / dotnet core implementation using up to date FITS specification for writing and reading astronomical FITS files.
+FitsLibrary is a native C# / dotnet core implementation using the most up to date **FITS 4.0** specification for writing and reading astronomical FITS files.
 
 The library focuses on being fast and easy to use.
 
