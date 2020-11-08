@@ -8,11 +8,6 @@ namespace FitsLibrary.DocumentParts
         private readonly List<HeaderEntry> _entries;
 
         /// <summary>
-        /// A list of entries contained within the header
-        /// </summary>
-        public IList<HeaderEntry> Entries => _entries;
-
-        /// <summary>
         /// Initializes a header with the given entries
         /// </summary>
         /// <param name="entries">A list of entries used to initialize the
@@ -29,5 +24,10 @@ namespace FitsLibrary.DocumentParts
         {
             _entries = new List<HeaderEntry>();
         }
+
+        /// <summary>
+        /// A list of entries contained within the header
+        /// </summary>
+        public IList<HeaderEntry> Entries => _entries;
     }
 }

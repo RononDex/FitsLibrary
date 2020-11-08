@@ -13,7 +13,8 @@ namespace FitsLibrary.Tests.Validation.Header
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
-            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>{
+            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>
+            {
                 new HeaderEntry("KEY1", "SomeValue", "SomeComment"),
             });
 
@@ -61,6 +62,33 @@ namespace FitsLibrary.Tests.Validation.Header
             validationResult.ValidationSucessful.Should().Be(false);
             validationResult.ValidationFailureMessage.Should().Be(
                 "Non unique KEYWORDS found. The header entries KEY1 are contained more than once within the header.");
+        }
+
+        [Test]
+        [TestCase("TEST1", false)]
+        [TestCase("SomeRandomKeyWord", false)]
+        [TestCase("", true)]
+        [TestCase("COMMENT", true)]
+        public void Validate_WithDupliaceHeaderEntry_ValidationAsExpected(string duplicateKeyEntry, bool expectedValidationSucessful)
+        {
+            // Arrange
+            var testee = new KeywordsMustBeUniqueValidator();
+            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>{
+                new HeaderEntry(duplicateKeyEntry, "SomeValue", "SomeComment"),
+                new HeaderEntry(duplicateKeyEntry, "SomeValue2", "SomeComment2"),
+                new HeaderEntry("SomeOtherValue", "SomeValue", "SomeComment"),
+            });
+
+            // Act
+            var validationResult = testee.Validate(header);
+
+            // Assert
+            validationResult.ValidationSucessful.Should().Be(expectedValidationSucessful);
+            if (!expectedValidationSucessful)
+            {
+                validationResult.ValidationFailureMessage.Should().Be(
+                    $"Non unique KEYWORDS found. The header entries {duplicateKeyEntry} are contained more than once within the header.");
+            }
         }
     }
 }
