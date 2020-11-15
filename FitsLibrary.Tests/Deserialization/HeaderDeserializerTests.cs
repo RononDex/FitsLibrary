@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
 using FluentAssertions;
 using NUnit.Framework;
@@ -18,7 +19,7 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            Action act = () => testee.Deserialize(testStream);
+            Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
             act.Should().Throw<InvalidDataException>();
@@ -33,7 +34,7 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            Action act = () => testee.Deserialize(testStream);
+            Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
             act.Should().Throw<InvalidDataException>();
@@ -48,14 +49,14 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            Action act = () => testee.Deserialize(testStream);
+            Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
             act.Should().Throw<InvalidDataException>();
         }
 
         [Test]
-        public void Deserialize_WithByteStreamOfValidLengthAndEndMarkAtBeginning_ReturnsEmptyHeader()
+        public async Task Deserialize_WithByteStreamOfValidLengthAndEndMarkAtBeginning_ReturnsEmptyHeaderAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -67,15 +68,15 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().BeEmpty();
         }
 
         [Test]
-        public void Deserialize_WithOneHeaderEntry_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithOneHeaderEntry_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -93,7 +94,7 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
             result.Should().NotBe(null);
@@ -104,7 +105,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithOneHeaderEntryHavingBooleanValue_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithOneHeaderEntryHavingBooleanValue_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -122,10 +123,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be(true);
@@ -133,7 +134,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithAStringValue_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithAStringValue_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -151,10 +152,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be("Some test value as string");
@@ -162,7 +163,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithAFloatingPointValue_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithAFloatingPointValue_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -180,10 +181,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be(1.53);
@@ -191,7 +192,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithOneHeaderEntryIntegerAndNoComment_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithOneHeaderEntryIntegerAndNoComment_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -209,10 +210,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be(1);
@@ -220,7 +221,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithAStringValueButNoComment_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithAStringValueButNoComment_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -238,7 +239,7 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
             result.Should().NotBe(null);
@@ -249,7 +250,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserialize_WithAFloatingPointValueButNoComment_ReturnsHeaderWithOneEntry()
+        public async Task Deserialize_WithAFloatingPointValueButNoComment_ReturnsHeaderWithOneEntryAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -267,10 +268,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be(1.53);
@@ -278,7 +279,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserilaize_WithMultiKeywordValue_ReturnsConcattedValue()
+        public async Task Deserilaize_WithMultiKeywordValue_ReturnsConcattedValueAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -302,10 +303,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be("Some very looooong test value AND some moooore from previous value");
@@ -313,7 +314,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserilaize_WithMultiKeywordComment_ReturnsConcattedValue()
+        public async Task Deserilaize_WithMultiKeywordComment_ReturnsConcattedValueAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -337,10 +338,10 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
-            result.Should().NotBe(null);
+            result.Should().NotBeNull();
             result.Entries.Should().HaveCount(1);
             result.Entries.First().Key.Should().Be("TEST");
             result.Entries.First().Value.Should().Be(string.Empty);
@@ -348,7 +349,7 @@ namespace FitsLibrary.Tests.Desersialization
         }
 
         [Test]
-        public void Deserilaize_WithMultiKeywordValueOf3HeaderChunks_ReturnsCombinedValue()
+        public async Task Deserilaize_WithMultiKeywordValueOf3HeaderChunks_ReturnsCombinedValueAsync()
         {
             // Arrange
             var testData = new byte[2881];
@@ -378,7 +379,7 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            var result = testee.Deserialize(testStream);
+            var result = await testee.DeserializeAsync(testStream);
 
             // Assert
             result.Should().NotBe(null);
@@ -413,7 +414,7 @@ namespace FitsLibrary.Tests.Desersialization
             var testee = new HeaderDeserializer();
 
             // Act
-            Action act = () => testee.Deserialize(testStream);
+            Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
             act.Should().Throw<InvalidDataException>();

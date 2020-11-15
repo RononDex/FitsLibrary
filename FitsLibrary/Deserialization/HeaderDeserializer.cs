@@ -4,13 +4,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization
 {
-    public class HeaderDeserializer : BaseDeserializer<Header>
+    public class HeaderDeserializer : IDeserializer<Header>
     {
         /// <summary>
         /// Length of a header entry chunk, containing a single header entry
@@ -35,7 +36,7 @@ namespace FitsLibrary.Deserialization
         /// </summary>
         /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
         /// <exception cref="InvalidDataException"></exception>
-        public override Header Deserialize(Stream dataStream)
+        public async Task<Header> DeserializeAsync(Stream dataStream)
         {
             PreValidateStream(dataStream);
 
@@ -50,7 +51,7 @@ namespace FitsLibrary.Deserialization
                 }
 
                 var headerBlock = new byte[HeaderBlockSize];
-                dataStream.Read(headerBlock, 0, headerBlock.Length);
+                _ = await dataStream.ReadAsync(headerBlock, 0, headerBlock.Length).ConfigureAwait(false);
 
                 headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
             }
