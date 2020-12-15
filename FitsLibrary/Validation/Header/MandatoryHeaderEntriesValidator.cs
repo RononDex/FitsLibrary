@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace FitsLibrary.Validation.Header
 {
-    public class MandatoryHeaderEntriesValidator : BaseValidator<DocumentParts.Header>
+    public class MandatoryHeaderEntriesValidator : IValidator<DocumentParts.Header>
     {
         public static readonly string[] MandatoryFields = new[] { "SIMPLE", "BITPIX", "NAXIS", "END" };
 
@@ -19,7 +19,7 @@ namespace FitsLibrary.Validation.Header
             }
 
             var numberOfAxis = objToValidate.Entries
-                .Single(entry => string.Equals(entry.Key, "NAXIS", System.StringComparison.Ordinal)).Value as int?;
+                .SingleOrDefault(entry => string.Equals(entry.Key, "NAXIS", System.StringComparison.Ordinal))?.Value as int?;
 
             if (numberOfAxis == null)
             {

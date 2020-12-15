@@ -2,7 +2,7 @@ using System.Linq;
 
 namespace FitsLibrary.Validation.Header
 {
-    public class KeywordsMustBeUniqueValidator : BaseValidator<DocumentParts.Header>
+    public class KeywordsMustBeUniqueValidator : IValidator<DocumentParts.Header>
     {
         public readonly string[] Exceptions = new[] { "COMMENT", string.Empty };
 
