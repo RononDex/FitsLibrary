@@ -2,14 +2,14 @@ namespace FitsLibrary.Validation
 {
     public class ValidationResult
     {
-        public ValidationResult(bool validationSucessful, string? validationFailureMessage)
+        public ValidationResult(bool validationSuccessful, string? validationFailureMessage)
         {
-            ValidationSucessful = validationSucessful;
+            ValidationSucessful = validationSuccessful;
             ValidationFailureMessage = validationFailureMessage;
         }
 
-        public string? ValidationFailureMessage { get; private set; }
+        public string? ValidationFailureMessage { get; }
 
-        public bool ValidationSucessful { get; private set; }
+        public bool ValidationSucessful { get; }
     }
 }

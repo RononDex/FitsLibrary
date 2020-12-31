@@ -1,5 +1,4 @@
-
-using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace FitsLibrary.Tests.SampleFiles
@@ -7,9 +6,10 @@ namespace FitsLibrary.Tests.SampleFiles
     public class SampleFilesTests
     {
         [Test]
-        public void OpenFitsFile_WithFOCFile_ReadsFile()
+        public async Task OpenFitsFile_WithFOCFile_ReadsFileAsync()
         {
-            var testee = new FitsDocument(File.OpenRead("SampleFiles/FOCx38i0101t_c0f.fits"));
+            var reader = new FitsDocumentReader();
+            var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
         }
     }
 }

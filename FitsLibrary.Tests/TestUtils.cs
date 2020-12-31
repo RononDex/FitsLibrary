@@ -17,7 +17,7 @@ namespace FitsLibrary.Tests
             return ByteArrayToStream(bytes);
         }
 
-        public static byte[] AddHeaderEntry(byte[] data, int startIndex, string key, object? value, string comment)
+        public static byte[] AddHeaderEntry(byte[] data, int startIndex, string key, object? value, string? comment)
         {
             var combinedValue = (value ?? string.Empty).ToString().PadRight(70);
             if (key == "CONTINUE")
