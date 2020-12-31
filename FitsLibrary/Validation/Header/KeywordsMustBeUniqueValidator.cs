@@ -4,7 +4,7 @@ namespace FitsLibrary.Validation.Header
 {
     public class KeywordsMustBeUniqueValidator : IValidator<DocumentParts.Header>
     {
-        public readonly string[] Exceptions = new[] { "COMMENT", string.Empty };
+        public readonly string[] Exceptions = new[] { "COMMENT", "HISTORY", string.Empty };
 
         public override ValidationResult Validate(DocumentParts.Header objToValidate)
         {

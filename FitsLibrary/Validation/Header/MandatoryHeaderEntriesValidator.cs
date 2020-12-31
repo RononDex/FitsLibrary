@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Linq;
 
@@ -5,11 +6,11 @@ namespace FitsLibrary.Validation.Header
 {
     public class MandatoryHeaderEntriesValidator : IValidator<DocumentParts.Header>
     {
-        public static readonly string[] MandatoryFields = new[] { "SIMPLE", "BITPIX", "NAXIS", "END" };
+        public static readonly string[] MandatoryFields = new[] { "SIMPLE", "BITPIX", "NAXIS" };
 
         public override ValidationResult Validate(DocumentParts.Header objToValidate)
         {
-            var hasMandatoryFields = MandatoryFields.All(key => objToValidate.Entries.Any(entry => string.Equals(entry.Key, key, System.StringComparison.Ordinal)));
+            var hasMandatoryFields = MandatoryFields.All(key => objToValidate.Entries.Any(entry => string.Equals(entry.Key, key, StringComparison.Ordinal)));
 
             if (!hasMandatoryFields)
             {
@@ -18,8 +19,9 @@ namespace FitsLibrary.Validation.Header
                     validationFailureMessage: "The FITS header does not contain required fields.");
             }
 
-            var numberOfAxis = objToValidate.Entries
-                .SingleOrDefault(entry => string.Equals(entry.Key, "NAXIS", System.StringComparison.Ordinal))?.Value as int?;
+            var numberOfAxisObject = objToValidate.Entries
+                .SingleOrDefault(entry => string.Equals(entry.Key, "NAXIS", StringComparison.Ordinal))?.Value;
+            var numberOfAxis = numberOfAxisObject as int? ?? numberOfAxisObject as long?;
 
             if (numberOfAxis == null)
             {
@@ -28,14 +30,14 @@ namespace FitsLibrary.Validation.Header
                     validationFailureMessage: "The FITS header contains the field 'NAXIS' but it is not of type integer");
             }
 
-            var hasAllRequiredNAXISKeywords = Enumerable.Range(1, numberOfAxis!.Value)
+            var hasAllRequiredNAXISKeywords = Enumerable.Range(1, Convert.ToInt32(numberOfAxis!.Value))
                 .All(axis =>
                         objToValidate.Entries
                             .Any(entry =>
                                 string.Equals(
                                     entry.Key,
                                     $"NAXIS{axis.ToString(CultureInfo.InvariantCulture)}",
-                                    System.StringComparison.Ordinal)));
+                                    StringComparison.Ordinal)));
 
             return hasAllRequiredNAXISKeywords
                 ? new ValidationResult(

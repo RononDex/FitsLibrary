@@ -69,6 +69,7 @@ namespace FitsLibrary.Tests.Validation.Header
         [TestCase("SomeRandomKeyWord", false)]
         [TestCase("", true)]
         [TestCase("COMMENT", true)]
+        [TestCase("HISTORY", true)]
         public void Validate_WithDupliaceHeaderEntry_ValidationAsExpected(string duplicateKeyEntry, bool expectedValidationSucessful)
         {
             // Arrange
