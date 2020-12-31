@@ -7,9 +7,11 @@
 FitsLibrary is a native C# / dotnet core implementation using the most up to date **FITS 4.0** specification for writing and reading astronomical FITS files.
 
 The library focuses on being fast and easy to use.
+**This library has support for IoC (Inversion of Control), everything is implemented through interfaces** 
 
 # What currently works
  - Loading of header data, including "CONTINUE" keywords for values spanning over multiple entries
+ - Validation of header content
 
 # What doesn't work
  - Everything else
@@ -17,7 +19,8 @@ The library focuses on being fast and easy to use.
 # Usage
 Open a fits file using
 ```csharp
-var fitsFile = new FitsDocument(File.OpenRead("Path/To/FitsFile.fits"));
+var reader = new FitsDocumentReader();
+var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
 ```
 
 The FitsDocument can take any I/O Stream and work with it.
