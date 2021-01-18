@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Validation.Header;
 using FluentAssertions;
@@ -9,13 +10,13 @@ namespace FitsLibrary.Tests.Validation.Header
     public class MandatoryHeaderEntriesValidatorTests
     {
         [Test]
-        public void Validate_WithNoHeaderEntries_ValidationUnsucessful()
+        public async Task Validate_WithNoHeaderEntries_ValidationUnsucessfullAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
 
             // Act
-            var result = testee.Validate(new FitsLibrary.DocumentParts.Header());
+            var result = await testee.ValidateAsync(new FitsLibrary.DocumentParts.Header());
 
             // Assert
             result.ValidationSucessful.Should().Be(false);
@@ -23,13 +24,13 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSucessful()
+        public async Task Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSucessfulAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
 
             // Act
-            var result = testee.Validate(
+            var result = await testee.ValidateAsync(
                     new FitsLibrary.DocumentParts.Header(
                         new List<HeaderEntry>
                         {
@@ -57,13 +58,13 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsWith3Axis_ValidationSuccessful()
+        public async Task Validate_WithAllMandatoryKeywordsWith3Axis_ValidationSuccessfulAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
 
             // Act
-            var result = testee.Validate(
+            var result = await testee.ValidateAsync(
                     new FitsLibrary.DocumentParts.Header(
                         new List<HeaderEntry>
                         {
@@ -103,13 +104,13 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsWith3AxisButNotAllNAXIS_ValidationFails()
+        public async Task Validate_WithAllMandatoryKeywordsWith3AxisButNotAllNAXIS_ValidationFailsAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
 
             // Act
-            var result = testee.Validate(
+            var result = await testee.ValidateAsync(
                     new FitsLibrary.DocumentParts.Header(
                         new List<HeaderEntry>
                         {
@@ -145,13 +146,13 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsButNAXISIsNotTypeInt_ValidationFails()
+        public async Task Validate_WithAllMandatoryKeywordsButNAXISIsNotTypeInt_ValidationFailsAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
 
             // Act
-            var result = testee.Validate(
+            var result = await testee.ValidateAsync(
                     new FitsLibrary.DocumentParts.Header(
                         new List<HeaderEntry>
                         {

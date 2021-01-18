@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace FitsLibrary.Validation
 {
     public abstract class IValidator<T>
@@ -7,6 +9,6 @@ namespace FitsLibrary.Validation
         /// error was found
         /// </summary>
         /// <param name="objToValidate">The object which to validate</param>
-        public abstract ValidationResult Validate(T objToValidate);
+        public abstract Task<ValidationResult> ValidateAsync(T objToValidate);
     }
 }

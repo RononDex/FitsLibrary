@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FitsLibrary.Validation.Header
 {
@@ -6,25 +7,28 @@ namespace FitsLibrary.Validation.Header
     {
         public readonly string[] Exceptions = new[] { "COMMENT", "HISTORY", string.Empty };
 
-        public override ValidationResult Validate(DocumentParts.Header objToValidate)
+        public override Task<ValidationResult> ValidateAsync(DocumentParts.Header objToValidate)
         {
-            var nonUniqueEntries = objToValidate
-                .Entries
-                .Where(entry => !Exceptions.Contains(entry.Key, System.StringComparer.Ordinal))
-                .GroupBy(entries => entries.Key, System.StringComparer.Ordinal)
-                .Where(group => group.Skip(1).Any())
-                .Select(group => group.Key);
-
-            if (nonUniqueEntries.Any())
+            return Task.Run(() =>
             {
-                return new ValidationResult(
-                    validationSuccessful: false,
-                    validationFailureMessage: $"Non unique KEYWORDS found. The header entries {string.Join(", ", nonUniqueEntries)} are contained more than once within the header.");
-            }
+                var nonUniqueEntries = objToValidate
+                    .Entries
+                    .Where(entry => !Exceptions.Contains(entry.Key, System.StringComparer.Ordinal))
+                    .GroupBy(entries => entries.Key, System.StringComparer.Ordinal)
+                    .Where(group => group.Skip(1).Any())
+                    .Select(group => group.Key);
 
-            return new ValidationResult(
-                validationSuccessful: true,
-                validationFailureMessage: null);
+                if (nonUniqueEntries.Any())
+                {
+                    return new ValidationResult(
+                        validationSuccessful: false,
+                        validationFailureMessage: $"Non unique KEYWORDS found. The header entries {string.Join(", ", nonUniqueEntries)} are contained more than once within the header.");
+                }
+
+                return new ValidationResult(
+                    validationSuccessful: true,
+                    validationFailureMessage: null);
+            });
         }
     }
 }
