@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Validation.Header;
 using FluentAssertions;
 using NUnit.Framework;
@@ -14,10 +12,9 @@ namespace FitsLibrary.Tests.Validation.Header
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
-            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>
-            {
-                new HeaderEntry("KEY1", "SomeValue", "SomeComment"),
-            });
+            var header = new HeaderBuilder()
+                .WithHeaderEntry("KEY1", "SomeValue", "SomeComment")
+                .Build();
 
             // Act
             var validationResult = await testee.ValidateAsync(header);
@@ -32,10 +29,10 @@ namespace FitsLibrary.Tests.Validation.Header
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
-            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>{
-                new HeaderEntry("KEY1", "SomeValue", "SomeComment"),
-                new HeaderEntry("KEY2", "SomeValue", "SomeComment"),
-            });
+            var header = new HeaderBuilder()
+                .WithHeaderEntry("KEY1", "SomeValue", "SomeComment")
+                .WithHeaderEntry("KEY2", "SomeValue", "SomeComment")
+                .Build();
 
             // Act
             var validationResult = await testee.ValidateAsync(header);
@@ -50,11 +47,11 @@ namespace FitsLibrary.Tests.Validation.Header
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
-            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>{
-                new HeaderEntry("KEY1", "SomeValue", "SomeComment"),
-                new HeaderEntry("KEY1", "SomeValue", "SomeComment"),
-                new HeaderEntry("KEY2", "SomeValue", "SomeComment"),
-            });
+            var header = new HeaderBuilder()
+                .WithHeaderEntry("KEY1", "SomeValue", "SomeComment")
+                .WithHeaderEntry("KEY1", "SomeValue", "SomeComment")
+                .WithHeaderEntry("KEY2", "SomeValue", "SomeComment")
+                .Build();
 
             // Act
             var validationResult = await testee.ValidateAsync(header);
@@ -75,11 +72,11 @@ namespace FitsLibrary.Tests.Validation.Header
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
-            var header = new FitsLibrary.DocumentParts.Header(new List<HeaderEntry>{
-                new HeaderEntry(duplicateKeyEntry, "SomeValue", "SomeComment"),
-                new HeaderEntry(duplicateKeyEntry, "SomeValue2", "SomeComment2"),
-                new HeaderEntry("SomeOtherValue", "SomeValue", "SomeComment"),
-            });
+            var header = new HeaderBuilder()
+                .WithHeaderEntry(duplicateKeyEntry, "SomeValue", "SomeComment")
+                .WithHeaderEntry(duplicateKeyEntry, "SomeValue2", "SomeComment")
+                .WithHeaderEntry("KEY2", "SomeValue", "SomeComment")
+                .Build();
 
             // Act
             var validationResult = await testee.ValidateAsync(header);
