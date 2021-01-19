@@ -29,5 +29,10 @@ namespace FitsLibrary.DocumentParts
         /// A list of entries contained within the header
         /// </summary>
         public IList<HeaderEntry> Entries => _entries;
+
+        public object? this[string key]
+        {
+            get => _entries.Find(entry => string.Equals(entry.Key, key, System.StringComparison.Ordinal));
+        }
     }
 }

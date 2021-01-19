@@ -5,7 +5,8 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>FitsLibrary.Tests</RootNamespace>
     <Nullable>enable</Nullable>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
+    <NoWarn>CC0070</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

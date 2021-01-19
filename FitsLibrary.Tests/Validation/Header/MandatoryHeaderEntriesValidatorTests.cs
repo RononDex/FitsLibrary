@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using FitsLibrary.DocumentParts.Objects;
+using System.Threading.Tasks;
 using FitsLibrary.Validation.Header;
 using FluentAssertions;
 using NUnit.Framework;
@@ -9,13 +8,16 @@ namespace FitsLibrary.Tests.Validation.Header
     public class MandatoryHeaderEntriesValidatorTests
     {
         [Test]
-        public void Validate_WithNoHeaderEntries_ValidationUnsucessful()
+        public async Task Validate_WithNoHeaderEntries_ValidationUnsucessfullAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
+            var header = new HeaderBuilder()
+                .WithEmptyHeader()
+                .Build();
 
             // Act
-            var result = testee.Validate(new FitsLibrary.DocumentParts.Header());
+            var result = await testee.ValidateAsync(header);
 
             // Assert
             result.ValidationSucessful.Should().Be(false);
@@ -23,33 +25,19 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSucessful()
+        public async Task Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSucessfulAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
+            var header = new HeaderBuilder()
+                .WithValidFitsFormat()
+                .WithBitsPerValue(16)
+                .WithNumberOfAxis(0)
+                .WithEndEntry()
+                .Build();
 
             // Act
-            var result = testee.Validate(
-                    new FitsLibrary.DocumentParts.Header(
-                        new List<HeaderEntry>
-                        {
-                            new HeaderEntry(
-                                key: "SIMPLE",
-                                value: true,
-                                comment: null),
-                            new HeaderEntry(
-                                    key: "BITPIX",
-                                    value: 16,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS",
-                                    value: 0,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "END",
-                                    value: 16,
-                                    comment: null),
-                        }));
+            var result = await testee.ValidateAsync(header);
 
             // Assert
             result.ValidationSucessful.Should().Be(true);
@@ -57,45 +45,22 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsWith3Axis_ValidationSuccessful()
+        public async Task Validate_WithAllMandatoryKeywordsWith3Axis_ValidationSuccessfulAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
+            var header = new HeaderBuilder()
+                .WithValidFitsFormat()
+                .WithBitsPerValue(16)
+                .WithNumberOfAxis(3)
+                .WithDimensionOfSize(1, 1000)
+                .WithDimensionOfSize(2, 1000)
+                .WithDimensionOfSize(3, 1000)
+                .WithEndEntry()
+                .Build();
 
             // Act
-            var result = testee.Validate(
-                    new FitsLibrary.DocumentParts.Header(
-                        new List<HeaderEntry>
-                        {
-                            new HeaderEntry(
-                                key: "SIMPLE",
-                                value: true,
-                                comment: null),
-                            new HeaderEntry(
-                                    key: "BITPIX",
-                                    value: 16,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS",
-                                    value: 3,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS1",
-                                    value: 1000,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS2",
-                                    value: 1000,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS3",
-                                    value: 1000,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "END",
-                                    value: 16,
-                                    comment: null),
-                        }));
+            var result = await testee.ValidateAsync(header);
 
             // Assert
             result.ValidationSucessful.Should().Be(true);
@@ -103,41 +68,22 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsWith3AxisButNotAllNAXIS_ValidationFails()
+        public async Task Validate_WithAllMandatoryKeywordsWith3AxisButWronglyDefinedSizes_ValidationFailsAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
+            var header = new HeaderBuilder()
+                .WithValidFitsFormat()
+                .WithBitsPerValue(16)
+                .WithNumberOfAxis(3)
+                .WithDimensionOfSize(1, 1000)
+                .WithDimensionOfSize(2, 1000)
+                .WithDimensionOfSize(4, 1000)
+                .WithEndEntry()
+                .Build();
 
             // Act
-            var result = testee.Validate(
-                    new FitsLibrary.DocumentParts.Header(
-                        new List<HeaderEntry>
-                        {
-                            new HeaderEntry(
-                                key: "SIMPLE",
-                                value: true,
-                                comment: null),
-                            new HeaderEntry(
-                                    key: "BITPIX",
-                                    value: 16,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS",
-                                    value: 3,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS1",
-                                    value: 1000,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS2",
-                                    value: 1000,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "END",
-                                    value: 16,
-                                    comment: null),
-                        }));
+            var result = await testee.ValidateAsync(header);
 
             // Assert
             result.ValidationSucessful.Should().Be(false);
@@ -145,33 +91,41 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public void Validate_WithAllMandatoryKeywordsButNAXISIsNotTypeInt_ValidationFails()
+        public async Task Validate_WithAllMandatoryKeywordsWith3AxisButNotAllNAXIS_ValidationFailsAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
+            var header = new HeaderBuilder()
+                .WithValidFitsFormat()
+                .WithBitsPerValue(16)
+                .WithNumberOfAxis(3)
+                .WithDimensionOfSize(1, 1000)
+                .WithDimensionOfSize(2, 1000)
+                .WithEndEntry()
+                .Build();
 
             // Act
-            var result = testee.Validate(
-                    new FitsLibrary.DocumentParts.Header(
-                        new List<HeaderEntry>
-                        {
-                            new HeaderEntry(
-                                key: "SIMPLE",
-                                value: true,
-                                comment: null),
-                            new HeaderEntry(
-                                    key: "BITPIX",
-                                    value: 16,
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "NAXIS",
-                                    value: "test",
-                                    comment: null),
-                            new HeaderEntry(
-                                    key: "END",
-                                    value: 16,
-                                    comment: null),
-                        }));
+            var result = await testee.ValidateAsync(header);
+
+            // Assert
+            result.ValidationSucessful.Should().Be(false);
+            result.ValidationFailureMessage.Should().Be("The FITS header does not contain required fields.");
+        }
+
+        [Test]
+        public async Task Validate_WithAllMandatoryKeywordsButNAXISIsNotTypeInt_ValidationFailsAsync()
+        {
+            // Arrange
+            var testee = new MandatoryHeaderEntriesValidator();
+            var header = new HeaderBuilder()
+                .WithValidFitsFormat()
+                .WithBitsPerValue(16)
+                .WithNumberOfAxis("test")
+                .WithEndEntry()
+                .Build();
+
+            // Act
+            var result = await testee.ValidateAsync(header);
 
             // Assert
             result.ValidationSucessful.Should().Be(false);

@@ -11,12 +11,12 @@ using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization
 {
-    public class HeaderDeserializer : IDeserializer<Header>
+    public class HeaderDeserializer : IHeaderDeserializer
     {
         /// <summary>
         /// Length of a header entry chunk, containing a single header entry
         /// </summary>
-        public const int HaderEntryChunkSize = 80;
+        public const int HeaderEntryChunkSize = 80;
         public const int HeaderBlockSize = 2880;
         public const int LogicalValuePosition = 20;
         public const char ContinuedStringMarker = '&';
@@ -62,7 +62,7 @@ namespace FitsLibrary.Deserialization
         private static List<HeaderEntry> ParseHeaderBlock(byte[] headerBlock, out bool endOfHeaderReached)
         {
             endOfHeaderReached = false;
-            var headerEntryChunks = headerBlock.Split(HaderEntryChunkSize).Select(arr => arr.ToArray());
+            var headerEntryChunks = headerBlock.Split(HeaderEntryChunkSize).Select(arr => arr.ToArray());
             var headerEntries = new List<HeaderEntry>();
             var isContinued = false;
 
@@ -101,7 +101,7 @@ namespace FitsLibrary.Deserialization
                     {
                         isContinued = false;
                     }
-                    headerEntries[^1].Value = $"{(headerEntries[^1].Value as string)}{valueToAppend}";
+                    headerEntries[^1].Value = $"{headerEntries[^1].Value as string}{valueToAppend}";
                     if (parsedHeaderEntry.Comment != null)
                     {
                         headerEntries[^1].Comment += $" {parsedHeaderEntry.Comment}";
@@ -129,13 +129,11 @@ namespace FitsLibrary.Deserialization
                     var comment = value[(value.IndexOf('/', StringComparison.Ordinal) + 1)..].Trim().Trim('\0');
                     value = value[0..value.IndexOf('/', StringComparison.Ordinal)].Trim();
                     var parsedValue = ParseValue(value);
-                    Console.WriteLine(parsedValue);
                     return new HeaderEntry(key, parsedValue, comment);
                 }
                 else
                 {
                     var parsedValue = ParseValue(value);
-                    Console.WriteLine(parsedValue);
                     return new HeaderEntry(
                         key: key,
                         value: parsedValue,

@@ -10,8 +10,8 @@ namespace FitsLibrary
 {
     public class FitsDocumentReader : IFitsDocumentReader
     {
-        private IReadOnlyList<IValidator<Header>> HeaderValidators;
-        private IDeserializer<Header> HeaderDeserializer;
+        private IReadOnlyList<IValidator<Header>> headerValidators;
+        private IHeaderDeserializer headerDeserializer;
 
         public FitsDocumentReader()
         {
@@ -21,7 +21,7 @@ namespace FitsLibrary
 
         private void UseDeserializersForReading()
         {
-            HeaderDeserializer = new HeaderDeserializer();
+            headerDeserializer = new HeaderDeserializer();
         }
 
         /// <summary>
@@ -30,16 +30,16 @@ namespace FitsLibrary
         /// <param name="headerDeserializer"></param>
         /// <param name="headerValidators"></param>
         internal FitsDocumentReader(
-                IDeserializer<Header> headerDeserializer,
+                IHeaderDeserializer headerDeserializer,
                 List<IValidator<Header>> headerValidators)
         {
-            HeaderValidators = headerValidators;
-            HeaderDeserializer = headerDeserializer;
+            this.headerValidators = headerValidators;
+            this.headerDeserializer = headerDeserializer;
         }
 
         private void UseValidatorsForReading()
         {
-            HeaderValidators = new List<IValidator<Header>>
+            headerValidators = new List<IValidator<Header>>
             {
                 new KeywordsMustBeUniqueValidator(),
                 new MandatoryHeaderEntriesValidator(),
@@ -48,13 +48,20 @@ namespace FitsLibrary
 
         public async Task<FitsDocument> ReadAsync(Stream inputStream)
         {
-            var header = await HeaderDeserializer
+            var header = await headerDeserializer
                 .DeserializeAsync(inputStream)
                 .ConfigureAwait(false);
 
-            foreach (var headerValidator in HeaderValidators)
+            var validatorTasks = new List<Task<ValidationResult>>();
+            foreach (var headerValidator in headerValidators)
             {
-                var validationResult = headerValidator.Validate(header);
+                validatorTasks.Add(headerValidator.ValidateAsync(header));
+            }
+
+            var validationResults = await Task.WhenAll(validatorTasks).ConfigureAwait(continueOnCapturedContext: false);
+
+            foreach (var validationResult in validationResults)
+            {
                 if (!validationResult.ValidationSucessful)
                 {
                     throw new InvalidDataException($"Validation failed for the header of the fits file: {validationResult.ValidationFailureMessage}");
