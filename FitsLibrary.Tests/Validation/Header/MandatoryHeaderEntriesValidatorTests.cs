@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FitsLibrary.DocumentParts;
 using FitsLibrary.Validation.Header;
 using FluentAssertions;
 using NUnit.Framework;
@@ -31,7 +32,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var testee = new MandatoryHeaderEntriesValidator();
             var header = new HeaderBuilder()
                 .WithValidFitsFormat()
-                .WithBitsPerValue(16)
+                .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis(0)
                 .WithEndEntry()
                 .Build();
@@ -51,11 +52,11 @@ namespace FitsLibrary.Tests.Validation.Header
             var testee = new MandatoryHeaderEntriesValidator();
             var header = new HeaderBuilder()
                 .WithValidFitsFormat()
-                .WithBitsPerValue(16)
+                .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis(3)
-                .WithDimensionOfSize(1, 1000)
-                .WithDimensionOfSize(2, 1000)
-                .WithDimensionOfSize(3, 1000)
+                .WithAxisOfSize(1, 1000)
+                .WithAxisOfSize(2, 1000)
+                .WithAxisOfSize(3, 1000)
                 .WithEndEntry()
                 .Build();
 
@@ -74,11 +75,11 @@ namespace FitsLibrary.Tests.Validation.Header
             var testee = new MandatoryHeaderEntriesValidator();
             var header = new HeaderBuilder()
                 .WithValidFitsFormat()
-                .WithBitsPerValue(16)
+                .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis(3)
-                .WithDimensionOfSize(1, 1000)
-                .WithDimensionOfSize(2, 1000)
-                .WithDimensionOfSize(4, 1000)
+                .WithAxisOfSize(1, 1000)
+                .WithAxisOfSize(2, 1000)
+                .WithAxisOfSize(4, 1000)
                 .WithEndEntry()
                 .Build();
 
@@ -97,10 +98,10 @@ namespace FitsLibrary.Tests.Validation.Header
             var testee = new MandatoryHeaderEntriesValidator();
             var header = new HeaderBuilder()
                 .WithValidFitsFormat()
-                .WithBitsPerValue(16)
+                .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis(3)
-                .WithDimensionOfSize(1, 1000)
-                .WithDimensionOfSize(2, 1000)
+                .WithAxisOfSize(1, 1000)
+                .WithAxisOfSize(2, 1000)
                 .WithEndEntry()
                 .Build();
 
@@ -119,7 +120,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var testee = new MandatoryHeaderEntriesValidator();
             var header = new HeaderBuilder()
                 .WithValidFitsFormat()
-                .WithBitsPerValue(16)
+                .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis("test")
                 .WithEndEntry()
                 .Build();

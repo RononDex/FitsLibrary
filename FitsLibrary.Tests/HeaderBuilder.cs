@@ -22,11 +22,11 @@ namespace FitsLibrary.Tests
                 comment: null);
         }
 
-        public HeaderBuilder WithBitsPerValue(int bitpix)
+        public HeaderBuilder WithContentDataType(DataContentType dataContentType)
         {
             return WithHeaderEntry(
                 key: "BITPIX",
-                value: bitpix,
+                value: (int)dataContentType,
                 comment: null);
         }
 
@@ -56,7 +56,7 @@ namespace FitsLibrary.Tests
                 comment: null);
         }
 
-        public HeaderBuilder WithDimensionOfSize(int dimensionIndex, object size)
+        public HeaderBuilder WithAxisOfSize(int dimensionIndex, long size)
         {
             return WithHeaderEntry(
                 key: $"NAXIS{dimensionIndex}",
