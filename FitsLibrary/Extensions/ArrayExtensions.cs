@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace FitsLibrary.Extensions
 {
-    internal static class ArrayExtensions
+    public static class ArrayExtensions
     {
         /// <summary>
         /// Splits an array into several smaller arrays.
@@ -18,6 +19,28 @@ namespace FitsLibrary.Extensions
             {
                 yield return array.Skip(i * size).Take(size);
             }
+        }
+
+        /// <summary>
+        /// Converts a byte array to big endian if the current system is running on a little Endian hardware
+        /// </summary>
+        /// <param name="dataToConvert">The data which should get converted</param>
+        public static byte[] ConvertLittleEndianToBigEndianIfNecessary(this byte[] dataToConvert)
+        {
+            return BitConverter.IsLittleEndian
+                ? dataToConvert.Reverse().ToArray()
+                : dataToConvert;
+        }
+
+        /// <summary>
+        /// Converts a byte array from big endian to little endian if the current system is running on a little Endian hardware
+        /// </summary>
+        /// <param name="dataToConvert">The data which should get converted</param>
+        public static byte[] ConvertBigEndianToLittleEndianIfNecessary(this byte[] dataToConvert)
+        {
+            return BitConverter.IsLittleEndian
+                ? dataToConvert.Reverse().ToArray()
+                : dataToConvert;
         }
     }
 }

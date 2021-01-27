@@ -12,6 +12,15 @@ namespace FitsLibrary.DocumentParts.Objects
             get;
         }
 
+        /// <summary>
+        /// The value of the point as an object
+        /// </summary>
         public object Value { get; set; }
+
+        public DataPoint(IReadOnlyDictionary<uint, ulong> coordinates, object value)
+        {
+            Coordinates = coordinates;
+            Value = value;
+        }
     }
 }

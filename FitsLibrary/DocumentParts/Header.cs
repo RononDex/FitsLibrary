@@ -31,6 +31,11 @@ namespace FitsLibrary.DocumentParts
         public DataContentType DataContentType => (DataContentType)this["BITPIX"]!;
 
         /// <summary>
+        /// Returns the number of axis inside the primary data array
+        /// </summary>
+        public int NumberOfAxisInMainContet => (int)this["NAXIS"]!;
+
+        /// <summary>
         /// A list of entries contained within the header
         /// </summary>
         public IList<HeaderEntry> Entries => _entries;
