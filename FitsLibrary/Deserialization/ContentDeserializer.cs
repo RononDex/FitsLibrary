@@ -49,6 +49,25 @@ namespace FitsLibrary.Deserialization
                     .ConvertBigEndianToLittleEndianIfNecessary();
 
                 var maxAxisReached = false;
+                var coordinates = currentCoordinates
+                    .Select((value, index) => new KeyValuePair<uint, ulong>(
+                                Convert.ToUInt32(index),
+                                Convert.ToUInt64(value)))
+                    .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                var value = header.DataContentType switch
+                {
+                    DataContentType.DOUBLE => BitConverter.ToDouble(currentValueBytes.ToArray()),
+                    DataContentType.FLOAT => BitConverter.ToSingle(currentValueBytes.ToArray()),
+                    DataContentType.BYTE => contentData[i],
+                    DataContentType.SHORT => BitConverter.ToInt16(currentValueBytes.ToArray()),
+                    DataContentType.INTEGER => BitConverter.ToInt32(currentValueBytes.ToArray()),
+                    DataContentType.LONG => BitConverter.ToInt64(currentValueBytes.ToArray()) as object,
+                    _ => throw new InvalidDataException("Invalid data type"),
+                };
+
+                dataPoints.Add(new DataPoint(coordinates, value));
+
                 for (var axis = 0; axis < header.NumberOfAxisInMainContet && !maxAxisReached; axis++)
                 {
                     if (axisSizes[axis] == currentCoordinates[axis] + 1)
@@ -62,24 +81,6 @@ namespace FitsLibrary.Deserialization
                         break;
                     }
                 }
-                var coordinates = currentCoordinates
-                    .Select((value, index) => new KeyValuePair<uint, ulong>(
-                                Convert.ToUInt32(index),
-                                Convert.ToUInt64(value)))
-                    .ToDictionary(pair => pair.Key, pair => pair.Value);
-
-                object value = header.DataContentType switch
-                {
-                    DataContentType.DOUBLE => (double)BitConverter.ToDouble(currentValueBytes.ToArray()),
-                    DataContentType.FLOAT => (float)BitConverter.ToSingle(currentValueBytes.ToArray()),
-                    DataContentType.BYTE => (byte)contentData[i],
-                    DataContentType.SHORT => (short)BitConverter.ToInt16(currentValueBytes.ToArray()),
-                    DataContentType.INTEGER => (int)BitConverter.ToInt32(currentValueBytes.ToArray()),
-                    DataContentType.LONG => (long)BitConverter.ToInt64(currentValueBytes.ToArray()),
-                    _ => throw new InvalidDataException("Invalid data type"),
-                };
-
-                dataPoints.Add(new DataPoint(coordinates, value));
             }
 
             return new Content(dataPoints);
