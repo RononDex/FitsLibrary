@@ -46,9 +46,129 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.All(d => (int)d.Value == 123).Should().BeTrue();
             Enumerable.Range(0, 10)
-                .All(i =>
-                        deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithDataOfTypeShort_ReturnsTheValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.SHORT)
+                .WithNumberOfAxis(1)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith((short)123, header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.All(d => (short)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithDataOfTypeByte_ReturnsTheValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.BYTE)
+                .WithNumberOfAxis(1)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith((byte)123, header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.All(d => (byte)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithDataOfTypeDouble_ReturnsTheValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.DOUBLE)
+                .WithNumberOfAxis(1)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith((double)123, header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.All(d => (double)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithDataOfTypeFloat_ReturnsTheValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.FLOAT)
+                .WithNumberOfAxis(1)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith((float)123, header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.All(d => (float)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithDataOfTypeLong_ReturnsTheValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.LONG)
+                .WithNumberOfAxis(1)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith((long)123, header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.All(d => (long)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
                 .Should()
                 .BeTrue();
         }
@@ -64,15 +184,87 @@ namespace FitsLibrary.Tests.Desersialization
                 .Build();
             var dataStream = new ContentStreamBuilder()
                 .WithDataBeingInitializedWith(123, header)
+                .WithDataAtCoordinates(
+                        10,
+                        new Dictionary<uint, ulong> { { 0, 5 } },
+                        header)
                 .Build();
 
             var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
+            deserilaizedContent!.Data.Single(d => d.Coordinates[0] == 5).Value.Should().Equals(10);
+            deserilaizedContent!.Data.Where(d => d.Coordinates[0] != 5).All(d => (int)d.Value == 123).Should().BeTrue();
             Enumerable.Range(0, 10)
-                .All(i =>
-                        deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithTwoAxisAndDefaultValues_ReturnsAllValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.INTEGER)
+                .WithNumberOfAxis(2)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .WithAxisOfSize(dimensionIndex: 2, size: 20)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith(123, header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10 * 20);
+            deserilaizedContent!.Data.All(d => (int)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+            Enumerable.Range(0, 20)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[1] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+        }
+
+        [Test]
+        public async Task DeserializeAsync_WithTwoAxisAndSomeValuesAndOneValueDifferent_ReturnsTheValuesAsync()
+        {
+            var deserializer = new ContentDeserializer();
+            var header = new HeaderBuilder()
+                .WithContentDataType(DataContentType.INTEGER)
+                .WithNumberOfAxis(2)
+                .WithAxisOfSize(dimensionIndex: 1, size: 10)
+                .WithAxisOfSize(dimensionIndex: 2, size: 20)
+                .Build();
+            var dataStream = new ContentStreamBuilder()
+                .WithDataBeingInitializedWith(123, header)
+                .WithDataAtCoordinates(
+                        10,
+                        new Dictionary<uint, ulong>
+                        {
+                            { 0, 5 },
+                            { 1, 2 },
+                        },
+                        header)
+                .Build();
+
+            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+
+            deserilaizedContent.Should().NotBeNull();
+            deserilaizedContent!.Data.Should().HaveCount(10 * 20);
+            deserilaizedContent!.Data.Single(d => d.Coordinates[0] == 5 && d.Coordinates[1] == 2).Value.Should().Equals(10);
+            deserilaizedContent!.Data.Where(d => d.Coordinates[0] != 5 && d.Coordinates[1] != 2).All(d => (int)d.Value == 123).Should().BeTrue();
+            Enumerable.Range(0, 10)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+                .Should()
+                .BeTrue();
+            Enumerable.Range(0, 20)
+                .All(i => deserilaizedContent!.Data.Any(d => d.Coordinates[1] == Convert.ToUInt64(i)))
                 .Should()
                 .BeTrue();
         }
@@ -112,17 +304,22 @@ namespace FitsLibrary.Tests.Desersialization
                 var numberOfAxis = (int?)header["NAXIS"];
                 var axisSizes = Enumerable.Range(1, numberOfAxis!.Value)
                     .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"] as long?));
-                var sizePerValue = Convert.ToUInt64(Math.Abs((int)header.DataContentType));
+                var sizePerValue = Convert.ToUInt64(Math.Abs((int)header.DataContentType)) / 8;
                 var byteIndex = coordinates
                     .Select(coordinate =>
                         sizePerValue *
                         coordinate.Value *
                         axisSizes
-                        .Where((_, axisSizeIndex) => axisSizeIndex <= coordinate.Key - 1)
-                        .Aggregate((ulong)1, (x, y) => x * y))
-                    .Aggregate((ulong)0, (x, y) => x + y);
+                        .Where((_, axisSizeIndex) => axisSizeIndex <= Convert.ToInt32(coordinate.Key) - 1)
+                        .Aggregate(Convert.ToUInt64(1), (x, y) => x * y))
+                    .Aggregate(Convert.ToUInt64(0), (x, y) => x + y);
 
                 var valueInBytes = GetValueInBytes(value, header);
+
+                for (var i = 0; i < valueInBytes.Length; i++)
+                {
+                    data[Convert.ToInt32(byteIndex) + i] = valueInBytes[i];
+                }
 
                 return this;
             }

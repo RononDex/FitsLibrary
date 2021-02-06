@@ -21,7 +21,7 @@ namespace FitsLibrary.Deserialization
             }
 
             var dataPoints = new List<DataPoint>();
-            var numberOfBytesPerValue = (int)header.DataContentType / 8;
+            var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
             var axisSizes = Enumerable.Range(1, header.NumberOfAxisInMainContet)
                 .Select(axisIndex => (header[$"NAXIS{axisIndex}"] as long?)!.Value).ToArray();
             var totalNumberOfValues = axisSizes.Aggregate((long)1, (x, y) => x * y);

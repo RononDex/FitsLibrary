@@ -13,12 +13,20 @@ namespace FitsLibrary
         public Header Header { get; }
 
         /// <summary>
+        /// The main data content of the fits file
+        /// </summary>
+        public Content? Content { get; }
+
+        /// <summary>
         /// Creates a new .fits document with a the given data
         /// </summary>
         /// <param name="header">The main header</param>
-        public FitsDocument(Header header)
+        public FitsDocument(
+            Header header,
+            Content? content)
         {
             Header = header;
+            Content = content;
         }
     }
 }

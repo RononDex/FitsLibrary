@@ -4,12 +4,12 @@ namespace FitsLibrary.Validation
     {
         public ValidationResult(bool validationSuccessful, string? validationFailureMessage)
         {
-            ValidationSucessful = validationSuccessful;
+            ValidationSuccessful = validationSuccessful;
             ValidationFailureMessage = validationFailureMessage;
         }
 
         public string? ValidationFailureMessage { get; }
 
-        public bool ValidationSucessful { get; }
+        public bool ValidationSuccessful { get; }
     }
 }

@@ -11,6 +11,7 @@ namespace FitsLibrary
     public class FitsDocumentReader : IFitsDocumentReader
     {
         private IReadOnlyList<IValidator<Header>> headerValidators;
+        private IContentDeserializer contentDeserializer;
         private IHeaderDeserializer headerDeserializer;
 
         public FitsDocumentReader()
@@ -22,6 +23,7 @@ namespace FitsLibrary
         private void UseDeserializersForReading()
         {
             headerDeserializer = new HeaderDeserializer();
+            contentDeserializer = new ContentDeserializer();
         }
 
         /// <summary>
@@ -31,9 +33,11 @@ namespace FitsLibrary
         /// <param name="headerValidators"></param>
         internal FitsDocumentReader(
                 IHeaderDeserializer headerDeserializer,
-                List<IValidator<Header>> headerValidators)
+                List<IValidator<Header>> headerValidators,
+                IContentDeserializer contentDeserializer)
         {
             this.headerValidators = headerValidators;
+            this.contentDeserializer = contentDeserializer;
             this.headerDeserializer = headerDeserializer;
         }
 
@@ -62,14 +66,19 @@ namespace FitsLibrary
 
             foreach (var validationResult in validationResults)
             {
-                if (!validationResult.ValidationSucessful)
+                if (!validationResult.ValidationSuccessful)
                 {
                     throw new InvalidDataException($"Validation failed for the header of the fits file: {validationResult.ValidationFailureMessage}");
                 }
             }
 
+            var content = await contentDeserializer
+                .DeserializeAsync(inputStream, header)
+                .ConfigureAwait(false);
+
             return new FitsDocument(
-                header: header);
+                header: header,
+                content: content);
         }
 
         public Task<FitsDocument> ReadAsync(string filePath)

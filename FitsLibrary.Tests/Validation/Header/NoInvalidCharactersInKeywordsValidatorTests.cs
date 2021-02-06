@@ -37,7 +37,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var result = await testee.ValidateAsync(header);
 
             // Assert
-            result.ValidationSucessful.Should().Be(true);
+            result.ValidationSuccessful.Should().Be(true);
             result.ValidationFailureMessage.Should().BeNull();
         }
 
@@ -58,7 +58,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var result = await testee.ValidateAsync(header);
 
             // Assert
-            result.ValidationSucessful.Should().Be(false);
+            result.ValidationSuccessful.Should().Be(false);
             result.ValidationFailureMessage.Should().Be($"The header key \"{invalidCharacter}\" contains not allowed characters!");
         }
 
@@ -79,7 +79,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var result = await testee.ValidateAsync(header);
 
             // Assert
-            result.ValidationSucessful.Should().Be(true);
+            result.ValidationSuccessful.Should().Be(true);
             result.ValidationFailureMessage.Should().BeNull();
         }
     }

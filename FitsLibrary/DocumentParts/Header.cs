@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FitsLibrary.DocumentParts.Objects;
 
@@ -28,12 +29,12 @@ namespace FitsLibrary.DocumentParts
         /// <summary>
         /// Returns the type of the data (integer, float, etc)
         /// </summary>
-        public DataContentType DataContentType => (DataContentType)this["BITPIX"]!;
+        public DataContentType DataContentType => (DataContentType)Convert.ToInt32(this["BITPIX"]!);
 
         /// <summary>
         /// Returns the number of axis inside the primary data array
         /// </summary>
-        public int NumberOfAxisInMainContet => (int)this["NAXIS"]!;
+        public int NumberOfAxisInMainContet => Convert.ToInt32(this["NAXIS"]!);
 
         /// <summary>
         /// A list of entries contained within the header
