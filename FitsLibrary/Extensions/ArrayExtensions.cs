@@ -21,6 +21,17 @@ namespace FitsLibrary.Extensions
             }
         }
 
+        public static byte[] ReverseFast(this byte[] input)
+        {
+            var res = new byte[input.Length];
+            for (var i = 0; i < res.Length; i++)
+            {
+                res[i] = input[input.Length - (i + 1)];
+            }
+
+            return res;
+        }
+
         /// <summary>
         /// Converts a byte array to big endian if the current system is running on a little Endian hardware
         /// </summary>
@@ -28,7 +39,7 @@ namespace FitsLibrary.Extensions
         public static byte[] ConvertLittleEndianToBigEndianIfNecessary(this byte[] dataToConvert)
         {
             return BitConverter.IsLittleEndian
-                ? dataToConvert.Reverse().ToArray()
+                ? dataToConvert.ReverseFast()
                 : dataToConvert;
         }
 
@@ -39,7 +50,7 @@ namespace FitsLibrary.Extensions
         public static byte[] ConvertBigEndianToLittleEndianIfNecessary(this byte[] dataToConvert)
         {
             return BitConverter.IsLittleEndian
-                ? dataToConvert.Reverse().ToArray()
+                ? dataToConvert.ReverseFast()
                 : dataToConvert;
         }
     }

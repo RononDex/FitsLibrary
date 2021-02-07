@@ -23,14 +23,15 @@ namespace FitsLibrary.Deserialization
             var dataPoints = new List<DataPoint>();
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
             var axisSizes = Enumerable.Range(1, header.NumberOfAxisInMainContet)
-                .Select(axisIndex => (header[$"NAXIS{axisIndex}"] as long?)!.Value).ToArray();
-            var totalNumberOfValues = axisSizes.Aggregate((long)1, (x, y) => x * y);
-            var contentSizeInBytes = numberOfBytesPerValue * totalNumberOfValues;
+                .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
+            var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
+            var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
-            var currentCoordinates = new long[header.NumberOfAxisInMainContet];
+            var currentCoordinates = new ulong[header.NumberOfAxisInMainContet];
             var contentData = new List<byte>();
 
             var bytesRead = (long)0;
+
             while (bytesRead < totalContentSizeInBytes)
             {
                 bytesRead += ChunkSize;
@@ -40,29 +41,27 @@ namespace FitsLibrary.Deserialization
                 contentData.AddRange(chunk);
             }
 
-            for (var i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
+            var startReading = DateTime.Now;
+
+            for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
             {
                 var currentValueBytes = contentData
                     .Skip(i)
                     .Take(numberOfBytesPerValue)
-                    .ToArray()
+                    .ToArray(numberOfBytesPerValue)
                     .ConvertBigEndianToLittleEndianIfNecessary();
 
                 var maxAxisReached = false;
-                var coordinates = currentCoordinates
-                    .Select((value, index) => new KeyValuePair<uint, ulong>(
-                                Convert.ToUInt32(index),
-                                Convert.ToUInt64(value)))
-                    .ToDictionary(pair => pair.Key, pair => pair.Value);
+                var coordinates = currentCoordinates.ToArray(currentCoordinates.Length);
 
                 var value = header.DataContentType switch
                 {
-                    DataContentType.DOUBLE => BitConverter.ToDouble(currentValueBytes.ToArray()),
-                    DataContentType.FLOAT => BitConverter.ToSingle(currentValueBytes.ToArray()),
+                    DataContentType.DOUBLE => BitConverter.ToDouble(currentValueBytes.ToArray(numberOfBytesPerValue)),
+                    DataContentType.FLOAT => BitConverter.ToSingle(currentValueBytes.ToArray(numberOfBytesPerValue)),
                     DataContentType.BYTE => contentData[i],
-                    DataContentType.SHORT => BitConverter.ToInt16(currentValueBytes.ToArray()),
-                    DataContentType.INTEGER => BitConverter.ToInt32(currentValueBytes.ToArray()),
-                    DataContentType.LONG => BitConverter.ToInt64(currentValueBytes.ToArray()) as object,
+                    DataContentType.SHORT => BitConverter.ToInt16(currentValueBytes.ToArray(numberOfBytesPerValue)),
+                    DataContentType.INTEGER => BitConverter.ToInt32(currentValueBytes.ToArray(numberOfBytesPerValue)),
+                    DataContentType.LONG => BitConverter.ToInt64(currentValueBytes.ToArray(numberOfBytesPerValue)) as object,
                     _ => throw new InvalidDataException("Invalid data type"),
                 };
 
@@ -82,6 +81,9 @@ namespace FitsLibrary.Deserialization
                     }
                 }
             }
+
+            var endReading = DateTime.Now;
+            Console.WriteLine($"Time it took for parsing data {(endReading - startReading).TotalSeconds}s");
 
             return new Content(dataPoints);
         }

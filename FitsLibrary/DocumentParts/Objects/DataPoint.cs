@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 
 namespace FitsLibrary.DocumentParts.Objects
 {
@@ -7,7 +7,7 @@ namespace FitsLibrary.DocumentParts.Objects
         /// <summary>
         /// The coordinates in a dictionary of form [dimension index, index]
         /// </summary>
-        public IReadOnlyDictionary<uint, ulong> Coordinates
+        public ulong[] Coordinates
         {
             get;
         }
@@ -17,9 +17,9 @@ namespace FitsLibrary.DocumentParts.Objects
         /// </summary>
         public object Value { get; set; }
 
-        public DataPoint(IReadOnlyDictionary<uint, ulong> coordinates, object value)
+        public DataPoint(ulong[] coordinates, object value)
         {
-            Coordinates = coordinates;
+            Coordinates = coordinates!;
             Value = value;
         }
     }
