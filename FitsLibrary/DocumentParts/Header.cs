@@ -26,15 +26,21 @@ namespace FitsLibrary.DocumentParts
             _entries = new List<HeaderEntry>();
         }
 
+        private DataContentType? _cachedDataContentType;
+
         /// <summary>
         /// Returns the type of the data (integer, float, etc)
         /// </summary>
-        public DataContentType DataContentType => (DataContentType)Convert.ToInt32(this["BITPIX"]!);
+        public DataContentType DataContentType =>
+            _cachedDataContentType ??= (DataContentType)Convert.ToInt32(this["BITPIX"]!);
+
+        private int? _cachedNumberOfAxisInMainContent;
 
         /// <summary>
         /// Returns the number of axis inside the primary data array
         /// </summary>
-        public int NumberOfAxisInMainContet => Convert.ToInt32(this["NAXIS"]!);
+        public int NumberOfAxisInMainContet =>
+            _cachedNumberOfAxisInMainContent ??= Convert.ToInt32(this["NAXIS"]!);
 
         /// <summary>
         /// A list of entries contained within the header
