@@ -41,8 +41,6 @@ namespace FitsLibrary.Deserialization
                 contentData.AddRange(chunk);
             }
 
-            var startReading = DateTime.Now;
-
             for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
             {
                 var currentValueBytes = contentData
@@ -81,9 +79,6 @@ namespace FitsLibrary.Deserialization
                     }
                 }
             }
-
-            var endReading = DateTime.Now;
-            Console.WriteLine($"Time it took for parsing data {(endReading - startReading).TotalSeconds}s");
 
             return new Content(dataPoints);
         }
