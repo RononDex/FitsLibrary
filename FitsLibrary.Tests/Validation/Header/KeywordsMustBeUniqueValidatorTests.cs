@@ -20,7 +20,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var validationResult = await testee.ValidateAsync(header);
 
             // Assert
-            validationResult.ValidationSucessful.Should().Be(true);
+            validationResult.ValidationSuccessful.Should().Be(true);
             validationResult.ValidationFailureMessage.Should().BeNull();
         }
 
@@ -38,7 +38,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var validationResult = await testee.ValidateAsync(header);
 
             // Assert
-            validationResult.ValidationSucessful.Should().Be(true);
+            validationResult.ValidationSuccessful.Should().Be(true);
             validationResult.ValidationFailureMessage.Should().BeNull();
         }
 
@@ -57,7 +57,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var validationResult = await testee.ValidateAsync(header);
 
             // Assert
-            validationResult.ValidationSucessful.Should().Be(false);
+            validationResult.ValidationSuccessful.Should().Be(false);
             validationResult.ValidationFailureMessage.Should().Be(
                 "Non unique KEYWORDS found. The header entries KEY1 are contained more than once within the header.");
         }
@@ -82,7 +82,7 @@ namespace FitsLibrary.Tests.Validation.Header
             var validationResult = await testee.ValidateAsync(header);
 
             // Assert
-            validationResult.ValidationSucessful.Should().Be(expectedValidationSucessful);
+            validationResult.ValidationSuccessful.Should().Be(expectedValidationSucessful);
             if (!expectedValidationSucessful)
             {
                 validationResult.ValidationFailureMessage.Should().Be(

@@ -6,7 +6,7 @@
     <RootNamespace>FitsLibrary.Tests</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
-    <NoWarn>CC0070</NoWarn>
+    <NoWarn>CC0070;CC0073</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

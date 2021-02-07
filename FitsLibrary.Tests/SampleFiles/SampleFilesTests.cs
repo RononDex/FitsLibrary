@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -8,8 +9,14 @@ namespace FitsLibrary.Tests.SampleFiles
         [Test]
         public async Task OpenFitsFile_WithFOCFile_ReadsFileAsync()
         {
+            Console.WriteLine("Reading sample file");
+            var startTime = DateTime.Now;
+
             var reader = new FitsDocumentReader();
             var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+
+            var endTime = DateTime.Now;
+            Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
         }
     }
 }
