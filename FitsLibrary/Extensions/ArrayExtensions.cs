@@ -24,6 +24,7 @@ namespace FitsLibrary.Extensions
         public static byte[] ReverseFast(this byte[] input)
         {
             var res = new byte[input.Length];
+
             for (var i = 0; i < res.Length; i++)
             {
                 res[i] = input[input.Length - (i + 1)];

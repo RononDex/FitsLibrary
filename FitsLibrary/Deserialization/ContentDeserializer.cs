@@ -33,13 +33,12 @@ namespace FitsLibrary.Deserialization
 
             for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
             {
-                var currentValueBytes = contentData
-                    .Skip(i)
-                    .Take(numberOfBytesPerValue)
-                    .ToArray(numberOfBytesPerValue)
+                var upperIndex = i + numberOfBytesPerValue;
+                var currentValueBytes = contentData[i..upperIndex]
                     .ConvertBigEndianToLittleEndianIfNecessary();
 
-                var coordinates = currentCoordinates.ToArray(currentCoordinates.Length);
+                var coordinates = new ulong[header.NumberOfAxisInMainContet];
+                Array.Copy(currentCoordinates, coordinates, header.NumberOfAxisInMainContet);
 
                 var value = ParseValue(header, numberOfBytesPerValue, currentValueBytes);
 
@@ -73,17 +72,17 @@ namespace FitsLibrary.Deserialization
         {
             return header.DataContentType switch
             {
-                DataContentType.DOUBLE => BitConverter.ToDouble(currentValueBytes.ToArray(numberOfBytesPerValue)),
-                DataContentType.FLOAT => BitConverter.ToSingle(currentValueBytes.ToArray(numberOfBytesPerValue)),
+                DataContentType.DOUBLE => BitConverter.ToDouble(currentValueBytes),
+                DataContentType.FLOAT => BitConverter.ToSingle(currentValueBytes),
                 DataContentType.BYTE => currentValueBytes.Single(),
-                DataContentType.SHORT => BitConverter.ToInt16(currentValueBytes.ToArray(numberOfBytesPerValue)),
-                DataContentType.INTEGER => BitConverter.ToInt32(currentValueBytes.ToArray(numberOfBytesPerValue)),
-                DataContentType.LONG => BitConverter.ToInt64(currentValueBytes.ToArray(numberOfBytesPerValue)) as object,
+                DataContentType.SHORT => BitConverter.ToInt16(currentValueBytes),
+                DataContentType.INTEGER => BitConverter.ToInt32(currentValueBytes),
+                DataContentType.LONG => BitConverter.ToInt64(currentValueBytes) as object,
                 _ => throw new InvalidDataException("Invalid data type"),
             };
         }
 
-        private static async Task<List<byte>> ReadContentDataStreamAsync(Stream dataStream, double totalContentSizeInBytes)
+        private static async Task<byte[]> ReadContentDataStreamAsync(Stream dataStream, double totalContentSizeInBytes)
         {
             var contentData = new List<byte>();
             var bytesRead = (long)0;
@@ -97,7 +96,7 @@ namespace FitsLibrary.Deserialization
                 contentData.AddRange(chunk);
             }
 
-            return contentData;
+            return contentData.ToArray();
         }
     }
 }
