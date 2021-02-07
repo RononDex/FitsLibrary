@@ -13,8 +13,7 @@ namespace FitsLibrary.Tests.SampleFiles
             var startTime = DateTime.Now;
 
             var reader = new FitsDocumentReader();
-            // var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
-            var document = await reader.ReadAsync("/home/cobra/test.fits");
+            var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
 
             var endTime = DateTime.Now;
             Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
