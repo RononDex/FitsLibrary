@@ -31,7 +31,12 @@
       For more information see the github repository ReadMe
     </PackageDescription>
     <PackageProjectUrl>https://github.com/RononDex/FitsLibrary</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="licenses\LICENSE.txt" Pack="true" PackagePath="LICENSE"/>
+  </ItemGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
