@@ -16,7 +16,7 @@ The library focuses on being fast and easy to use.
 
 # What doesn't work
  - Extension Headers
- - Writing .fit files
+ - Writing .fits files
 
 # Usage
 Open a fits file using
