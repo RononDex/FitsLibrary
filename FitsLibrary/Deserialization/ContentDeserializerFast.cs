@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +10,12 @@ using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization
 {
-    public class ContentDeserializer : IContentDeserializer
+    public class ContentDeserializerFast : IContentDeserializer
     {
+
         private const int ChunkSize = 2880;
 
-        public async Task<Content?> DeserializeAsync(Stream dataStream, Header header)
+        public Task<Content?> DeserializeAsync(Stream dataStream, Header header)
         {
             if (header.NumberOfAxisInMainContent == 0)
             {
@@ -22,32 +24,32 @@ namespace FitsLibrary.Deserialization
 
             var dataPoints = new List<DataPoint>();
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
-            var axisSizes = Enumerable.Range(1, header.NumberOfAxisInMainContent)
+            var numberOfAxis = header.NumberOfAxisInMainContent;
+            var axisSizes = Enumerable.Range(1, numberOfAxis)
                 .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
             var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
-            var currentCoordinates = new ulong[header.NumberOfAxisInMainContent];
+            var contentDataType = header.DataContentType;
+            var currentCoordinates = new ulong[numberOfAxis];
 
-            var contentData = await ReadContentDataStreamAsync(dataStream, totalContentSizeInBytes).ConfigureAwait(false);
+            var contentData = ReadContentDataStreamAsync(dataStream, totalContentSizeInBytes).ConfigureAwait(false).GetAwaiter().GetResult();
 
             for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
             {
-                var upperIndex = i + numberOfBytesPerValue;
-                var currentValueBytes = contentData[i..upperIndex]
-                    .ConvertBigEndianToLittleEndianIfNecessary();
+                var currentValueBytes = new ReadOnlySpan<byte>(contentData, i, numberOfBytesPerValue);
 
-                var coordinates = new ulong[header.NumberOfAxisInMainContent];
-                Array.Copy(currentCoordinates, coordinates, header.NumberOfAxisInMainContent);
+                var coordinates = new ulong[numberOfAxis];
+                Array.Copy(currentCoordinates, coordinates, numberOfAxis);
 
-                var value = ParseValue(header, currentValueBytes);
+                var value = ParseValue(contentDataType, currentValueBytes);
 
                 dataPoints.Add(new DataPoint(coordinates, value));
 
                 MoveToNextCoordinate(axisSizes, currentCoordinates);
             }
 
-            return new Content(dataPoints);
+            return Task.FromResult((Content?)new Content(dataPoints));
         }
 
         private static void MoveToNextCoordinate(ulong[] axisSizes, ulong[] currentCoordinates)
@@ -68,16 +70,16 @@ namespace FitsLibrary.Deserialization
             }
         }
 
-        private static object ParseValue(Header header, byte[] currentValueBytes)
+        private static object ParseValue(DataContentType dataContentType, ReadOnlySpan<byte> currentValueBytes)
         {
-            return header.DataContentType switch
+            return dataContentType switch
             {
-                DataContentType.DOUBLE => BitConverter.ToDouble(currentValueBytes),
-                DataContentType.FLOAT => BitConverter.ToSingle(currentValueBytes),
-                DataContentType.BYTE => currentValueBytes.Single(),
-                DataContentType.SHORT => BitConverter.ToInt16(currentValueBytes),
-                DataContentType.INTEGER => BitConverter.ToInt32(currentValueBytes),
-                DataContentType.LONG => BitConverter.ToInt64(currentValueBytes) as object,
+                DataContentType.DOUBLE => BinaryPrimitives.ReadDoubleBigEndian(currentValueBytes),
+                DataContentType.FLOAT => BinaryPrimitives.ReadSingleBigEndian(currentValueBytes),
+                DataContentType.BYTE => currentValueBytes[0],
+                DataContentType.SHORT => BinaryPrimitives.ReadInt16BigEndian(currentValueBytes),
+                DataContentType.INTEGER => BinaryPrimitives.ReadInt32BigEndian(currentValueBytes),
+                DataContentType.LONG => BinaryPrimitives.ReadInt64BigEndian(currentValueBytes),
                 _ => throw new InvalidDataException("Invalid data type"),
             };
         }

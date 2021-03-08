@@ -23,7 +23,7 @@ namespace FitsLibrary
         private void UseDeserializersForReading()
         {
             headerDeserializer = new HeaderDeserializer();
-            contentDeserializer = new ContentDeserializer();
+            contentDeserializer = new ContentDeserializerFast();
         }
 
         /// <summary>
