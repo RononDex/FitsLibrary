@@ -1,5 +1,3 @@
-using System;
-
 namespace FitsLibrary.DocumentParts.Objects
 {
     public class DataPoint

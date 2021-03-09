@@ -27,32 +27,32 @@ namespace FitsLibrary.Deserialization
             var numberOfAxis = header.NumberOfAxisInMainContent;
             var axisSizes = Enumerable.Range(1, numberOfAxis)
                 .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
+            var axisSizesSpan = new ReadOnlySpan<ulong>(axisSizes);
             var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
-            var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
+            var totalContentSizeInBytes = Convert.ToUInt64(Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize);
             var contentDataType = header.DataContentType;
             var currentCoordinates = new ulong[numberOfAxis];
+            var currentCoordinatesSpan = new Span<ulong>(currentCoordinates);
+            ReadOnlySpan<byte> currentValueBytes;
 
-            var contentData = ReadContentDataStreamAsync(dataStream, totalContentSizeInBytes).ConfigureAwait(false).GetAwaiter().GetResult();
+            var contentData = ReadContentDataStream(dataStream, totalContentSizeInBytes);
 
             for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
             {
-                var currentValueBytes = new ReadOnlySpan<byte>(contentData, i, numberOfBytesPerValue);
-
-                var coordinates = new ulong[numberOfAxis];
-                Array.Copy(currentCoordinates, coordinates, numberOfAxis);
+                currentValueBytes = contentData.Slice(i, numberOfBytesPerValue);
 
                 var value = ParseValue(contentDataType, currentValueBytes);
 
-                dataPoints.Add(new DataPoint(coordinates, value));
+                dataPoints.Add(new DataPoint(currentCoordinates, value));
 
-                MoveToNextCoordinate(axisSizes, currentCoordinates);
+                MoveToNextCoordinate(axisSizesSpan, currentCoordinatesSpan);
             }
 
             return Task.FromResult((Content?)new Content(dataPoints));
         }
 
-        private static void MoveToNextCoordinate(ulong[] axisSizes, ulong[] currentCoordinates)
+        private static void MoveToNextCoordinate(ReadOnlySpan<ulong> axisSizes, Span<ulong> currentCoordinates)
         {
             var maxAxisReached = false;
             for (var axis = 0; axis < axisSizes.Length && !maxAxisReached; axis++)
@@ -84,21 +84,21 @@ namespace FitsLibrary.Deserialization
             };
         }
 
-        private static async Task<byte[]> ReadContentDataStreamAsync(Stream dataStream, double totalContentSizeInBytes)
+        private static ReadOnlySpan<byte> ReadContentDataStream(Stream dataStream, ulong totalContentSizeInBytes)
         {
             var contentData = new List<byte>();
-            var bytesRead = (long)0;
+            var bytesRead = (ulong)0;
 
             while (bytesRead < totalContentSizeInBytes)
             {
                 bytesRead += ChunkSize;
                 var chunk = new byte[ChunkSize];
-                _ = await dataStream.ReadAsync(chunk, 0, ChunkSize).ConfigureAwait(false);
+                _ = dataStream.Read(chunk, 0, ChunkSize);
 
                 contentData.AddRange(chunk);
             }
 
-            return contentData.ToArray();
+            return new ReadOnlySpan<byte>(contentData.ToArray());
         }
     }
 }
