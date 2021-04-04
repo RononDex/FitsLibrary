@@ -44,3 +44,6 @@ tags
 .history
 
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,vim,visualstudiocode
+
+# Project specific ignores
+FitsLibrary.Benchmarking/BenchmarkDotNet.Artifacts
