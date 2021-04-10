@@ -53,6 +53,6 @@ namespace FitsLibrary.DocumentParts
         /// </summary>
         /// <param name="key">The key for which to search in the header</param>
         public object? this[string key] =>
-            _entries.Find(entry => string.Equals(entry.Key, key, System.StringComparison.Ordinal))?.Value;
+            _entries.Find(entry => string.Equals(entry.Key, key, StringComparison.Ordinal))?.Value;
     }
 }

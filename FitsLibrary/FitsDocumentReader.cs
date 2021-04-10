@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
 using FitsLibrary.DocumentParts;
@@ -13,6 +14,8 @@ namespace FitsLibrary
         private IReadOnlyList<IValidator<Header>> headerValidators;
         private IContentDeserializer contentDeserializer;
         private IHeaderDeserializer headerDeserializer;
+
+        private const int ChunkSize = 2880;
 
         public FitsDocumentReader()
         {
@@ -31,6 +34,7 @@ namespace FitsLibrary
         /// </summary>
         /// <param name="headerDeserializer"></param>
         /// <param name="headerValidators"></param>
+        /// <param name="contentDeserializer"></param>
         internal FitsDocumentReader(
                 IHeaderDeserializer headerDeserializer,
                 List<IValidator<Header>> headerValidators,
@@ -52,8 +56,10 @@ namespace FitsLibrary
 
         public async Task<FitsDocument> ReadAsync(Stream inputStream)
         {
+            var pipeReader = PipeReader.Create(inputStream, new StreamPipeReaderOptions(bufferSize: ChunkSize))!;
+
             var header = await headerDeserializer
-                .DeserializeAsync(inputStream)
+                .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
 
             var validatorTasks = new List<Task<ValidationResult>>();
@@ -73,7 +79,7 @@ namespace FitsLibrary
             }
 
             var content = await contentDeserializer
-                .DeserializeAsync(inputStream, header)
+                .DeserializeAsync(pipeReader, header)
                 .ConfigureAwait(false);
 
             return new FitsDocument(

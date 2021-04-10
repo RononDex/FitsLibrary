@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
@@ -12,10 +14,9 @@ namespace FitsLibrary.Deserialization
 {
     public class ContentDeserializerFast : IContentDeserializer
     {
-
         private const int ChunkSize = 2880;
 
-        public Task<Content?> DeserializeAsync(Stream dataStream, Header header)
+        public Task<Content?> DeserializeAsync(PipeReader dataStream, Header header)
         {
             if (header.NumberOfAxisInMainContent == 0)
             {
@@ -34,20 +35,37 @@ namespace FitsLibrary.Deserialization
             var contentDataType = header.DataContentType;
             var currentCoordinates = new ulong[numberOfAxis];
             var currentCoordinatesSpan = new Span<ulong>(currentCoordinates);
-            ReadOnlySpan<byte> currentValueBytes;
+            ReadOnlySequence<byte> currentValueBytes;
+            var currentValueBuffer = new Span<byte>(new byte[numberOfBytesPerValue]);
 
-            var contentData = ReadContentDataStream(dataStream, totalContentSizeInBytes);
-
-            for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
+            var bytesRead = (ulong)0;
+            while (bytesRead < totalContentSizeInBytes)
             {
-                currentValueBytes = contentData.Slice(i, numberOfBytesPerValue);
+                bytesRead += ChunkSize;
+                var chunk = ReadContentDataStream(dataStream);
 
-                var value = ParseValue(contentDataType, currentValueBytes);
+                for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
+                {
+                    currentValueBytes = chunk.Slice(i, numberOfBytesPerValue);
 
-                dataPoints.Add(new DataPoint(currentCoordinates, value));
+                    var value = ParseValue(contentDataType, currentValueBytes);
 
-                MoveToNextCoordinate(axisSizesSpan, currentCoordinatesSpan);
+                    dataPoints.Add(new DataPoint(currentCoordinates, value));
+
+                    MoveToNextCoordinate(axisSizesSpan, currentCoordinatesSpan);
+                }
             }
+
+            //             for (int i = 0; i < contentSizeInBytes; i += numberOfBytesPerValue)
+            //             {
+            //                 currentValueBytes = contentData.Slice(i, numberOfBytesPerValue);
+            //
+            //                 var value = ParseValue(contentDataType, currentValueBytes);
+            //
+            //                 dataPoints.Add(new DataPoint(currentCoordinates, value));
+            //
+            //                 MoveToNextCoordinate(axisSizesSpan, currentCoordinatesSpan);
+            //             }
 
             return Task.FromResult((Content?)new Content(dataPoints));
         }
@@ -70,11 +88,11 @@ namespace FitsLibrary.Deserialization
             }
         }
 
-        private static object ParseValue(DataContentType dataContentType, ReadOnlySpan<byte> currentValueBytes)
+        private static object ParseValue(DataContentType dataContentType, ReadOnlySequence<byte> currentValueBytes)
         {
             return dataContentType switch
             {
-                DataContentType.DOUBLE => BinaryPrimitives.ReadDoubleBigEndian(currentValueBytes),
+                DataContentType.DOUBLE => BinaryPrimitives.ReadDoubleBigEndian(currentValueBytes.),
                 DataContentType.FLOAT => BinaryPrimitives.ReadSingleBigEndian(currentValueBytes),
                 DataContentType.BYTE => currentValueBytes[0],
                 DataContentType.SHORT => BinaryPrimitives.ReadInt16BigEndian(currentValueBytes),
@@ -84,21 +102,12 @@ namespace FitsLibrary.Deserialization
             };
         }
 
-        private static ReadOnlySpan<byte> ReadContentDataStream(Stream dataStream, ulong totalContentSizeInBytes)
+        private static ReadOnlySequence<byte> ReadContentDataStream(PipeReader dataStream)
         {
-            var contentData = new List<byte>();
-            var bytesRead = (ulong)0;
+            Span<byte> chunk = new byte[ChunkSize];
+            var result = dataStream.ReadAsync().GetAwaiter().GetResult();
 
-            while (bytesRead < totalContentSizeInBytes)
-            {
-                bytesRead += ChunkSize;
-                var chunk = new byte[ChunkSize];
-                _ = dataStream.Read(chunk, 0, ChunkSize);
-
-                contentData.AddRange(chunk);
-            }
-
-            return new ReadOnlySpan<byte>(contentData.ToArray());
+            return result.Buffer;
         }
     }
 }
