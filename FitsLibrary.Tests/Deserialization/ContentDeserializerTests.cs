@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
@@ -24,7 +25,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithEmptyContent()
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().BeNull();
         }
@@ -42,7 +43,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -66,7 +67,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((short)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -90,7 +91,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((byte)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -114,7 +115,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((double)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -138,7 +139,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((float)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -162,7 +163,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((long)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -190,7 +191,7 @@ namespace FitsLibrary.Tests.Desersialization
                         header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10);
@@ -216,7 +217,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10 * 20);
@@ -253,7 +254,7 @@ namespace FitsLibrary.Tests.Desersialization
                         header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(dataStream, header);
+            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.Should().HaveCount(10 * 20);

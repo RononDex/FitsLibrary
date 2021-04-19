@@ -14,7 +14,7 @@ namespace FitsLibrary.Tests.Desersialization
         public void Deserialize_WithEmptyByteStream_ThrowsException()
         {
             // Arrange
-            var testData = new byte[0];
+            var testData = Array.Empty<byte>();
             var testStream = TestUtils.ByteArrayToStream(testData);
             var testee = new HeaderDeserializer();
 
