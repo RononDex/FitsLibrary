@@ -56,9 +56,11 @@ namespace FitsLibrary
 
         public async Task<FitsDocument> ReadAsync(Stream inputStream)
         {
-            var pipeReader = PipeReader.Create(inputStream, new StreamPipeReaderOptions(
-                bufferSize: ChunkSize,
-                minimumReadSize: ChunkSize))!;
+            var pipeReader = PipeReader.Create(
+                    inputStream,
+                    new StreamPipeReaderOptions(
+                        bufferSize: ChunkSize,
+                        minimumReadSize: ChunkSize))!;
 
             var header = await headerDeserializer
                 .DeserializeAsync(pipeReader)

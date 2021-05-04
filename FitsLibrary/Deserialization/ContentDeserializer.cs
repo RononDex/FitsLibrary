@@ -23,23 +23,22 @@ namespace FitsLibrary.Deserialization
                 return Task.FromResult<Content?>(null);
             }
 
-            var dataPoints = new List<DataPoint>();
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
             var numberOfAxis = header.NumberOfAxisInMainContent;
             var axisSizes = Enumerable.Range(1, numberOfAxis)
                 .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
             var axisSizesSpan = new ReadOnlySpan<ulong>(axisSizes);
             var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
+            Span<DataPoint> dataPoints = new DataPoint[totalNumberOfValues];
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
             var contentDataType = header.DataContentType;
-            var currentCoordinates = new ulong[numberOfAxis];
-            var currentCoordinatesSpan = new Span<ulong>(currentCoordinates);
-            ReadOnlySequence<byte> currentValueBytes;
+            Span<ulong> currentCoordinates = stackalloc ulong[numberOfAxis];
             Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
 
             var bytesRead = 0;
-            while (bytesRead < totalContentSizeInBytes)
+            var currentValueIndex = 0;
+            while (bytesRead < contentSizeInBytes)
             {
                 var chunk = ReadContentDataStream(dataStream).GetAwaiter().GetResult();
                 var blockSize = Math.Min(ChunkSize, contentSizeInBytes - bytesRead);
@@ -51,19 +50,12 @@ namespace FitsLibrary.Deserialization
 
                     var value = ParseValue(contentDataType, currentValueBuffer);
 
-                    dataPoints.Add(new DataPoint(currentCoordinatesSpan.ToArray(), value));
+                    dataPoints[currentValueIndex++] = new DataPoint(currentCoordinates.ToArray(), value);
 
-                    MoveToNextCoordinate(axisSizesSpan, currentCoordinatesSpan);
+                    MoveToNextCoordinate(axisSizesSpan, currentCoordinates);
                 }
 
-                if (chunk.IsCompleted)
-                {
-                    dataStream.Complete();
-                }
-                else
-                {
-                    dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
-                }
+                dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
             }
 
             return Task.FromResult((Content?)new Content(dataPoints));
@@ -103,8 +95,7 @@ namespace FitsLibrary.Deserialization
 
         private static async Task<ReadResult> ReadContentDataStream(PipeReader dataStream)
         {
-            var result = await dataStream.ReadAsync();
-            return result;
+            return await dataStream.ReadAsync().ConfigureAwait(false);
         }
     }
 }

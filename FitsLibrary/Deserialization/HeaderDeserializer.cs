@@ -38,32 +38,29 @@ namespace FitsLibrary.Deserialization
         /// </summary>
         /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
         /// <exception cref="InvalidDataException"></exception>
-        public Task<Header> DeserializeAsync(PipeReader dataStream)
+        public async Task<Header> DeserializeAsync(PipeReader dataStream)
         {
-            return Task.Run(() =>
+            PreValidateStream(dataStream);
+
+            var endOfHeaderReached = false;
+            var headerEntries = new List<HeaderEntry>();
+
+            while (!endOfHeaderReached)
             {
-                PreValidateStream(dataStream);
+                var result = await dataStream.ReadAsync().ConfigureAwait(false);
+                var headerBlock = result.Buffer;
 
-                var endOfHeaderReached = false;
-                var headerEntries = new List<HeaderEntry>();
-
-                while (!endOfHeaderReached)
+                if (result.IsCompleted || result.Buffer.Length < HeaderBlockSize)
                 {
-                    var result = dataStream.ReadAsync().GetAwaiter().GetResult();
-                    var headerBlock = result.Buffer;
-
-                    if (result.IsCompleted)
-                    {
-                        dataStream.Complete();
-                        throw new InvalidDataException("No END marker found for the fits header, fits file might be corrupted");
-                    }
-
-                    headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
-                    dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
+                    await dataStream.CompleteAsync().ConfigureAwait(false);
+                    throw new InvalidDataException("No END marker found for the fits header, fits file might be corrupted");
                 }
 
-                return new Header(headerEntries);
-            });
+                headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
+                dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
+            }
+
+            return new Header(headerEntries);
         }
 
         private static List<HeaderEntry> ParseHeaderBlock(ReadOnlySequence<byte> headerBlock, out bool endOfHeaderReached)

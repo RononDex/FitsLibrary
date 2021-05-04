@@ -404,8 +404,8 @@ csharp_using_directive_placement = outside_namespace:error
 dotnet_diagnostic.IDE0008.severity = none
 dotnet_diagnostic.IDE0009.severity = none
 dotnet_diagnostic.IDE0022.severity = none
-dotnet_diagnostic.CSE0003.severity = silent
-dotnet_diagnostic.CC0038.severity = silent
+dotnet_diagnostic.CSE0003.severity = none
+dotnet_diagnostic.CC0038.severity = none
 dotnet_diagnostic.CC0045.severity = silent
 
 ##########################################
