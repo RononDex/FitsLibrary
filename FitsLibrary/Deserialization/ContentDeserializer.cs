@@ -1,7 +1,6 @@
 using System;
 using System.Buffers;
 using System.Buffers.Binary;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -29,7 +28,8 @@ namespace FitsLibrary.Deserialization
                 .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
             var axisSizesSpan = new ReadOnlySpan<ulong>(axisSizes);
             var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
-            Span<DataPoint> dataPoints = new DataPoint[totalNumberOfValues];
+            Memory<DataPoint> dataPointsMemory = new DataPoint[totalNumberOfValues];
+            var dataPoints = dataPointsMemory.Span;
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
             var contentDataType = header.DataContentType;
@@ -58,7 +58,7 @@ namespace FitsLibrary.Deserialization
                 dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
             }
 
-            return Task.FromResult((Content?)new Content(dataPoints));
+            return Task.FromResult((Content?)new Content(dataPointsMemory));
         }
 
         private static void MoveToNextCoordinate(ReadOnlySpan<ulong> axisSizes, Span<ulong> currentCoordinates)

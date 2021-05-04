@@ -403,6 +403,7 @@ dotnet_naming_rule.parameters_rule.severity             = warning
 csharp_using_directive_placement = outside_namespace:error
 dotnet_diagnostic.IDE0008.severity = none
 dotnet_diagnostic.IDE0009.severity = none
+dotnet_diagnostic.IDE0021.severity = none
 dotnet_diagnostic.IDE0022.severity = none
 dotnet_diagnostic.CSE0003.severity = none
 dotnet_diagnostic.CC0038.severity = none

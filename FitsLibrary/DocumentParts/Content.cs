@@ -1,17 +1,15 @@
-using System.Collections.Generic;
+using System;
 using FitsLibrary.DocumentParts.Objects;
 
 namespace FitsLibrary.DocumentParts
 {
     public class Content
     {
-        private readonly List<DataPoint> dataPoints;
+        public Memory<DataPoint> Data { get; }
 
-        public IReadOnlyList<DataPoint> Data => dataPoints;
-
-        public Content(List<DataPoint> dataPoints)
+        public Content(Memory<DataPoint> dataPoints)
         {
-            this.dataPoints = dataPoints;
+            this.Data = dataPoints;
         }
     }
 }
