@@ -6,7 +6,6 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
-using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization
@@ -28,12 +27,11 @@ namespace FitsLibrary.Deserialization
                 .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
             var axisSizesSpan = new ReadOnlySpan<ulong>(axisSizes);
             var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
-            Memory<DataPoint> dataPointsMemory = new DataPoint[totalNumberOfValues];
+            Memory<object> dataPointsMemory = new object[totalNumberOfValues];
             var dataPoints = dataPointsMemory.Span;
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
             var contentDataType = header.DataContentType;
-            Span<uint> currentCoordinates = stackalloc uint[numberOfAxis];
             Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
 
             var bytesRead = 0;
@@ -48,35 +46,13 @@ namespace FitsLibrary.Deserialization
                 {
                     chunk.Buffer.Slice(i, numberOfBytesPerValue).CopyTo(currentValueBuffer);
 
-                    var value = ParseValue(contentDataType, currentValueBuffer);
-
-                    dataPoints[currentValueIndex++] = new DataPoint(currentCoordinates.ToArray(), value);
-
-                    MoveToNextCoordinate(axisSizesSpan, currentCoordinates);
+                    dataPoints[currentValueIndex++] = ParseValue(contentDataType, currentValueBuffer);
                 }
 
                 dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
             }
 
             return Task.FromResult((Content?)new Content(dataPointsMemory));
-        }
-
-        private static void MoveToNextCoordinate(ReadOnlySpan<ulong> axisSizes, Span<uint> currentCoordinates)
-        {
-            var maxAxisReached = false;
-            for (var axis = 0; axis < axisSizes.Length && !maxAxisReached; axis++)
-            {
-                if (axisSizes[axis] == currentCoordinates[axis] + 1)
-                {
-                    maxAxisReached = false;
-                    currentCoordinates[axis] = 0;
-                }
-                else
-                {
-                    currentCoordinates[axis]++;
-                    break;
-                }
-            }
         }
 
         private static object ParseValue(DataContentType dataContentType, ReadOnlySpan<byte> currentValueBytes)

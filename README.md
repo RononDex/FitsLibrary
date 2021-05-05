@@ -40,12 +40,13 @@ Since the type of data can change (for example, int or float) per file, the only
 file was to use `object` as dataype for the data. You have the responsibility, to cast the data to the correct type
 before use (helper methods for this are planned).
 
-Data can be read using 
+Data can be accessed in different ways:
+
+### RawData
+By accesing `fitsFile.Content` (which is of type `Memory<T>`, use .Span to access data or much slower .ToArray())
+This is used for fast access, does not differntiate between dimensions. 
+Index for value in 2 dimensional data for example is calculated like this:
 ```csharp
-fitsFile.Content
+index = indexAxis1 + (axisSize1 * indexAxis2)
+fitsFile.Content.Span[index];
 ```
-For example to get a the value at certain coordinates:
-```csharp
-fitsFile.Content.Data.Single(dp => dp.Coordinates[0] == xCoordinate && dp.Coordinates[1] == yCoordiante).Value as float;
-```
-Where `xCoordiante` and `yCoordinate` are the coordinates one wants to get the data from

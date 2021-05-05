@@ -47,11 +47,7 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().All(d => (int)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (int)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -71,11 +67,7 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().All(d => (short)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (short)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -95,11 +87,7 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().All(d => (byte)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (byte)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -119,11 +107,7 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().All(d => (double)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (double)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -143,11 +127,8 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().All(d => (float)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (float)d == 123).Should().BeTrue();
+
         }
 
         [Test]
@@ -167,11 +148,8 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().All(d => (long)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (long)d == 123).Should().BeTrue();
+
         }
 
         [Test]
@@ -195,12 +173,8 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Data.ToArray().Single(d => d.Coordinates[0] == 5).Value.Should().Equals(10);
-            deserilaizedContent!.Data.ToArray().Where(d => d.Coordinates[0] != 5).All(d => (int)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.Span[4].Should().Equals(10);
+            deserilaizedContent!.Data.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 5).All(d => (int)d.d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -221,15 +195,7 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Data.ToArray().Should().HaveCount(10 * 20);
-            deserilaizedContent!.Data.ToArray().All(d => (int)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
-            Enumerable.Range(0, 20)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[1] == Convert.ToUInt64(i)))
-                .Should()
-                .BeTrue();
+            deserilaizedContent!.Data.ToArray().All(d => (int)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -257,15 +223,21 @@ namespace FitsLibrary.Tests.Desersialization
             var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent!.Data.ToArray().Should().HaveCount(10 * 20);
-            deserilaizedContent!.Data.ToArray().Single(d => d.Coordinates[0] == 5 && d.Coordinates[1] == 2).Value.Should().Equals(10);
-            deserilaizedContent!.Data.ToArray().Where(d => d.Coordinates[0] != 5 && d.Coordinates[1] != 2).All(d => (int)d.Value == 123).Should().BeTrue();
-            Enumerable.Range(0, 10)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[0] == Convert.ToUInt64(i)))
+            deserilaizedContent!.Data
+                .ToArray()
                 .Should()
-                .BeTrue();
-            Enumerable.Range(0, 20)
-                .All(i => deserilaizedContent!.Data.ToArray().Any(d => d.Coordinates[1] == Convert.ToUInt64(i)))
+                .HaveCount(10 * 20);
+            deserilaizedContent!.Data
+                .ToArray()
+                .Select((d, i) => (i, d))
+                .Single(d => d.i == 5 + (2 * 10))
+                .Should()
+                .Equals(10);
+            deserilaizedContent!.Data
+                .ToArray()
+                .Select((d, i) => (i, d))
+                .Where(d => d.i != 5 + (2 * 10))
+                .All(d => (int)d.d == 123)
                 .Should()
                 .BeTrue();
         }

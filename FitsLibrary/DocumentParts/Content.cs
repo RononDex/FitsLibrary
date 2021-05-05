@@ -1,13 +1,12 @@
 using System;
-using FitsLibrary.DocumentParts.Objects;
 
 namespace FitsLibrary.DocumentParts
 {
     public class Content
     {
-        public Memory<DataPoint> Data { get; }
+        public Memory<object> Data { get; }
 
-        public Content(Memory<DataPoint> dataPoints)
+        public Content(Memory<object> dataPoints)
         {
             this.Data = dataPoints;
         }
