@@ -1,11 +1,11 @@
 namespace FitsLibrary.DocumentParts.Objects
 {
-    public class DataPoint
+    public struct DataPoint
     {
         /// <summary>
         /// The coordinates in a dictionary of form [dimension index, index]
         /// </summary>
-        public ulong[] Coordinates
+        public uint[] Coordinates
         {
             get;
         }
@@ -15,7 +15,7 @@ namespace FitsLibrary.DocumentParts.Objects
         /// </summary>
         public object Value { get; set; }
 
-        public DataPoint(ulong[] coordinates, object value)
+        public DataPoint(uint[] coordinates, object value)
         {
             Coordinates = coordinates!;
             Value = value;

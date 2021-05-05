@@ -33,7 +33,7 @@ namespace FitsLibrary.Deserialization
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
             var contentDataType = header.DataContentType;
-            Span<ulong> currentCoordinates = stackalloc ulong[numberOfAxis];
+            Span<uint> currentCoordinates = stackalloc uint[numberOfAxis];
             Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
 
             var bytesRead = 0;
@@ -61,7 +61,7 @@ namespace FitsLibrary.Deserialization
             return Task.FromResult((Content?)new Content(dataPointsMemory));
         }
 
-        private static void MoveToNextCoordinate(ReadOnlySpan<ulong> axisSizes, Span<ulong> currentCoordinates)
+        private static void MoveToNextCoordinate(ReadOnlySpan<ulong> axisSizes, Span<uint> currentCoordinates)
         {
             var maxAxisReached = false;
             for (var axis = 0; axis < axisSizes.Length && !maxAxisReached; axis++)
