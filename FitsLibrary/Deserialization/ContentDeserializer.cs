@@ -14,11 +14,11 @@ namespace FitsLibrary.Deserialization
     {
         private const int ChunkSize = 2880;
 
-        public Task<Content?> DeserializeAsync(PipeReader dataStream, Header header)
+        public Task<Memory<object>?> DeserializeAsync(PipeReader dataStream, Header header)
         {
             if (header.NumberOfAxisInMainContent == 0)
             {
-                return Task.FromResult<Content?>(null);
+                return Task.FromResult<Memory<object>?>(null);
             }
 
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
@@ -40,7 +40,7 @@ namespace FitsLibrary.Deserialization
             {
                 var chunk = ReadContentDataStream(dataStream).GetAwaiter().GetResult();
                 var blockSize = Math.Min(ChunkSize, contentSizeInBytes - bytesRead);
-                bytesRead += ChunkSize;
+                bytesRead += blockSize;
 
                 for (var i = 0; i < blockSize; i += numberOfBytesPerValue)
                 {
@@ -52,7 +52,7 @@ namespace FitsLibrary.Deserialization
                 dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
             }
 
-            return Task.FromResult((Content?)new Content(dataPointsMemory));
+            return Task.FromResult<Memory<object>?>(dataPointsMemory);
         }
 
         private static object ParseValue(DataContentType dataContentType, ReadOnlySpan<byte> currentValueBytes)

@@ -50,3 +50,17 @@ Index for value in 2 dimensional data for example is calculated like this:
 index = indexAxis1 + (axisSize1 * indexAxis2)
 fitsFile.Content.Span[index];
 ```
+
+### By coordinates
+To get the value at specific coordinates, do
+```csharp
+var value = fitsFile.GetFloat32ValueAt(x, y);
+```
+There is a typed functions for all supported data types by the fits standard (byte, 16-bit integer, 32-bit integer,
+64-bit integer, 32-bit float, 64-bit float)
+
+Be aware though, that this method for performance reasons makes no sansity checks.
+If you enter coordinates that do not exists expect random numbers to be returned!
+Also, if you try to access data as in32 while data is int64, expect exceptions. To check the datatype of the document
+use `fitsFile.Header.DataContentType`.
+

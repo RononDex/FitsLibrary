@@ -2,12 +2,17 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Jobs;
 using FitsLibrary.Deserialization;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace FitsLibrary.Tests.Desersialization
 {
+    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.NetCoreApp50, launchCount: 5, warmupCount: 5, targetCount: 5)]
+    [MemoryDiagnoser]
     public class HeaderDeserializerTests
     {
         [Test]

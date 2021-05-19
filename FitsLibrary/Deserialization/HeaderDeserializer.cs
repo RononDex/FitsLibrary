@@ -1,7 +1,6 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -129,17 +128,17 @@ namespace FitsLibrary.Deserialization
 
         private static HeaderEntry ParseHeaderEntryChunk(ReadOnlySpan<byte> headerEntryChunk)
         {
-            var key = Encoding.ASCII.GetString(headerEntryChunk[0..8]).Trim();
+            var key = Encoding.ASCII.GetString(headerEntryChunk.Slice(0, 8)).Trim();
             if (HeaderEntryChunkHasValueMarker(headerEntryChunk)
-                    || HeaderEntryEntryChunkHasContinueMarker(headerEntryChunk))
+                    || HeaderEntryEntryChunkHasContinueMarker(key))
             {
-                var value = Encoding.ASCII.GetString(headerEntryChunk[10..]).Trim();
-                if (value.Contains('/', StringComparison.Ordinal))
+                ReadOnlySpan<char> value = Encoding.ASCII.GetString(headerEntryChunk.Slice(10, 70)).Trim();
+                if (value.IndexOf('/') != -1)
                 {
-                    var comment = value[(value.IndexOf('/', StringComparison.Ordinal) + 1)..].Trim().Trim('\0');
-                    value = value[0..value.IndexOf('/', StringComparison.Ordinal)].Trim();
+                    var comment = value[(value.IndexOf('/') + 1)..].Trim().Trim('\0');
+                    value = value[0..value.IndexOf('/')].Trim();
                     var parsedValue = ParseValue(value);
-                    return new HeaderEntry(key, parsedValue, comment);
+                    return new HeaderEntry(key, parsedValue, new string(comment));
                 }
                 else
                 {
@@ -157,35 +156,35 @@ namespace FitsLibrary.Deserialization
                 comment: null);
         }
 
-        private static bool HeaderEntryEntryChunkHasContinueMarker(ReadOnlySpan<byte> headerEntryChunk)
+        private static bool HeaderEntryEntryChunkHasContinueMarker(string key)
         {
-            return string.Equals(Encoding.ASCII.GetString(headerEntryChunk[..8]), ContinueKeyWord, StringComparison.Ordinal);
+            return string.Equals(key, ContinueKeyWord, StringComparison.Ordinal);
         }
 
-        private static object? ParseValue(string value)
+        private static object? ParseValue(ReadOnlySpan<char> value)
         {
-            value = value.Trim('\0');
-            if (string.IsNullOrEmpty(value.Trim()))
+            value = value.Trim('\0').Trim(' ');
+            if (value.Length == 0)
             {
                 return null;
             }
 
-            if (value.Trim().StartsWith('\''))
+            if (value[0] == '\'')
             {
-                return value.Trim()[1..^1];
+                return new String(value[1..^1]);
             }
 
-            if (value.Contains(".", StringComparison.Ordinal))
+            if (value.IndexOf('.') != -1)
             {
-                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+                return double.Parse(value);
             }
 
-            if (string.Equals(value, "T", StringComparison.Ordinal) || string.Equals(value, "F", StringComparison.Ordinal))
+            if (value.Length == 1 && (value[0] == 'T' || value[0] == 'F'))
             {
-                return string.Equals(value, "T", StringComparison.Ordinal);
+                return value[0] == 'T';
             }
 
-            return Convert.ToInt64(value, CultureInfo.InvariantCulture);
+            return long.Parse(value);
         }
 
         private static bool HeaderEntryChunkHasValueMarker(ReadOnlySpan<byte> headerEntryChunk)

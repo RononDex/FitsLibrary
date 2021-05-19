@@ -54,6 +54,11 @@ namespace FitsLibrary
             };
         }
 
+        public Task<FitsDocument> ReadAsync(string filePath)
+        {
+            return ReadAsync(File.OpenRead(filePath));
+        }
+
         public async Task<FitsDocument> ReadAsync(Stream inputStream)
         {
             var pipeReader = PipeReader.Create(
@@ -89,11 +94,6 @@ namespace FitsLibrary
             return new FitsDocument(
                 header: header,
                 content: content);
-        }
-
-        public Task<FitsDocument> ReadAsync(string filePath)
-        {
-            return ReadAsync(File.OpenRead(filePath));
         }
     }
 }

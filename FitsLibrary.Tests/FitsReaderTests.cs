@@ -84,7 +84,7 @@ namespace FitsLibrary.Tests
             var actual = await testee.ReadAsync(new MemoryStream());
 
             actual.Should().NotBeNull();
-            actual.Content.Should().BeNull();
+            actual.RawData.Should().BeNull();
         }
 
         private class TesteeBuilder
