@@ -59,7 +59,7 @@ var value = fitsFile.GetFloat32ValueAt(x, y);
 There is a typed functions for all supported data types by the fits standard (byte, 16-bit integer, 32-bit integer,
 64-bit integer, 32-bit float, 64-bit float)
 
-Be aware, this method makes no sanity checks for performance reasons.
+**Be aware, these methods make no sanity checks for performance reasons.**
 If you enter coordinates that do not exists or exceed their length expect random numbers to be returned!
 Also, if you try to access data in the wrong datatybe, like for example as int32 while data is int64, expect exceptions. To check the datatype of the document
 use `fitsFile.Header.DataContentType`.
