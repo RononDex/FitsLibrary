@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>FitsLibrary</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
@@ -8,10 +8,13 @@
     <Authors>RononDex</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>0.1.1.0-pre</FileVersion>
-    <Version>0.1.1-pre</Version>
+    <FileVersion>0.2.0.0-pre</FileVersion>
+    <Version>0.2.0-pre</Version>
     <PackageReleaseNotes>
-        Added license to nuget package
+      - Increased performance by ~600%
+      - Drastically decreased memory usage
+      - Switched to a flat array raw data loading
+      - Added some helper functions for data access
     </PackageReleaseNotes>
     <PackageDescription>
       FitsLibrary is a native C# / dotnet core implementation using the most up to date FITS 4.0 specification for writing and reading astronomical FITS files.
@@ -20,7 +23,7 @@
 This library has support for IoC (Inversion of Control), everything is implemented through interfaces
 
       What currently works
-        - Loading of header data, including "CONTINUE" keywords for values spanning over multiple entries
+        - Loading of header data
         - Validation of header content
         - Reading of N-Dimensional data arrays
 
@@ -28,7 +31,7 @@ This library has support for IoC (Inversion of Control), everything is implement
         - Extension Headers
         - Writing .fits files
 
-      For more information see the github repository ReadMe
+      For more information / documentation see the github repository README
     </PackageDescription>
     <PackageProjectUrl>https://github.com/RononDex/FitsLibrary</PackageProjectUrl>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
@@ -36,6 +39,10 @@ This library has support for IoC (Inversion of Control), everything is implement
 
   <ItemGroup>
     <None Include="../LICENSE" Pack="true" PackagePath="LICENSE"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

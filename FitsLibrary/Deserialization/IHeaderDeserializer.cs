@@ -1,4 +1,4 @@
-using System.IO;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 
@@ -6,6 +6,6 @@ namespace FitsLibrary.Deserialization
 {
     public interface IHeaderDeserializer
     {
-        public abstract Task<Header> DeserializeAsync(Stream dataStream);
+        public abstract Task<Header> DeserializeAsync(PipeReader dataStream);
     }
 }

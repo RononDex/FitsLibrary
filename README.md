@@ -10,12 +10,12 @@ The library focuses on being fast and easy to use.
 **This library has support for IoC (Inversion of Control), everything is implemented through interfaces** 
 
 # What currently works
- - Loading of header data, including "CONTINUE" keywords for values spanning over multiple entries
+ - Loading of header data
  - Validation of header content
  - Reading of N-Dimensional data arrays
 
 # What doesn't work
- - Extension Headers
+ - Reading of extension headers
  - Writing .fits files
 
 # Usage
@@ -32,7 +32,7 @@ Header values can have different data types (string, integer, float, ...)
 
 They can be read using
 ```csharp
-fitsFile.Header.Entries.Single(h => h.Key == "TestHeaderKey").Value as string
+var headerValue = fitsFile.Header["TestHeaderKey"] as string
 ```
 
 ## Accessing Content data
@@ -40,12 +40,34 @@ Since the type of data can change (for example, int or float) per file, the only
 file was to use `object` as dataype for the data. You have the responsibility, to cast the data to the correct type
 before use (helper methods for this are planned).
 
-Data can be read using 
+Data can be accessed in different ways:
+
+### RawData
+By accesing `fitsFile.Content` (which is of type `Memory<T>`, use .Span to access data or much slower .ToArray())
+This is used for fast access, does not differntiate between dimensions. 
+Index for value in 2 dimensional data for example is calculated like this:
 ```csharp
-fitsFile.Content
+index = indexAxis1 + (axisSize1 * indexAxis2)
+fitsFile.Content.Span[index];
 ```
-For example to get a the value at certain coordinates:
+
+### By coordinates
+To get the value at specific coordinates, do
 ```csharp
-fitsFile.Content.Data.Single(dp => dp.Coordinates[0] == xCoordinate && dp.Coordinates[1] == yCoordiante).Value as float;
+var value = fitsFile.GetFloat32ValueAt(x, y);
 ```
-Where `xCoordiante` and `yCoordinate` are the coordinates one wants to get the data from
+There is a typed functions for all supported data types by the fits standard (byte, 16-bit integer, 32-bit integer,
+64-bit integer, 32-bit float, 64-bit float)
+
+**Be aware, these methods make no sanity checks for performance reasons.**
+If you enter coordinates that do not exists or exceed their length expect random numbers to be returned!
+Also, if you try to access data in the wrong datatybe, like for example as int32 while data is int64, expect exceptions. To check the datatype of the document
+use `fitsFile.Header.DataContentType`.
+
+The sizes of the axis can be determined using:
+```csharp
+var numberOfAxis = fitsFile.Header.NumberOfAxisInMainContent;
+var axis1Size = fitsFile.Header["NAXIS1"] as long;
+var axi2Size = fitsFile.Header["NAXIS2"] as long;
+...
+```

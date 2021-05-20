@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
 using FitsLibrary.DocumentParts;
@@ -83,7 +84,7 @@ namespace FitsLibrary.Tests
             var actual = await testee.ReadAsync(new MemoryStream());
 
             actual.Should().NotBeNull();
-            actual.Content.Should().BeNull();
+            actual.RawData.Should().BeNull();
         }
 
         private class TesteeBuilder
@@ -103,7 +104,7 @@ namespace FitsLibrary.Tests
             public TesteeBuilder WithDeserializerThrowingException()
             {
                 headerDeserializerMock
-                    .Setup(mock => mock.DeserializeAsync(It.IsAny<Stream>()))
+                    .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>()))
                     .Throws<Exception>();
 
                 return this;
@@ -136,7 +137,7 @@ namespace FitsLibrary.Tests
             public TesteeBuilder WithEmptyHeader()
             {
                 headerDeserializerMock
-                    .Setup(mock => mock.DeserializeAsync(It.IsAny<Stream>()))
+                    .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>()))
                     .ReturnsAsync(value: null);
 
                 return this;
@@ -145,7 +146,7 @@ namespace FitsLibrary.Tests
             public TesteeBuilder WithEmptyContent()
             {
                 contentDeserializerMock
-                    .Setup(mock => mock.DeserializeAsync(It.IsAny<Stream>(), It.IsAny<Header>()))
+                    .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>(), It.IsAny<Header>()))
                     .ReturnsAsync(value: null);
 
                 return this;

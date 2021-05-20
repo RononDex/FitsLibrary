@@ -1,7 +1,8 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace FitsLibrary.Deserialization
         /// </summary>
         /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task<Header> DeserializeAsync(Stream dataStream)
+        public async Task<Header> DeserializeAsync(PipeReader dataStream)
         {
             PreValidateStream(dataStream);
 
@@ -45,29 +46,36 @@ namespace FitsLibrary.Deserialization
 
             while (!endOfHeaderReached)
             {
-                if (dataStream.Length - dataStream.Position < HeaderBlockSize)
+                var result = await dataStream.ReadAsync().ConfigureAwait(false);
+                var headerBlock = result.Buffer;
+
+                if (result.IsCompleted || result.Buffer.Length < HeaderBlockSize)
                 {
+                    await dataStream.CompleteAsync().ConfigureAwait(false);
                     throw new InvalidDataException("No END marker found for the fits header, fits file might be corrupted");
                 }
 
-                var headerBlock = new byte[HeaderBlockSize];
-                _ = await dataStream.ReadAsync(headerBlock, 0, headerBlock.Length).ConfigureAwait(false);
-
                 headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
+                dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
             }
 
             return new Header(headerEntries);
         }
 
-        private static List<HeaderEntry> ParseHeaderBlock(byte[] headerBlock, out bool endOfHeaderReached)
+        private static List<HeaderEntry> ParseHeaderBlock(ReadOnlySequence<byte> headerBlock, out bool endOfHeaderReached)
         {
             endOfHeaderReached = false;
-            var headerEntryChunks = headerBlock.Split(HeaderEntryChunkSize).Select(arr => arr.ToArray());
+            var currentIndex = 0;
+            Span<byte> headerBlockSpan = stackalloc byte[Convert.ToInt32(headerBlock.Length)];
+            headerBlock.CopyTo(headerBlockSpan);
             var headerEntries = new List<HeaderEntry>();
             var isContinued = false;
 
-            foreach (var headerEntryChunk in headerEntryChunks)
+            while (currentIndex < HeaderBlockSize)
             {
+                var headerEntryChunk = headerBlockSpan.Slice(currentIndex, HeaderEntryChunkSize);
+                currentIndex += HeaderEntryChunkSize;
+
                 if (headerEntryChunk.SequenceEqual(END_MARKER))
                 {
                     endOfHeaderReached = true;
@@ -107,6 +115,7 @@ namespace FitsLibrary.Deserialization
                         headerEntries[^1].Comment += $" {parsedHeaderEntry.Comment}";
                     }
                 }
+
             }
 
             return headerEntries;
@@ -117,19 +126,19 @@ namespace FitsLibrary.Deserialization
             return value is string parsedString && parsedString.Trim().EndsWith(ContinuedStringMarker);
         }
 
-        private static HeaderEntry ParseHeaderEntryChunk(byte[] headerEntryChunk)
+        private static HeaderEntry ParseHeaderEntryChunk(ReadOnlySpan<byte> headerEntryChunk)
         {
-            var key = Encoding.ASCII.GetString(headerEntryChunk[0..8]).Trim();
+            var key = Encoding.ASCII.GetString(headerEntryChunk.Slice(0, 8)).Trim();
             if (HeaderEntryChunkHasValueMarker(headerEntryChunk)
-                    || HeaderEntryEntryChunkHasContinueMarker(headerEntryChunk))
+                    || HeaderEntryEntryChunkHasContinueMarker(key))
             {
-                var value = Encoding.ASCII.GetString(headerEntryChunk[10..]).Trim();
-                if (value.Contains('/', StringComparison.Ordinal))
+                ReadOnlySpan<char> value = Encoding.ASCII.GetString(headerEntryChunk.Slice(10, 70)).Trim();
+                if (value.IndexOf('/') != -1)
                 {
-                    var comment = value[(value.IndexOf('/', StringComparison.Ordinal) + 1)..].Trim().Trim('\0');
-                    value = value[0..value.IndexOf('/', StringComparison.Ordinal)].Trim();
+                    var comment = value[(value.IndexOf('/') + 1)..].Trim().Trim('\0');
+                    value = value[0..value.IndexOf('/')].Trim();
                     var parsedValue = ParseValue(value);
-                    return new HeaderEntry(key, parsedValue, comment);
+                    return new HeaderEntry(key, parsedValue, new string(comment));
                 }
                 else
                 {
@@ -147,50 +156,46 @@ namespace FitsLibrary.Deserialization
                 comment: null);
         }
 
-        private static bool HeaderEntryEntryChunkHasContinueMarker(byte[] headerEntryChunk)
+        private static bool HeaderEntryEntryChunkHasContinueMarker(string key)
         {
-            return string.Equals(Encoding.ASCII.GetString(headerEntryChunk[..8]), ContinueKeyWord, StringComparison.Ordinal);
+            return string.Equals(key, ContinueKeyWord, StringComparison.Ordinal);
         }
 
-        private static object? ParseValue(string value)
+        private static object? ParseValue(ReadOnlySpan<char> value)
         {
-            value = value.Trim('\0');
-            if (string.IsNullOrEmpty(value.Trim()))
+            value = value.Trim('\0').Trim(' ');
+            if (value.Length == 0)
             {
                 return null;
             }
 
-            if (value.Trim().StartsWith('\''))
+            if (value[0] == '\'')
             {
-                return value.Trim()[1..^1];
+                return new String(value[1..^1]);
             }
 
-            if (value.Contains(".", StringComparison.Ordinal))
+            if (value.IndexOf('.') != -1)
             {
-                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+                return double.Parse(value);
             }
 
-            if (string.Equals(value, "T", StringComparison.Ordinal) || string.Equals(value, "F", StringComparison.Ordinal))
+            if (value.Length == 1 && (value[0] == 'T' || value[0] == 'F'))
             {
-                return string.Equals(value, "T", StringComparison.Ordinal);
+                return value[0] == 'T';
             }
 
-            return Convert.ToInt64(value, CultureInfo.InvariantCulture);
+            return long.Parse(value);
         }
 
-        private static bool HeaderEntryChunkHasValueMarker(byte[] headerEntryChunk)
+        private static bool HeaderEntryChunkHasValueMarker(ReadOnlySpan<byte> headerEntryChunk)
         {
             return headerEntryChunk[8] == 0x3D && headerEntryChunk[9] == 0x20;
         }
 
-        private void PreValidateStream(Stream dataStream)
+        private static void PreValidateStream(PipeReader dataStream)
         {
             if (dataStream == null)
                 throw new ArgumentNullException(nameof(dataStream), "The Stream from which to read from can not be NULL");
-            if (dataStream.Length == 0)
-                throw new InvalidDataException("Empty data stream provided. Stream can not be empty!");
-            if (dataStream.Length < HeaderBlockSize)
-                throw new InvalidDataException("The data stream provided has an invalid length, the fits data stream might be corrupted");
         }
     }
 }

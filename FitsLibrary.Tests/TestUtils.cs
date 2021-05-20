@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Pipelines;
 using System.Text;
 using FitsLibrary.Deserialization;
 
@@ -6,12 +7,12 @@ namespace FitsLibrary.Tests
 {
     public static class TestUtils
     {
-        public static Stream ByteArrayToStream(byte[] data)
+        public static PipeReader ByteArrayToStream(byte[] data)
         {
-            return new MemoryStream(data);
+            return PipeReader.Create(new MemoryStream(data), new StreamPipeReaderOptions(bufferSize: 2880));
         }
 
-        public static Stream StringToStream(string data)
+        public static PipeReader StringToStream(string data)
         {
             var bytes = Encoding.ASCII.GetBytes(data);
             return ByteArrayToStream(bytes);
@@ -39,7 +40,6 @@ namespace FitsLibrary.Tests
                 {
                     combinedValue = $"{combinedValue} / {comment}".PadRight(70);
                 }
-;
             }
 
             var headerEntryBytes = Encoding.ASCII.GetBytes($"{combinedValue}");
