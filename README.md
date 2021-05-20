@@ -10,12 +10,12 @@ The library focuses on being fast and easy to use.
 **This library has support for IoC (Inversion of Control), everything is implemented through interfaces** 
 
 # What currently works
- - Loading of header data, including "CONTINUE" keywords for values spanning over multiple entries
+ - Loading of header data
  - Validation of header content
  - Reading of N-Dimensional data arrays
 
 # What doesn't work
- - Extension Headers
+ - Reading of extension headers
  - Writing .fits files
 
 # Usage
@@ -59,8 +59,15 @@ var value = fitsFile.GetFloat32ValueAt(x, y);
 There is a typed functions for all supported data types by the fits standard (byte, 16-bit integer, 32-bit integer,
 64-bit integer, 32-bit float, 64-bit float)
 
-Be aware though, that this method for performance reasons makes no sansity checks.
-If you enter coordinates that do not exists expect random numbers to be returned!
-Also, if you try to access data as in32 while data is int64, expect exceptions. To check the datatype of the document
+Be aware, this method makes no sanity checks for performance reasons.
+If you enter coordinates that do not exists or exceed their length expect random numbers to be returned!
+Also, if you try to access data in the wrong datatybe, like for example as int32 while data is int64, expect exceptions. To check the datatype of the document
 use `fitsFile.Header.DataContentType`.
 
+The sizes of the axis can be determined using:
+```csharp
+var numberOfAxis = fitsFile.Header.NumberOfAxisInMainContent;
+var axis1Size = fitsFile.Header["NAXIS1"] as long;
+var axi2Size = fitsFile.Header["NAXIS2"] as long;
+...
+```
