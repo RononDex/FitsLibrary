@@ -32,7 +32,7 @@ Header values can have different data types (string, integer, float, ...)
 
 They can be read using
 ```csharp
-fitsFile.Header.Entries.Single(h => h.Key == "TestHeaderKey").Value as string
+var headerValue = fitsFile.Header["TestHeaderKey"] as string
 ```
 
 ## Accessing Content data
