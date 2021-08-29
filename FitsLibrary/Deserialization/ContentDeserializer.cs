@@ -57,6 +57,8 @@ namespace FitsLibrary.Deserialization
 
         private static object ParseValue(DataContentType dataContentType, ReadOnlySpan<byte> currentValueBytes)
         {
+            // TODO: Make a Parser for each type and instante it once, so if (type == / switch) only has to be done
+            // once
             return dataContentType switch
             {
                 DataContentType.DOUBLE => BinaryPrimitives.ReadDoubleBigEndian(currentValueBytes),

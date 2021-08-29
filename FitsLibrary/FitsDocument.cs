@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary
@@ -17,10 +18,12 @@ namespace FitsLibrary
         /// <param name="content">The data content of the fits document</param>
         public FitsDocument(
             Header header,
-            Memory<object>? content)
+            Memory<object>? content,
+            List<Extension> extensions)
         {
             Header = header;
             RawData = content;
+            Extensions = extensions;
 
             InitHelperData();
         }
@@ -49,6 +52,11 @@ namespace FitsLibrary
         /// A list of headers in this document
         /// </summary>
         public Header Header { get; }
+
+        /// <summary>
+        /// A list of all extensions in the fits file
+        /// </summary>
+        public List<Extension> Extensions { get; }
 
         /// <summary>
         /// Returns the value at the given coordinates as a byte

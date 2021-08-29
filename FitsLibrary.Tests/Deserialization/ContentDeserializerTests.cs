@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace FitsLibrary.Tests.Desersialization
 {
-    public partial class ContentDeserializerTests
+    public class ContentDeserializerTests
     {
         [Test]
         public async Task DeserializeAsync_WithNoContent_ReturnsNullAsync()
