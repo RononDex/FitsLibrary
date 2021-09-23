@@ -14,6 +14,7 @@ namespace FitsLibrary
         private IReadOnlyList<IValidator<Header>> headerValidators;
         private IContentDeserializer contentDeserializer;
         private IHeaderDeserializer headerDeserializer;
+        private IExtensionDeserializer extensionsDeserializer;
 
         private const int ChunkSize = 2880;
 
@@ -27,6 +28,7 @@ namespace FitsLibrary
         {
             headerDeserializer = new HeaderDeserializer();
             contentDeserializer = new ContentDeserializer();
+            extensionsDeserializer = new ExtensionDeserializer(headerDeserializer, contentDeserializer);
         }
 
         /// <summary>
@@ -91,9 +93,12 @@ namespace FitsLibrary
                 .DeserializeAsync(pipeReader, header)
                 .ConfigureAwait(false);
 
+            var extensions = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
+
             return new FitsDocument(
                 header: header,
-                content: content);
+                content: content,
+                extensions: extensions);
         }
     }
 }

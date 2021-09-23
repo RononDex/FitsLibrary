@@ -6,12 +6,12 @@ namespace FitsLibrary.Deserialization
 {
     public class ExtensionDeserializer : IExtensionDeserializer
     {
-        private readonly ContentDeserializer contentDeserializer;
-        private readonly HeaderDeserializer headerDeserializer;
+        private readonly IContentDeserializer contentDeserializer;
+        private readonly IHeaderDeserializer headerDeserializer;
 
         public ExtensionDeserializer(
-            HeaderDeserializer headerDeserializer,
-            ContentDeserializer contentDeserializer)
+            IHeaderDeserializer headerDeserializer,
+            IContentDeserializer contentDeserializer)
         {
             this.headerDeserializer = headerDeserializer;
             this.contentDeserializer = contentDeserializer;
