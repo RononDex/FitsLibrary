@@ -1,3 +1,4 @@
+using System;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
@@ -17,13 +18,20 @@ namespace FitsLibrary.Deserialization
             this.contentDeserializer = contentDeserializer;
         }
 
-        public async Task<Extension> DeserializeAsync(PipeReader dataStream)
+        public async Task<(bool, Extension)> DeserializeAsync(PipeReader dataStream)
         {
             // TODO: Validate parsedHeader for needed fields etc
-            var parsedExtensionHeader = await headerDeserializer.DeserializeAsync(dataStream);
-            var parsedExtensionContent = await contentDeserializer.DeserializeAsync(dataStream, parsedExtensionHeader);
+            var parsedExtensionHeaderResult = await headerDeserializer.DeserializeAsync(dataStream);
+            (bool endOfStreamReached, Memory<object>? contentData)? parsedExtensionContentResult = null;
 
-            return new Extension(parsedExtensionHeader, parsedExtensionContent);
+            if (!parsedExtensionHeaderResult.endOfStreamReached)
+            {
+                parsedExtensionContentResult = await contentDeserializer.DeserializeAsync(dataStream, parsedExtensionHeaderResult.parsedHeader);
+            }
+
+            return (parsedExtensionHeaderResult.endOfStreamReached
+                    || (parsedExtensionContentResult?.endOfStreamReached == true),
+                    new Extension(parsedExtensionHeaderResult.parsedHeader, parsedExtensionContentResult?.contentData));
         }
     }
 }

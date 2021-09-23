@@ -14,13 +14,8 @@ namespace FitsLibrary.Deserialization
     {
         private const int ChunkSize = 2880;
 
-        public Task<Memory<object>?> DeserializeAsync(PipeReader dataStream, Header header)
+        public Task<(bool endOfStreamReached, Memory<object>? contentData)> DeserializeAsync(PipeReader dataStream, Header header)
         {
-            if (header.NumberOfAxisInMainContent == 0)
-            {
-                return Task.FromResult<Memory<object>?>(null);
-            }
-
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
             var numberOfAxis = header.NumberOfAxisInMainContent;
             var axisSizes = Enumerable.Range(1, numberOfAxis)
@@ -33,12 +28,14 @@ namespace FitsLibrary.Deserialization
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
             var contentDataType = header.DataContentType;
             Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
+            var endOfStreamReached = false;
 
             var bytesRead = 0;
             var currentValueIndex = 0;
             while (bytesRead < contentSizeInBytes)
             {
                 var chunk = ReadContentDataStream(dataStream).GetAwaiter().GetResult();
+                endOfStreamReached = chunk.IsCompleted;
                 var blockSize = Math.Min(ChunkSize, contentSizeInBytes - bytesRead);
                 bytesRead += blockSize;
 
@@ -52,7 +49,7 @@ namespace FitsLibrary.Deserialization
                 dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
             }
 
-            return Task.FromResult<Memory<object>?>(dataPointsMemory);
+            return Task.FromResult<(bool, Memory<object>?)>((endOfStreamReached, dataPointsMemory));
         }
 
         private static object ParseValue(DataContentType dataContentType, ReadOnlySpan<byte> currentValueBytes)

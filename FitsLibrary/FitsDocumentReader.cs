@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
@@ -69,14 +70,14 @@ namespace FitsLibrary
                         bufferSize: ChunkSize,
                         minimumReadSize: ChunkSize))!;
 
-            var header = await headerDeserializer
+            var headerResult = await headerDeserializer
                 .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
 
             var validatorTasks = new List<Task<ValidationResult>>();
             foreach (var headerValidator in headerValidators)
             {
-                validatorTasks.Add(headerValidator.ValidateAsync(header));
+                validatorTasks.Add(headerValidator.ValidateAsync(headerResult.parsedHeader));
             }
 
             var validationResults = await Task.WhenAll(validatorTasks).ConfigureAwait(continueOnCapturedContext: false);
@@ -89,15 +90,28 @@ namespace FitsLibrary
                 }
             }
 
-            var content = await contentDeserializer
-                .DeserializeAsync(pipeReader, header)
-                .ConfigureAwait(false);
+            (bool endOfStreamReached, Memory<object>? contentData)? contentResult = null;
+            if (!headerResult.endOfStreamReached
+                    && headerResult.parsedHeader.NumberOfAxisInMainContent > 0)
+            {
+                contentResult = await contentDeserializer
+                    .DeserializeAsync(pipeReader, headerResult.parsedHeader)
+                    .ConfigureAwait(false);
+            }
 
-            var extensions = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
+            var extensions = new List<Extension>();
+            var endOfStreamReached = contentResult?.endOfStreamReached == true || headerResult.endOfStreamReached;
+
+            while (!endOfStreamReached)
+            {
+                var extensionResult = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
+                endOfStreamReached = extensionResult.endOfStreamReached;
+                extensions.Add(extensionResult.parsedExtension);
+            }
 
             return new FitsDocument(
-                header: header,
-                content: content,
+                header: headerResult.parsedHeader,
+                content: contentResult?.contentData,
                 extensions: extensions);
         }
     }

@@ -13,13 +13,13 @@ namespace FitsLibrary.Tests.Benchmarking
     [MemoryDiagnoser]
     public class ContentDeserializerBenchmarks
     {
-        private PipeReader TestEmptyStream;
-        private Header EmptyHeader;
-        private Header HeaderWith1Axis;
-        private Header HeaderWith2Axis;
-        private PipeReader TestWith10IntValues;
-        private PipeReader TestWith1MillionFloatValues;
-        private ContentDeserializer ContentDeserializer;
+        private PipeReader TestEmptyStream = null!;
+        private Header EmptyHeader = null!;
+        private Header HeaderWith1Axis = null!;
+        private Header HeaderWith2Axis = null!;
+        private PipeReader TestWith10IntValues = null!;
+        private PipeReader TestWith1MillionFloatValues = null!;
+        private ContentDeserializer ContentDeserializer = null!;
 
         [IterationSetup]
         public void Setup()
@@ -54,12 +54,12 @@ namespace FitsLibrary.Tests.Benchmarking
         }
 
         [Benchmark]
-        public Task<Memory<object>?> WithEmptyContentStream() => ContentDeserializer.DeserializeAsync(TestEmptyStream, EmptyHeader);
+        public Task<(bool, Memory<object>?)> WithEmptyContentStream() => ContentDeserializer.DeserializeAsync(TestEmptyStream, EmptyHeader);
 
         [Benchmark]
-        public Task<Memory<object>?> With10IntValues() => ContentDeserializer.DeserializeAsync(TestWith10IntValues, HeaderWith1Axis);
+        public Task<(bool, Memory<object>?)> With10IntValues() => ContentDeserializer.DeserializeAsync(TestWith10IntValues, HeaderWith1Axis);
 
         [Benchmark]
-        public Task<Memory<object>?> With1MillionFloatValues() => ContentDeserializer.DeserializeAsync(TestWith1MillionFloatValues, HeaderWith2Axis);
+        public Task<(bool, Memory<object>?)> With1MillionFloatValues() => ContentDeserializer.DeserializeAsync(TestWith1MillionFloatValues, HeaderWith2Axis);
     }
 }

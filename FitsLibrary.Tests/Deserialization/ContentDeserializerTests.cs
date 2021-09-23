@@ -40,11 +40,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -60,11 +61,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((short)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (short)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (short)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -80,11 +82,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((byte)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (byte)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (byte)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -100,11 +103,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((double)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (double)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (double)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -120,11 +124,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((float)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (float)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (float)d == 123).Should().BeTrue();
 
         }
 
@@ -141,11 +146,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((long)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (long)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (long)d == 123).Should().BeTrue();
 
         }
 
@@ -166,12 +172,13 @@ namespace FitsLibrary.Tests.Desersialization
                         header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.Span[4].Should().Equals(10);
-            deserilaizedContent.Value.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 5).All(d => (int)d.d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.Span[4].Should().Equals(10);
+            deserilaizedContent!.Value.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 5).All(d => (int)d.d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -188,11 +195,12 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10 * 20);
-            deserilaizedContent.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10 * 20);
+            deserilaizedContent!.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -217,20 +225,21 @@ namespace FitsLibrary.Tests.Desersialization
                         header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value
+            deserilaizedContent!.Value
                 .ToArray()
                 .Should()
                 .HaveCount(10 * 20);
-            deserilaizedContent.Value
+            deserilaizedContent!.Value
                 .ToArray()
                 .Select((d, i) => (i, d))
                 .Single(d => d.i == 5 + (2 * 10))
                 .Should()
                 .Equals(10);
-            deserilaizedContent.Value
+            deserilaizedContent!.Value
                 .ToArray()
                 .Select((d, i) => (i, d))
                 .Where(d => d.i != 5 + (2 * 10))

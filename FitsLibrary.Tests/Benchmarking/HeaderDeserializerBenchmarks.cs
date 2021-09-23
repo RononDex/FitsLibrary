@@ -36,6 +36,6 @@ namespace FitsLibrary.Tests.Benchmarking
         }
 
         [Benchmark]
-        public Task<Header> ParseHeader_WithOneEntry() => headerDeserializer.DeserializeAsync(headerDataWithOneEntry);
+        public Task<(bool, Header?)> ParseHeader_WithOneEntry() => headerDeserializer.DeserializeAsync(headerDataWithOneEntry);
     }
 }

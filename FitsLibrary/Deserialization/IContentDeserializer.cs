@@ -7,6 +7,6 @@ namespace FitsLibrary.Deserialization
 {
     public interface IContentDeserializer
     {
-        public abstract Task<Memory<object>?> DeserializeAsync(PipeReader dataStream, Header header);
+        public abstract Task<(bool endOfStreamReached, Memory<object>? contentData)> DeserializeAsync(PipeReader dataStream, Header header);
     }
 }

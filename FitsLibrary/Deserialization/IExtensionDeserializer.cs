@@ -6,6 +6,6 @@ namespace FitsLibrary.Deserialization
 {
     public interface IExtensionDeserializer
     {
-        public abstract Task<Extension> DeserializeAsync(PipeReader dataStream);
+        public abstract Task<(bool endOfStreamReached, Extension parsedExtension)> DeserializeAsync(PipeReader dataStream);
     }
 }

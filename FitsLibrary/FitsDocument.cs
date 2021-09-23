@@ -19,11 +19,11 @@ namespace FitsLibrary
         public FitsDocument(
             Header header,
             Memory<object>? content,
-            List<Extension> extensions)
+            List<Extension>? extensions = null)
         {
             Header = header;
             RawData = content;
-            Extensions = extensions;
+            Extensions = extensions ?? new List<Extension>();
 
             InitHelperData();
         }

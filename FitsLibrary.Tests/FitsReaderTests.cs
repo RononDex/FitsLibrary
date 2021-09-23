@@ -29,7 +29,7 @@ namespace FitsLibrary.Tests
         }
 
         [Test]
-        public async Task ReadAsync_WithOneValidatorReturningFailed_ThrowsExceptionAsync()
+        public void ReadAsync_WithOneValidatorReturningFailed_ThrowsExceptionAsync()
         {
             var testee = new TesteeBuilder()
                 .WithEmptyHeader()
@@ -43,7 +43,7 @@ namespace FitsLibrary.Tests
         }
 
         [Test]
-        public async Task ReadAsync_WithOneValidatorReturningSuccessAndOneReturningFailure_ThrowsException()
+        public void ReadAsync_WithOneValidatorReturningSuccessAndOneReturningFailure_ThrowsException()
         {
             var testee = new TesteeBuilder()
                 .WithEmptyHeader()
@@ -58,7 +58,7 @@ namespace FitsLibrary.Tests
         }
 
         [Test]
-        public async Task ReadAsync_WithDeserializerThrowingException_ThrowsException()
+        public void ReadAsync_WithDeserializerThrowingException_ThrowsException()
         {
             var testee = new TesteeBuilder()
                 .WithEmptyHeader()
@@ -138,7 +138,7 @@ namespace FitsLibrary.Tests
             {
                 headerDeserializerMock
                     .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>()))
-                    .ReturnsAsync(value: null);
+                    .ReturnsAsync(value: (endOfStreamReached: true, parsedHeader: null));
 
                 return this;
             }
@@ -147,7 +147,7 @@ namespace FitsLibrary.Tests
             {
                 contentDeserializerMock
                     .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>(), It.IsAny<Header>()))
-                    .ReturnsAsync(value: null);
+                    .ReturnsAsync(value: (endOfStreamReached: true, contentData: null));
 
                 return this;
             }
