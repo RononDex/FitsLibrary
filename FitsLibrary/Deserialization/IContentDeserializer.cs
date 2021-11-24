@@ -5,8 +5,8 @@ using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary.Deserialization
 {
-    public interface IContentDeserializer
+    public interface IContentDeserializer<TData> where TData : INumber<TData>
     {
-        public abstract Task<(bool endOfStreamReached, Memory<object>? contentData)> DeserializeAsync(PipeReader dataStream, Header header);
+        public Task<(bool endOfStreamReached, Memory<TData>? contentData)> DeserializeAsync(PipeReader dataStream, Header header);
     }
 }

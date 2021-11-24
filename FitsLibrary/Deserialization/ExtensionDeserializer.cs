@@ -7,15 +7,11 @@ namespace FitsLibrary.Deserialization
 {
     public class ExtensionDeserializer : IExtensionDeserializer
     {
-        private readonly IContentDeserializer contentDeserializer;
         private readonly IHeaderDeserializer headerDeserializer;
 
-        public ExtensionDeserializer(
-            IHeaderDeserializer headerDeserializer,
-            IContentDeserializer contentDeserializer)
+        public ExtensionDeserializer(IHeaderDeserializer headerDeserializer)
         {
             this.headerDeserializer = headerDeserializer;
-            this.contentDeserializer = contentDeserializer;
         }
 
         public async Task<(bool, Extension)> DeserializeAsync(PipeReader dataStream)

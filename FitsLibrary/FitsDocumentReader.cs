@@ -13,7 +13,6 @@ namespace FitsLibrary
     public class FitsDocumentReader : IFitsDocumentReader
     {
         private IReadOnlyList<IValidator<Header>> headerValidators;
-        private IContentDeserializer contentDeserializer;
         private IHeaderDeserializer headerDeserializer;
         private IExtensionDeserializer extensionsDeserializer;
 
@@ -28,7 +27,6 @@ namespace FitsLibrary
         private void UseDeserializersForReading()
         {
             headerDeserializer = new HeaderDeserializer();
-            contentDeserializer = new ContentDeserializer();
             extensionsDeserializer = new ExtensionDeserializer(headerDeserializer, contentDeserializer);
         }
 
