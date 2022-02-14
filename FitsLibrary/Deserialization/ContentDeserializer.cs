@@ -3,16 +3,17 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
+using FitsLibrary.Deserialization.ContentValueDeserializer;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization
 {
-    public abstract class ContentDeserializer<TData> : IContentDeserializer<TData> where TData : INumber<TData>
+    public abstract class ContentDeserializer<T> : IContentDeserializer<T> where T : INumber<T>
     {
         private const int ChunkSize = 2880;
 
-        public Task<(bool endOfStreamReached, Memory<TData>? contentData)> DeserializeAsync(PipeReader dataStream, Header header)
+        public Task<(bool endOfStreamReached, Memory<T>? contentData)> DeserializeAsync(PipeReader dataStream, Header header)
         {
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
             var numberOfAxis = header.NumberOfAxisInMainContent;
@@ -20,12 +21,13 @@ namespace FitsLibrary.Deserialization
                 .Select(axisIndex => Convert.ToUInt64(header[$"NAXIS{axisIndex}"])).ToArray();
             var axisSizesSpan = new ReadOnlySpan<ulong>(axisSizes);
             var totalNumberOfValues = axisSizes.Aggregate((ulong)1, (x, y) => x * y);
-            Memory<TData> dataPointsMemory = new TData[totalNumberOfValues];
+            Memory<T> dataPointsMemory = new T[totalNumberOfValues];
             var dataPoints = dataPointsMemory.Span;
             var contentSizeInBytes = numberOfBytesPerValue * Convert.ToInt32(totalNumberOfValues);
             var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
             Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
             var endOfStreamReached = false;
+            var valueParser = GetContentValueParser<T>(header.DataContentType);
 
             var bytesRead = 0;
             var currentValueIndex = 0;
@@ -40,40 +42,38 @@ namespace FitsLibrary.Deserialization
                 {
                     chunk.Buffer.Slice(i, numberOfBytesPerValue).CopyTo(currentValueBuffer);
 
-                    dataPoints[currentValueIndex++] = ParseValue(currentValueBuffer);
+                    dataPoints[currentValueIndex++] = valueParser.ParseValue(currentValueBuffer);
                 }
 
                 dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
             }
 
-            return Task.FromResult<(bool, Memory<TData>?)>((endOfStreamReached, dataPointsMemory));
+            return Task.FromResult<(bool, Memory<T>?)>((endOfStreamReached, dataPointsMemory));
         }
-
-        protected abstract TData ParseValue(ReadOnlySpan<byte> currentValueBytes);
 
         private static async Task<ReadResult> ReadContentDataStream(PipeReader dataStream)
         {
             return await dataStream.ReadAsync().ConfigureAwait(false);
         }
 
-        public static IContentDeserializer<TData> GetInstance(DataContentType dataContentType)
+        private static IContentValueDeserializer<TData> GetContentValueParser<TData>(DataContentType dataContentType) where TData : INumber<TData>
         {
-            switch (dataContentType)
+            switch(dataContentType)
             {
                 case DataContentType.DOUBLE:
-                    return (IContentDeserializer<TData>)new ContentDeserializerDouble();
+                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerDouble();
                 case DataContentType.FLOAT:
-                    return (IContentDeserializer<TData>)new ContentDeserializerFloat();
+                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerFloat();
                 case DataContentType.BYTE:
-                    return (IContentDeserializer<TData>)new ContentDeserializerByte();
-                case DataContentType.SHORT:
-                    return (IContentDeserializer<TData>)new ContentDeserializerInt16();
+                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerByte();
                 case DataContentType.INTEGER:
-                    return (IContentDeserializer<TData>)new ContentDeserializerInt32();
+                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt32();
                 case DataContentType.LONG:
-                    return (IContentDeserializer<TData>)new ContentDeserializerInt64();
+                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt64();
+                case DataContentType.SHORT:
+                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt16();
                 default:
-                    throw new ArgumentException($"Invalid dataContentType {dataContentType}");
+                    throw new ArgumentException("Tried to deserialize unimplemented datatype");
 
             }
         }

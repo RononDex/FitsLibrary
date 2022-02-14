@@ -3,7 +3,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>FitsLibrary</RootNamespace>
     <Nullable>enable</Nullable>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>preview</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
 
     <Authors>RononDex</Authors>
     <Company />
@@ -43,6 +44,7 @@ This library has support for IoC (Inversion of Control), everything is implement
 
   <ItemGroup>
     <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
+    <PackageReference Include="System.Runtime.Experimental" Version="6.0.2-mauipre.1.22054.8" />
   </ItemGroup>
 
   <ItemGroup>
