@@ -10,11 +10,12 @@ using FitsLibrary.Validation.Header;
 
 namespace FitsLibrary
 {
-    public class FitsDocumentReader : IFitsDocumentReader
+    public class FitsDocumentReader<T> : IFitsDocumentReader<T> where T : INumber<T>
     {
         private IReadOnlyList<IValidator<Header>> headerValidators;
         private IHeaderDeserializer headerDeserializer;
         private IExtensionDeserializer extensionsDeserializer;
+        private IContentDeserializer<T> contentDeserializer;
 
         private const int ChunkSize = 2880;
 
@@ -27,7 +28,8 @@ namespace FitsLibrary
         private void UseDeserializersForReading()
         {
             headerDeserializer = new HeaderDeserializer();
-            extensionsDeserializer = new ExtensionDeserializer(headerDeserializer, contentDeserializer);
+            contentDeserializer = new ContentDeserializer<T>();
+            // extensionsDeserializer = new ExtensionDeserializer(headerDeserializer, contentDeserializer);
         }
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace FitsLibrary
         internal FitsDocumentReader(
                 IHeaderDeserializer headerDeserializer,
                 List<IValidator<Header>> headerValidators,
-                IContentDeserializer contentDeserializer)
+                IContentDeserializer<T> contentDeserializer)
         {
             this.headerValidators = headerValidators;
             this.contentDeserializer = contentDeserializer;
@@ -55,12 +57,12 @@ namespace FitsLibrary
             };
         }
 
-        public Task<FitsDocument> ReadAsync(string filePath)
+        public Task<FitsDocument<T>> ReadAsync(string filePath)
         {
             return ReadAsync(File.OpenRead(filePath));
         }
 
-        public async Task<FitsDocument> ReadAsync(Stream inputStream)
+        public async Task<FitsDocument<T>> ReadAsync(Stream inputStream)
         {
             var pipeReader = PipeReader.Create(
                     inputStream,
@@ -88,7 +90,7 @@ namespace FitsLibrary
                 }
             }
 
-            (bool endOfStreamReached, Memory<object>? contentData)? contentResult = null;
+            (bool endOfStreamReached, Memory<T>? contentData)? contentResult = null;
             if (!headerResult.endOfStreamReached
                     && headerResult.parsedHeader.NumberOfAxisInMainContent > 0)
             {
@@ -107,7 +109,7 @@ namespace FitsLibrary
                 extensions.Add(extensionResult.parsedExtension);
             }
 
-            return new FitsDocument(
+            return new FitsDocument<T>(
                 header: headerResult.parsedHeader,
                 content: contentResult?.contentData,
                 extensions: extensions);

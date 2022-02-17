@@ -14,7 +14,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithNoContent_ReturnsNullAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<float>();
             var header = new HeaderBuilder()
                 .WithNumberOfAxis(0)
                 .Build();
@@ -30,7 +30,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithOneAxisAndSomeValues_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(1)
@@ -51,7 +51,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeShort_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<short>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis(1)
@@ -72,7 +72,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeByte_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<byte>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.BYTE)
                 .WithNumberOfAxis(1)
@@ -93,7 +93,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeDouble_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<double>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.DOUBLE)
                 .WithNumberOfAxis(1)
@@ -114,7 +114,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeFloat_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<float>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.FLOAT)
                 .WithNumberOfAxis(1)
@@ -136,7 +136,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeLong_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<long>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.LONG)
                 .WithNumberOfAxis(1)
@@ -158,7 +158,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithOneAxisAndSomeValuesAndOneValueDifferent_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(1)
@@ -184,7 +184,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithTwoAxisAndDefaultValues_ReturnsAllValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(2)
@@ -206,7 +206,7 @@ namespace FitsLibrary.Tests.Desersialization
         [Test]
         public async Task DeserializeAsync_WithTwoAxisAndSomeValuesAndOneValueDifferent_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(2)

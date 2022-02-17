@@ -9,7 +9,7 @@ using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization
 {
-    public abstract class ContentDeserializer<T> : IContentDeserializer<T> where T : INumber<T>
+    public class ContentDeserializer<T> : IContentDeserializer<T> where T : INumber<T>
     {
         private const int ChunkSize = 2880;
 

@@ -18,7 +18,7 @@ namespace FitsLibrary.Tests.SampleFiles
             Console.WriteLine("Reading sample file");
             var startTime = DateTime.Now;
 
-            var reader = new FitsDocumentReader();
+            var reader = new FitsDocumentReader<float>();
             var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
 
             var endTime = DateTime.Now;

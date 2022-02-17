@@ -19,7 +19,7 @@ namespace FitsLibrary.Tests.Benchmarking
         private Header HeaderWith2Axis = null!;
         private PipeReader TestWith10IntValues = null!;
         private PipeReader TestWith1MillionFloatValues = null!;
-        private ContentDeserializer ContentDeserializer = null!;
+        private ContentDeserializer<float> ContentDeserializer = null!;
 
         [IterationSetup]
         public void Setup()
@@ -32,7 +32,7 @@ namespace FitsLibrary.Tests.Benchmarking
                 .Build();
 
             HeaderWith1Axis = new HeaderBuilder()
-                .WithContentDataType(DataContentType.INTEGER)
+                .WithContentDataType(DataContentType.FLOAT)
                 .WithNumberOfAxis(1)
                 .WithAxisOfSize(dimensionIndex: 1, size: 10)
                 .Build();
@@ -50,16 +50,16 @@ namespace FitsLibrary.Tests.Benchmarking
                 .WithDataBeingInitializedWith(123.45f, HeaderWith2Axis)
                 .Build());
 
-            ContentDeserializer = new ContentDeserializer();
+            ContentDeserializer = new ContentDeserializer<float>();
         }
 
         [Benchmark]
-        public Task<(bool, Memory<object>?)> WithEmptyContentStream() => ContentDeserializer.DeserializeAsync(TestEmptyStream, EmptyHeader);
+        public Task<(bool, Memory<float>?)> WithEmptyContentStream() => ContentDeserializer.DeserializeAsync(TestEmptyStream, EmptyHeader);
 
         [Benchmark]
-        public Task<(bool, Memory<object>?)> With10IntValues() => ContentDeserializer.DeserializeAsync(TestWith10IntValues, HeaderWith1Axis);
+        public Task<(bool, Memory<float>?)> With10IntValues() => ContentDeserializer.DeserializeAsync(TestWith10IntValues, HeaderWith1Axis);
 
         [Benchmark]
-        public Task<(bool, Memory<object>?)> With1MillionFloatValues() => ContentDeserializer.DeserializeAsync(TestWith1MillionFloatValues, HeaderWith2Axis);
+        public Task<(bool, Memory<float>?)> With1MillionFloatValues() => ContentDeserializer.DeserializeAsync(TestWith1MillionFloatValues, HeaderWith2Axis);
     }
 }

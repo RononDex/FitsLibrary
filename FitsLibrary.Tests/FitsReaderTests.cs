@@ -17,7 +17,7 @@ namespace FitsLibrary.Tests
         [Test]
         public async Task ReadAsync_WithOneValidatorReturningSuccess_ReturnsParsedFileAsync()
         {
-            var testee = new TesteeBuilder()
+            var testee = new TesteeBuilder<float>()
                 .WithEmptyHeader()
                 .WithEmptyContent()
                 .WithOneHeaderValidatorReturningSuccess()
@@ -31,7 +31,7 @@ namespace FitsLibrary.Tests
         [Test]
         public void ReadAsync_WithOneValidatorReturningFailed_ThrowsExceptionAsync()
         {
-            var testee = new TesteeBuilder()
+            var testee = new TesteeBuilder<float>()
                 .WithEmptyHeader()
                 .WithEmptyContent()
                 .WithOneHeaderValidatorReturningFailure("whatever")
@@ -45,7 +45,7 @@ namespace FitsLibrary.Tests
         [Test]
         public void ReadAsync_WithOneValidatorReturningSuccessAndOneReturningFailure_ThrowsException()
         {
-            var testee = new TesteeBuilder()
+            var testee = new TesteeBuilder<float>()
                 .WithEmptyHeader()
                 .WithEmptyContent()
                 .WithOneHeaderValidatorReturningSuccess()
@@ -60,7 +60,7 @@ namespace FitsLibrary.Tests
         [Test]
         public void ReadAsync_WithDeserializerThrowingException_ThrowsException()
         {
-            var testee = new TesteeBuilder()
+            var testee = new TesteeBuilder<float>()
                 .WithEmptyHeader()
                 .WithEmptyContent()
                 .WithOneHeaderValidatorReturningSuccess()
@@ -75,7 +75,7 @@ namespace FitsLibrary.Tests
         [Test]
         public async Task ReadAsync_WithContentBeingEmpty_ReturnsFileWithNullContentAsync()
         {
-            var testee = new TesteeBuilder()
+            var testee = new TesteeBuilder<float>()
                 .WithOneHeaderValidatorReturningSuccess()
                 .WithEmptyHeader()
                 .WithEmptyContent()
@@ -87,21 +87,21 @@ namespace FitsLibrary.Tests
             actual.RawData.Should().BeNull();
         }
 
-        private class TesteeBuilder
+        private class TesteeBuilder<T> where T : INumber<T>
         {
             private readonly List<IValidator<Header>> headerValidators = new();
             private readonly Mock<IHeaderDeserializer> headerDeserializerMock = new(MockBehavior.Strict);
-            private readonly Mock<IContentDeserializer> contentDeserializerMock = new(MockBehavior.Strict);
+            private readonly Mock<IContentDeserializer<T>> contentDeserializerMock = new(MockBehavior.Strict);
 
-            public FitsDocumentReader Build()
+            public FitsDocumentReader<T> Build()
             {
-                return new FitsDocumentReader(
+                return new FitsDocumentReader<T>(
                     headerDeserializerMock.Object,
                     headerValidators,
                     contentDeserializerMock.Object);
             }
 
-            public TesteeBuilder WithDeserializerThrowingException()
+            public TesteeBuilder<T> WithDeserializerThrowingException()
             {
                 headerDeserializerMock
                     .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>()))
@@ -110,7 +110,7 @@ namespace FitsLibrary.Tests
                 return this;
             }
 
-            public TesteeBuilder WithOneHeaderValidatorReturningSuccess()
+            public TesteeBuilder<T> WithOneHeaderValidatorReturningSuccess()
             {
                 var validatorMock = new Mock<IValidator<Header>>();
                 validatorMock
@@ -122,7 +122,7 @@ namespace FitsLibrary.Tests
                 return this;
             }
 
-            public TesteeBuilder WithOneHeaderValidatorReturningFailure(string validationMessage)
+            public TesteeBuilder<T> WithOneHeaderValidatorReturningFailure(string validationMessage)
             {
                 var validatorMock = new Mock<IValidator<Header>>();
                 validatorMock
@@ -134,7 +134,7 @@ namespace FitsLibrary.Tests
                 return this;
             }
 
-            public TesteeBuilder WithEmptyHeader()
+            public TesteeBuilder<T> WithEmptyHeader()
             {
                 headerDeserializerMock
                     .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>()))
@@ -143,7 +143,7 @@ namespace FitsLibrary.Tests
                 return this;
             }
 
-            public TesteeBuilder WithEmptyContent()
+            public TesteeBuilder<T> WithEmptyContent()
             {
                 contentDeserializerMock
                     .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>(), It.IsAny<Header>()))
