@@ -39,7 +39,7 @@ namespace FitsLibrary.Tests
 
             Func<Task> action = async () => await testee.ReadAsync(new MemoryStream());
 
-            action.Should().Throw<InvalidDataException>("Validation failed for the header of the fits file: whatever");
+            action.Should().ThrowAsync<InvalidDataException>("Validation failed for the header of the fits file: whatever");
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace FitsLibrary.Tests
 
             Func<Task> action = async () => await testee.ReadAsync(new MemoryStream());
 
-            action.Should().Throw<InvalidDataException>("Validation failed for the header of the fits file: whatever");
+            action.Should().ThrowAsync<InvalidDataException>("Validation failed for the header of the fits file: whatever");
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace FitsLibrary.Tests
 
             Func<Task> action = async () => await testee.ReadAsync(new MemoryStream());
 
-            action.Should().Throw<Exception>();
+            action.Should().ThrowAsync<Exception>();
         }
 
         [Test]

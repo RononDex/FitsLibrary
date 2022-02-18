@@ -5,11 +5,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>FitsLibrary.Benchmarking</RootNamespace>
     <Nullable>enable</Nullable>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>preview</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
   </ItemGroup>
 
   <ItemGroup>

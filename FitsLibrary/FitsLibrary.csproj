@@ -43,7 +43,7 @@ This library has support for IoC (Inversion of Control), everything is implement
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
+    <PackageReference Include="System.IO.Pipelines" Version="6.0.2" />
     <PackageReference Include="System.Runtime.Experimental" Version="6.0.2-mauipre.1.22054.8" />
   </ItemGroup>
 

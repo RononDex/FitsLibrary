@@ -27,7 +27,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         [Test]
@@ -444,7 +444,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         // TODO Add mote tests for header parsing (error cases)
