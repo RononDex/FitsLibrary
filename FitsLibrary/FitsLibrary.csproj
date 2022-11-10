@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>FitsLibrary</RootNamespace>
     <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <LangVersion>10.0</LangVersion>
 
     <Authors>RononDex</Authors>
     <Company />
@@ -43,8 +42,7 @@ This library has support for IoC (Inversion of Control), everything is implement
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="6.0.2" />
-    <PackageReference Include="System.Runtime.Experimental" Version="6.0.2-mauipre.1.22054.8" />
+    <PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
