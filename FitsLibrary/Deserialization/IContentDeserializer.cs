@@ -1,5 +1,6 @@
 using System;
 using System.IO.Pipelines;
+using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 

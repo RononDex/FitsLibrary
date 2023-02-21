@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization.ContentValueDeserializer;
 using FitsLibrary.DocumentParts;
