@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FitsLibrary.DocumentParts.Objects;
 
 namespace FitsLibrary.DocumentParts
@@ -39,8 +40,20 @@ namespace FitsLibrary.DocumentParts
         /// <summary>
         /// Returns the number of axis inside the primary data array
         /// </summary>
+
         public int NumberOfAxisInMainContent =>
             _cachedNumberOfAxisInMainContent ??= Convert.ToInt32(this["NAXIS"]!);
+
+        private int[]? _cachedAxisSizes;
+
+        /// <summary>
+        /// Returns an array containing the length of each axis in the documents content
+        /// </summary>
+        public int[] AxisSizes =>
+            _cachedAxisSizes ??= Enumerable
+                .Range(0, this.NumberOfAxisInMainContent)
+                .Select(i => Convert.ToInt32(this[$"NAXIS{i + 1}"]))
+                .ToArray();
 
         /// <summary>
         /// A list of entries contained within the header

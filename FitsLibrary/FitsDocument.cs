@@ -65,6 +65,7 @@ namespace FitsLibrary
         /// <param name="coordinates">coordinates inside the multi dimensional array</param>
         public T GetValueAt(params int[] coordinates)
         {
+            // TODO: Maybe move to different data structure for faster access code
             var index = GetIndexByCoordinates(coordinates);
             return RawData!.Value.Span[index];
         }

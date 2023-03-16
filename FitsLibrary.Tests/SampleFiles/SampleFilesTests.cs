@@ -22,6 +22,12 @@ namespace FitsLibrary.Tests.SampleFiles
             var reader = new FitsDocumentReader<float>();
             var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
 
+            for (int x = 0; x < document.Header.AxisSizes[0]; x++) {
+                for (int y = 0; y < document.Header.AxisSizes[1]; y++) {
+                    var valueAtXY = document.GetValueAt(x, y);
+                }
+             }
+
             var endTime = DateTime.Now;
             Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
         }

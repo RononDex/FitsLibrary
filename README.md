@@ -8,7 +8,7 @@
 FitsLibrary is a native C# / dotnet core implementation using the most up to date **FITS 4.0** specification for writing and reading astronomical FITS files.
 
 The library focuses on being fast and easy to use.
-**This library has support for IoC (Inversion of Control), everything is implemented through interfaces**
+It makes use of the newer C# generic maths features, which require net7.0.
 
 # What currently works
 
@@ -28,7 +28,15 @@ Open a fits file using
 ```csharp
 var reader = new FitsDocumentReader<float>();
 var fitsFile = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
-float valueAtXY = fitsFile.GetValueAt(x, y);
+```
+
+You could then iterate over a file with 2D using
+```csharp
+for (int x = 0; x < document.Header.AxisSizes[0]; x++) {
+    for (int y = 0; y < document.Header.AxisSizes[1]; y++) {
+        var valueAtXY = document.GetValueAt(x, y);
+    }
+ }
 ```
 
 Note that the generic parameter (`float` in the above example) has to match the datatype in the fits file.
@@ -55,6 +63,13 @@ var headerValue = fitsFile.Header["TestHeaderKey"] as string
 
 
 Data can be accessed in different ways:
+### By coordinates
+
+To get the value at specific coordinates, do
+
+```csharp
+var valueAtXY = fitsFile.GetValueAt(x, y);
+```
 
 ### RawData
 
@@ -67,13 +82,7 @@ index = indexAxis1 + (axisSize1 * indexAxis2)
 fitsFile.Content.Span[index];
 ```
 
-### By coordinates
 
-To get the value at specific coordinates, do
-
-```csharp
-var value = fitsFile.GetFloat32ValueAt(x, y);
-```
 
 There is a typed functions for all supported data types by the fits standard (byte, 16-bit integer, 32-bit integer,
 64-bit integer, 32-bit float, 64-bit float)
