@@ -8,26 +8,24 @@
     <Authors>RononDex</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>0.2.0.0-pre</FileVersion>
-    <Version>0.2.0-pre</Version>
+    <FileVersion>0.3.0.0-pre</FileVersion>
+    <Version>0.3.0-pre</Version>
     <PackageReleaseNotes>
-      - Increased performance by ~600%
+      - Increased performance by ~200%
       - Drastically decreased memory usage
-      - Switched to a flat array raw data loading
-      - Added some helper functions for data access
+      - Added some more helper functions for data access
     </PackageReleaseNotes>
     <PackageDescription>
       FitsLibrary is a native C# / dotnet core implementation using the most up to date FITS 4.0 specification for writing and reading astronomical FITS files.
 
       The library focuses on being fast and easy to use.
-This library has support for IoC (Inversion of Control), everything is implemented through interfaces
 
       What currently works
         - Loading of header data
         - Validation of header content
         - Reading of N-Dimensional data arrays
 
-      What doesn't work
+      What doesn't work (yet)
         - Extension Headers
         - Writing .fits files
 
@@ -38,7 +36,7 @@ This library has support for IoC (Inversion of Control), everything is implement
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../LICENSE" Pack="true" PackagePath="LICENSE"/>
+    <None Include="../LICENSE" Pack="true" PackagePath="LICENSE" />
   </ItemGroup>
 
   <ItemGroup>
