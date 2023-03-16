@@ -1,4 +1,8 @@
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Validators;
 using FitsLibrary.Tests.SampleFiles;
 
 namespace FitsLibrary.Benchmarking
@@ -7,7 +11,12 @@ namespace FitsLibrary.Benchmarking
     {
         static void Main(string[] args)
         {
-            _ = BenchmarkSwitcher.FromAssembly(typeof(SampleFilesTests).Assembly).Run(args);
+            var config = new ManualConfig()
+                .WithOptions(ConfigOptions.DisableOptimizationsValidator)
+                .AddValidator(JitOptimizationsValidator.DontFailOnError)
+                .AddLogger(ConsoleLogger.Default)
+                .AddColumnProvider(DefaultColumnProviders.Instance);
+            _ = BenchmarkSwitcher.FromAssembly(typeof(SampleFilesTests).Assembly).Run(args, config);
         }
     }
 }

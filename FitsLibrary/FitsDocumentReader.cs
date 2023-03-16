@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
+using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
 using FitsLibrary.DocumentParts;
@@ -9,13 +11,14 @@ using FitsLibrary.Validation.Header;
 
 namespace FitsLibrary
 {
-    public class FitsDocumentReader : IFitsDocumentReader
+    public class FitsDocumentReader<T> : IFitsDocumentReader<T> where T : INumber<T>
     {
         private IReadOnlyList<IValidator<Header>> headerValidators;
-        private IContentDeserializer contentDeserializer;
         private IHeaderDeserializer headerDeserializer;
+        private IExtensionDeserializer extensionsDeserializer;
+        private IContentDeserializer<T> contentDeserializer;
 
-        private const int ChunkSize = 2880;
+        internal const int ChunkSize = 2880;
 
         public FitsDocumentReader()
         {
@@ -26,7 +29,8 @@ namespace FitsLibrary
         private void UseDeserializersForReading()
         {
             headerDeserializer = new HeaderDeserializer();
-            contentDeserializer = new ContentDeserializer();
+            contentDeserializer = new ContentDeserializer<T>();
+            // extensionsDeserializer = new ExtensionDeserializer(headerDeserializer, contentDeserializer);
         }
 
         /// <summary>
@@ -38,7 +42,7 @@ namespace FitsLibrary
         internal FitsDocumentReader(
                 IHeaderDeserializer headerDeserializer,
                 List<IValidator<Header>> headerValidators,
-                IContentDeserializer contentDeserializer)
+                IContentDeserializer<T> contentDeserializer)
         {
             this.headerValidators = headerValidators;
             this.contentDeserializer = contentDeserializer;
@@ -54,12 +58,12 @@ namespace FitsLibrary
             };
         }
 
-        public Task<FitsDocument> ReadAsync(string filePath)
+        public Task<FitsDocument<T>> ReadAsync(string filePath)
         {
             return ReadAsync(File.OpenRead(filePath));
         }
 
-        public async Task<FitsDocument> ReadAsync(Stream inputStream)
+        public async Task<FitsDocument<T>> ReadAsync(Stream inputStream)
         {
             var pipeReader = PipeReader.Create(
                     inputStream,
@@ -67,14 +71,14 @@ namespace FitsLibrary
                         bufferSize: ChunkSize,
                         minimumReadSize: ChunkSize))!;
 
-            var header = await headerDeserializer
+            var headerResult = await headerDeserializer
                 .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
 
             var validatorTasks = new List<Task<ValidationResult>>();
             foreach (var headerValidator in headerValidators)
             {
-                validatorTasks.Add(headerValidator.ValidateAsync(header));
+                validatorTasks.Add(headerValidator.ValidateAsync(headerResult.parsedHeader));
             }
 
             var validationResults = await Task.WhenAll(validatorTasks).ConfigureAwait(continueOnCapturedContext: false);
@@ -87,13 +91,29 @@ namespace FitsLibrary
                 }
             }
 
-            var content = await contentDeserializer
-                .DeserializeAsync(pipeReader, header)
-                .ConfigureAwait(false);
+            (bool endOfStreamReached, Memory<T>? contentData)? contentResult = null;
+            if (!headerResult.endOfStreamReached
+                    && headerResult.parsedHeader.NumberOfAxisInMainContent > 0)
+            {
+                contentResult = await contentDeserializer
+                    .DeserializeAsync(pipeReader, headerResult.parsedHeader)
+                    .ConfigureAwait(false);
+            }
 
-            return new FitsDocument(
-                header: header,
-                content: content);
+            var extensions = new List<Extension>();
+            var endOfStreamReached = contentResult?.endOfStreamReached == true || headerResult.endOfStreamReached;
+
+            while (!endOfStreamReached)
+            {
+                var extensionResult = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
+                endOfStreamReached = extensionResult.endOfStreamReached;
+                extensions.Add(extensionResult.parsedExtension);
+            }
+
+            return new FitsDocument<T>(
+                header: headerResult.parsedHeader,
+                content: contentResult?.contentData,
+                extensions: extensions);
         }
     }
 }

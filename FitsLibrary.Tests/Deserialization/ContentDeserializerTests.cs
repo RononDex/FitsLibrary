@@ -9,14 +9,15 @@ using NUnit.Framework;
 
 namespace FitsLibrary.Tests.Desersialization
 {
-    public partial class ContentDeserializerTests
+    public class ContentDeserializerTests
     {
         [Test]
         public async Task DeserializeAsync_WithNoContent_ReturnsNullAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<float>();
             var header = new HeaderBuilder()
                 .WithNumberOfAxis(0)
+                .WithContentDataType(DataContentType.FLOAT)
                 .Build();
             var dataStream = new ContentStreamBuilder()
                 .WithEmptyContent()
@@ -24,13 +25,14 @@ namespace FitsLibrary.Tests.Desersialization
 
             var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
-            deserilaizedContent.Should().BeNull();
+            deserilaizedContent.endOfStreamReached.Should().BeFalse();
+            deserilaizedContent.contentData.Should().BeNull();
         }
 
         [Test]
         public async Task DeserializeAsync_WithOneAxisAndSomeValues_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(1)
@@ -40,17 +42,18 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
         }
 
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeShort_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<short>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.SHORT)
                 .WithNumberOfAxis(1)
@@ -60,17 +63,18 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((short)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (short)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (short)d == 123).Should().BeTrue();
         }
 
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeByte_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<byte>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.BYTE)
                 .WithNumberOfAxis(1)
@@ -80,17 +84,18 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((byte)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (byte)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (byte)d == 123).Should().BeTrue();
         }
 
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeDouble_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<double>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.DOUBLE)
                 .WithNumberOfAxis(1)
@@ -100,17 +105,18 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((double)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (double)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (double)d == 123).Should().BeTrue();
         }
 
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeFloat_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<float>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.FLOAT)
                 .WithNumberOfAxis(1)
@@ -120,18 +126,19 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((float)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (float)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (float)d == 123).Should().BeTrue();
 
         }
 
         [Test]
         public async Task DeserializeAsync_WithDataOfTypeLong_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<long>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.LONG)
                 .WithNumberOfAxis(1)
@@ -141,18 +148,19 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith((long)123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.ToArray().All(d => (long)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.ToArray().All(d => (long)d == 123).Should().BeTrue();
 
         }
 
         [Test]
         public async Task DeserializeAsync_WithOneAxisAndSomeValuesAndOneValueDifferent_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(1)
@@ -162,22 +170,23 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .WithDataAtCoordinates(
                         10,
-                        new Dictionary<uint, ulong> { { 0, 5 } },
+                        new Dictionary<uint, ulong> { { 0, 4 } },
                         header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent.Value.Span[4].Should().Equals(10);
-            deserilaizedContent.Value.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 5).All(d => (int)d.d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
+            deserilaizedContent!.Value.Span[4].Should().Be(10);
+            deserilaizedContent!.Value.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 4).All(d => (int)d.d == 123).Should().BeTrue();
         }
 
         [Test]
         public async Task DeserializeAsync_WithTwoAxisAndDefaultValues_ReturnsAllValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(2)
@@ -188,17 +197,18 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value.ToArray().Should().HaveCount(10 * 20);
-            deserilaizedContent.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.ToArray().Should().HaveCount(10 * 20);
+            deserilaizedContent!.Value.ToArray().All(d => (int)d == 123).Should().BeTrue();
         }
 
         [Test]
         public async Task DeserializeAsync_WithTwoAxisAndSomeValuesAndOneValueDifferent_ReturnsTheValuesAsync()
         {
-            var deserializer = new ContentDeserializer();
+            var deserializer = new ContentDeserializer<int>();
             var header = new HeaderBuilder()
                 .WithContentDataType(DataContentType.INTEGER)
                 .WithNumberOfAxis(2)
@@ -217,20 +227,22 @@ namespace FitsLibrary.Tests.Desersialization
                         header)
                 .Build();
 
-            var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+            var deserilaizedContent = deserilaizedContentResult.contentData;
 
             deserilaizedContent.Should().NotBeNull();
-            deserilaizedContent.Value
+            deserilaizedContent!.Value
                 .ToArray()
                 .Should()
                 .HaveCount(10 * 20);
-            deserilaizedContent.Value
+            deserilaizedContent!.Value
                 .ToArray()
                 .Select((d, i) => (i, d))
                 .Single(d => d.i == 5 + (2 * 10))
+                .d
                 .Should()
-                .Equals(10);
-            deserilaizedContent.Value
+                .Be(10);
+            deserilaizedContent!.Value
                 .ToArray()
                 .Select((d, i) => (i, d))
                 .Where(d => d.i != 5 + (2 * 10))

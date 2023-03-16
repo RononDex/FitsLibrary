@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace FitsLibrary.Tests.Desersialization
 {
-    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.NetCoreApp50, launchCount: 5, warmupCount: 5, targetCount: 5)]
+    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 5, warmupCount: 5, iterationCount: 5)]
     [MemoryDiagnoser]
     public class HeaderDeserializerTests
     {
@@ -27,7 +27,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         [Test]
@@ -74,10 +74,12 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().BeEmpty();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().BeEmpty();
         }
 
         [Test]
@@ -100,13 +102,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
-            result.Should().NotBe(null);
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(1);
-            result.Entries.First().Comment.Should().Be("some test comment");
+            result.Should().NotBeNull();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be(1);
+            parsedHeader!.Entries.First().Comment.Should().Be("some test comment");
         }
 
         [Test]
@@ -129,13 +133,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(true);
-            result.Entries.First().Comment.Should().Be("some test comment");
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be(true);
+            parsedHeader!.Entries.First().Comment.Should().Be("some test comment");
         }
 
         [Test]
@@ -158,13 +164,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be("Some test value as string");
-            result.Entries.First().Comment.Should().Be("some test comment");
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be("Some test value as string");
+            parsedHeader!.Entries.First().Comment.Should().Be("some test comment");
         }
 
         [Test]
@@ -187,13 +195,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(1.53);
-            result.Entries.First().Comment.Should().Be("some test comment");
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be(1.53);
+            parsedHeader!.Entries.First().Comment.Should().Be("some test comment");
         }
 
         [Test]
@@ -216,13 +226,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(1);
-            result.Entries.First().Comment.Should().BeNull();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be(1);
+            parsedHeader!.Entries.First().Comment.Should().BeNull();
         }
 
         [Test]
@@ -245,13 +257,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
-            result.Should().NotBe(null);
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be("Some test value as string");
-            result.Entries.First().Comment.Should().BeNull();
+            result.Should().NotBeNull();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be("Some test value as string");
+            parsedHeader!.Entries.First().Comment.Should().BeNull();
         }
 
         [Test]
@@ -274,13 +288,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(1.53);
-            result.Entries.First().Comment.Should().BeNull();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be(1.53);
+            parsedHeader!.Entries.First().Comment.Should().BeNull();
         }
 
         [Test]
@@ -309,13 +325,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be("Some very looooong test value AND some moooore from previous value");
-            result.Entries.First().Comment.Should().BeNull();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be("Some very looooong test value AND some moooore from previous value");
+            parsedHeader!.Entries.First().Comment.Should().BeNull();
         }
 
         [Test]
@@ -344,13 +362,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
             result.Should().NotBeNull();
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be(string.Empty);
-            result.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be(string.Empty);
+            parsedHeader!.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
         }
 
         [Test]
@@ -385,13 +405,15 @@ namespace FitsLibrary.Tests.Desersialization
 
             // Act
             var result = await testee.DeserializeAsync(testStream);
+            var parsedHeader = result.parsedHeader;
 
             // Assert
-            result.Should().NotBe(null);
-            result.Entries.Should().HaveCount(1);
-            result.Entries.First().Key.Should().Be("TEST");
-            result.Entries.First().Value.Should().Be("Some test value Spaning over 3 values TEST TEST TESTING TEST");
-            result.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
+            result.Should().NotBeNull();
+            parsedHeader.Should().NotBeNull();
+            parsedHeader!.Entries.Should().HaveCount(1);
+            parsedHeader!.Entries.First().Key.Should().Be("TEST");
+            parsedHeader!.Entries.First().Value.Should().Be("Some test value Spaning over 3 values TEST TEST TESTING TEST");
+            parsedHeader!.Entries.First().Comment.Should().Be("Test some very looong comment continuation of some very long comment");
         }
 
         [Test]
@@ -422,7 +444,7 @@ namespace FitsLibrary.Tests.Desersialization
             Func<Task> act = () => testee.DeserializeAsync(testStream);
 
             // Assert
-            act.Should().Throw<InvalidDataException>();
+            act.Should().ThrowAsync<InvalidDataException>();
         }
 
         // TODO Add mote tests for header parsing (error cases)

@@ -37,16 +37,18 @@ namespace FitsLibrary.Deserialization
         /// </summary>
         /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task<Header> DeserializeAsync(PipeReader dataStream)
+        public async Task<(bool endOfStreamReached, Header parsedHeader)> DeserializeAsync(PipeReader dataStream)
         {
             PreValidateStream(dataStream);
 
             var endOfHeaderReached = false;
             var headerEntries = new List<HeaderEntry>();
+            var endOfStreamReached = false;
 
             while (!endOfHeaderReached)
             {
                 var result = await dataStream.ReadAsync().ConfigureAwait(false);
+                endOfHeaderReached = result.IsCompleted;
                 var headerBlock = result.Buffer;
 
                 if (result.IsCompleted || result.Buffer.Length < HeaderBlockSize)
@@ -59,7 +61,7 @@ namespace FitsLibrary.Deserialization
                 dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
             }
 
-            return new Header(headerEntries);
+            return (endOfStreamReached, new Header(headerEntries));
         }
 
         private static List<HeaderEntry> ParseHeaderBlock(ReadOnlySequence<byte> headerBlock, out bool endOfHeaderReached)
