@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace FitsLibrary.Tests.SampleFiles
 {
-    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 5, warmupCount: 5, targetCount: 5)]
+    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 5, warmupCount: 5, iterationCount: 5)]
     [MemoryDiagnoser]
     public class SampleFilesTests
     {
