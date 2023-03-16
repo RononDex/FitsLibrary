@@ -16,6 +16,14 @@ namespace FitsLibrary.Deserialization
 
         public Task<(bool endOfStreamReached, Memory<T>? contentData)> DeserializeAsync(PipeReader dataStream, Header header)
         {
+            if (header.NumberOfAxisInMainContent < 1)
+            {
+                // Return endOfStreamReached false, since this method is only called if endOfStreamReached was false
+                // before calling this method, so since we did not read anything, it should still be false
+                return Task.FromResult<(bool, Memory<T>?)>((false, null));
+            }
+
+
             var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
             var numberOfAxis = header.NumberOfAxisInMainContent;
             var axisSizes = Enumerable.Range(1, numberOfAxis)
@@ -59,7 +67,7 @@ namespace FitsLibrary.Deserialization
 
         private static IContentValueDeserializer<TData> GetContentValueParser<TData>(DataContentType dataContentType) where TData : INumber<TData>
         {
-            switch(dataContentType)
+            switch (dataContentType)
             {
                 case DataContentType.DOUBLE:
                     return (IContentValueDeserializer<TData>)new ContentValueDeserializerDouble();

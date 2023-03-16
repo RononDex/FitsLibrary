@@ -17,6 +17,7 @@ namespace FitsLibrary.Tests.Desersialization
             var deserializer = new ContentDeserializer<float>();
             var header = new HeaderBuilder()
                 .WithNumberOfAxis(0)
+                .WithContentDataType(DataContentType.FLOAT)
                 .Build();
             var dataStream = new ContentStreamBuilder()
                 .WithEmptyContent()
@@ -24,7 +25,8 @@ namespace FitsLibrary.Tests.Desersialization
 
             var deserilaizedContent = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
 
-            deserilaizedContent.Should().BeNull();
+            deserilaizedContent.endOfStreamReached.Should().BeFalse();
+            deserilaizedContent.contentData.Should().BeNull();
         }
 
         [Test]
@@ -168,7 +170,7 @@ namespace FitsLibrary.Tests.Desersialization
                 .WithDataBeingInitializedWith(123, header)
                 .WithDataAtCoordinates(
                         10,
-                        new Dictionary<uint, ulong> { { 0, 5 } },
+                        new Dictionary<uint, ulong> { { 0, 4 } },
                         header)
                 .Build();
 
@@ -177,8 +179,8 @@ namespace FitsLibrary.Tests.Desersialization
 
             deserilaizedContent.Should().NotBeNull();
             deserilaizedContent!.Value.ToArray().Should().HaveCount(10);
-            deserilaizedContent!.Value.Span[4].Should().Equals(10);
-            deserilaizedContent!.Value.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 5).All(d => (int)d.d == 123).Should().BeTrue();
+            deserilaizedContent!.Value.Span[4].Should().Be(10);
+            deserilaizedContent!.Value.ToArray().Select((d, i) => (i, d)).Where(d => d.i != 4).All(d => (int)d.d == 123).Should().BeTrue();
         }
 
         [Test]
@@ -237,8 +239,9 @@ namespace FitsLibrary.Tests.Desersialization
                 .ToArray()
                 .Select((d, i) => (i, d))
                 .Single(d => d.i == 5 + (2 * 10))
+                .d
                 .Should()
-                .Equals(10);
+                .Be(10);
             deserilaizedContent!.Value
                 .ToArray()
                 .Select((d, i) => (i, d))
