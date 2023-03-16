@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace FitsLibrary.Tests.SampleFiles
@@ -23,6 +24,17 @@ namespace FitsLibrary.Tests.SampleFiles
 
             var endTime = DateTime.Now;
             Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
+        }
+
+        [Test]
+        [Benchmark]
+        public async Task OpenFitsFile_WithWrongGenericType_ThrowsInvalidArgumentException()
+        {
+            var reader = new FitsDocumentReader<int>();
+
+            Func<Task> act = () => reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+
+            await act.Should().ThrowAsync<ArgumentException>();
         }
     }
 }

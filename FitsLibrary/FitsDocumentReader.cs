@@ -18,7 +18,7 @@ namespace FitsLibrary
         private IExtensionDeserializer extensionsDeserializer;
         private IContentDeserializer<T> contentDeserializer;
 
-        private const int ChunkSize = 2880;
+        internal const int ChunkSize = 2880;
 
         public FitsDocumentReader()
         {

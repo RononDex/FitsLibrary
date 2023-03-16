@@ -67,23 +67,29 @@ namespace FitsLibrary.Deserialization
 
         private static IContentValueDeserializer<TData> GetContentValueParser<TData>(DataContentType dataContentType) where TData : INumber<TData>
         {
-            switch (dataContentType)
+            try
             {
-                case DataContentType.DOUBLE:
-                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerDouble();
-                case DataContentType.FLOAT:
-                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerFloat();
-                case DataContentType.BYTE:
-                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerByte();
-                case DataContentType.INTEGER:
-                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt32();
-                case DataContentType.LONG:
-                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt64();
-                case DataContentType.SHORT:
-                    return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt16();
-                default:
-                    throw new ArgumentException("Tried to deserialize unimplemented datatype");
-
+                switch (dataContentType)
+                {
+                    case DataContentType.DOUBLE:
+                        return (IContentValueDeserializer<TData>)new ContentValueDeserializerDouble();
+                    case DataContentType.FLOAT:
+                        return (IContentValueDeserializer<TData>)new ContentValueDeserializerFloat();
+                    case DataContentType.BYTE:
+                        return (IContentValueDeserializer<TData>)new ContentValueDeserializerByte();
+                    case DataContentType.INTEGER:
+                        return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt32();
+                    case DataContentType.LONG:
+                        return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt64();
+                    case DataContentType.SHORT:
+                        return (IContentValueDeserializer<TData>)new ContentValueDeserializerInt16();
+                    default:
+                        throw new ArgumentException("Tried to deserialize unimplemented datatype");
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                throw new ArgumentException($"Tried to parse a fits document of type {dataContentType} as {typeof(TData).Name}");
             }
         }
     }

@@ -37,7 +37,7 @@ namespace FitsLibrary.Deserialization
         /// </summary>
         /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task<(bool endOfStreamReached, Header? parsedHeader)> DeserializeAsync(PipeReader dataStream)
+        public async Task<(bool endOfStreamReached, Header parsedHeader)> DeserializeAsync(PipeReader dataStream)
         {
             PreValidateStream(dataStream);
 
