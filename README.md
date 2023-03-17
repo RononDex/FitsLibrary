@@ -59,6 +59,12 @@ They can be read using
 var headerValue = fitsFile.Header["TestHeaderKey"] as string
 ```
 
+### Tip:
+If you only want to load the header data of a file you can use below code instead, which will be much faster and only read and parse a files header:
+```csharp
+var header = await FitsDocumentHelper.ReadHeaderAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+```
+
 ## Accessing Content data
 
 
