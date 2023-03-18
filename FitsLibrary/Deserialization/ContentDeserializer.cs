@@ -87,7 +87,7 @@ namespace FitsLibrary.Deserialization
                         throw new ArgumentException("Tried to deserialize unimplemented datatype");
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
                 throw new ArgumentException($"Tried to parse a fits document of type {dataContentType} as {typeof(TData).Name}");
             }

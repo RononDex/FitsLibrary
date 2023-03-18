@@ -40,7 +40,6 @@ namespace FitsLibrary.DocumentParts
         /// <summary>
         /// Returns the number of axis inside the primary data array
         /// </summary>
-
         public int NumberOfAxisInMainContent =>
             _cachedNumberOfAxisInMainContent ??= Convert.ToInt32(this["NAXIS"]!);
 

@@ -63,14 +63,8 @@ namespace FitsLibrary
             return ReadAsync(File.OpenRead(filePath));
         }
 
-        public async Task<FitsDocument<T>> ReadAsync(Stream inputStream)
+        private async Task<(bool endOfStreamReached, Header parsedHeader)> ReadHeaderAsync(PipeReader pipeReader)
         {
-            var pipeReader = PipeReader.Create(
-                    inputStream,
-                    new StreamPipeReaderOptions(
-                        bufferSize: ChunkSize,
-                        minimumReadSize: ChunkSize))!;
-
             var headerResult = await headerDeserializer
                 .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
@@ -81,7 +75,9 @@ namespace FitsLibrary
                 validatorTasks.Add(headerValidator.ValidateAsync(headerResult.parsedHeader));
             }
 
-            var validationResults = await Task.WhenAll(validatorTasks).ConfigureAwait(continueOnCapturedContext: false);
+            var validationResults = await Task
+                .WhenAll(validatorTasks)
+                .ConfigureAwait(continueOnCapturedContext: false);
 
             foreach (var validationResult in validationResults)
             {
@@ -90,6 +86,20 @@ namespace FitsLibrary
                     throw new InvalidDataException($"Validation failed for the header of the fits file: {validationResult.ValidationFailureMessage}");
                 }
             }
+
+            return headerResult;
+        }
+
+        public async Task<FitsDocument<T>> ReadAsync(Stream inputStream)
+        {
+            var pipeReader = PipeReader.Create(
+                    inputStream,
+                    new StreamPipeReaderOptions(
+                        bufferSize: ChunkSize,
+                        minimumReadSize: ChunkSize))!;
+
+
+            var headerResult = await ReadHeaderAsync(pipeReader);
 
             (bool endOfStreamReached, Memory<T>? contentData)? contentResult = null;
             if (!headerResult.endOfStreamReached
@@ -103,11 +113,15 @@ namespace FitsLibrary
             var extensions = new List<Extension>();
             var endOfStreamReached = contentResult?.endOfStreamReached == true || headerResult.endOfStreamReached;
 
-            while (!endOfStreamReached)
+            if (headerResult.parsedHeader["EXTEND"] != null
+                    && (headerResult.parsedHeader["EXTEND"] as bool?) == true)
             {
-                var extensionResult = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
-                endOfStreamReached = extensionResult.endOfStreamReached;
-                extensions.Add(extensionResult.parsedExtension);
+                while (!endOfStreamReached)
+                {
+                    var extensionResult = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
+                    endOfStreamReached = extensionResult.endOfStreamReached;
+                    extensions.Add(extensionResult.parsedExtension);
+                }
             }
 
             return new FitsDocument<T>(

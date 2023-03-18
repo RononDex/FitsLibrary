@@ -62,6 +62,12 @@ namespace FitsLibrary.Tests
             return this;
         }
 
+        public ContentStreamBuilder WithAdditionalDataAfterContent()
+        {
+            data.AddRange(Enumerable.Repeat((byte)0x01, 2880));
+            return this;
+        }
+
         private static byte[] GetValueInBytes(object value, Header header)
         {
             return header.DataContentType switch

@@ -26,7 +26,9 @@ namespace FitsLibrary.Deserialization
 
             return (parsedExtensionHeaderResult.endOfStreamReached
                     || (parsedExtensionContentResult?.endOfStreamReached == true),
-                    new Extension(parsedExtensionHeaderResult.parsedHeader, parsedExtensionContentResult?.contentData));
+                    new Extension(
+                        parsedExtensionHeaderResult.parsedHeader,
+                        parsedExtensionContentResult?.contentData));
         }
     }
 }

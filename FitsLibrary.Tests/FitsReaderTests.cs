@@ -139,7 +139,7 @@ namespace FitsLibrary.Tests
             {
                 headerDeserializerMock
                     .Setup(mock => mock.DeserializeAsync(It.IsAny<PipeReader>()))
-                    .ReturnsAsync(value: (endOfStreamReached: true, parsedHeader: null));
+                    .ReturnsAsync(value: (endOfStreamReached: true, parsedHeader: new Header()));
 
                 return this;
             }

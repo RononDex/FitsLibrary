@@ -33,7 +33,6 @@ namespace FitsLibrary.Tests.SampleFiles
         }
 
         [Test]
-        [Benchmark]
         public async Task OpenFitsFile_WithWrongGenericType_ThrowsInvalidArgumentException()
         {
             var reader = new FitsDocumentReader<int>();
@@ -41,6 +40,31 @@ namespace FitsLibrary.Tests.SampleFiles
             Func<Task> act = () => reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
 
             await act.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Test]
+        [Benchmark]
+        public async Task OpenFitsFile_WithAccessingContent_IsAbleToAccessData()
+        {
+            var reader = new FitsDocumentReader<float>();
+            var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+
+            for (int x = 0; x < document.Header.AxisSizes[0]; x++) {
+                for (int y = 0; y < document.Header.AxisSizes[1]; y++) {
+                    var valueAtXY = document.GetValueAt(x, y);
+                }
+             }
+        }
+
+        [Test]
+        public async Task OpenFitsFile_WithExtensions_LoadsExtensions()
+        {
+            var reader = new FitsDocumentReader<float>();
+
+            var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+
+            document.Extensions.Should().NotBeNull();
+            document.Extensions.Should().HaveCount(1);
         }
     }
 }
