@@ -37,5 +37,11 @@ namespace FitsLibrary.Tests.Benchmarking
 
         [Benchmark]
         public Task<(bool, Header?)> ParseHeader_WithOneEntry() => headerDeserializer.DeserializeAsync(headerDataWithOneEntry);
+
+        [Benchmark]
+        public async Task ParseHeader_WithExampleFile()
+        {
+            var header = await FitsDocumentHelper.ReadHeaderAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+        }
     }
 }

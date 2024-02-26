@@ -40,11 +40,13 @@ namespace FitsLibrary.Deserialization
 
             var bytesRead = 0;
             var currentValueIndex = 0;
-            while (bytesRead < contentSizeInBytes)
+            while (bytesRead <= contentSizeInBytes)
             {
                 var chunk = ReadContentDataStream(dataStream).GetAwaiter().GetResult();
                 endOfStreamReached = chunk.IsCompleted;
                 var blockSize = Math.Min(ChunkSize, contentSizeInBytes - bytesRead);
+                if (blockSize == 0)
+                    break;
                 bytesRead += blockSize;
 
                 for (var i = 0; i < blockSize; i += numberOfBytesPerValue)

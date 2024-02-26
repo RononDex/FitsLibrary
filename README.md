@@ -3,7 +3,6 @@
 [![License](https://img.shields.io/badge/license-MPL2.0%20-blue)](https://choosealicense.com/licenses/mpl-2.0/) ![master branch](https://github.com/RononDex/FitsLibrary/workflows/.NET/badge.svg?branch=master) [![Nuget](https://img.shields.io/nuget/v/FitsLibrary.svg)](https://www.nuget.org/packages/FitsLibrary/)
 
 **This project is currently a very early WIP, use at own risk!**
-**There is no nuget package released until the first "release" version is ready**
 
 FitsLibrary is a native C# / dotnet core implementation using the most up to date **FITS 4.0** specification for writing and reading astronomical FITS files.
 
