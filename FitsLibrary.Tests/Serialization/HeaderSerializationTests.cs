@@ -1,0 +1,4 @@
+
+namespace FitsLibrary.Tests.Sersialization
+{
+}
