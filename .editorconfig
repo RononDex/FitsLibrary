@@ -400,15 +400,16 @@ dotnet_naming_rule.parameters_rule.style                = camel_case_style
 dotnet_naming_rule.parameters_rule.severity             = warning
 
 # Roslyn settings
+[*.{cs,vb}]
 csharp_using_directive_placement = outside_namespace:error
-dotnet_diagnostic.IDE0008.severity = none
-dotnet_diagnostic.IDE0009.severity = none
-dotnet_diagnostic.IDE0021.severity = none
-dotnet_diagnostic.IDE0022.severity = none
-dotnet_diagnostic.IDE0058.severity = none
-dotnet_diagnostic.CC0079.severity = none
-dotnet_diagnostic.CSE0003.severity = none
-dotnet_diagnostic.CC0038.severity = none
+dotnet_diagnostic.IDE0008.severity = silent
+dotnet_diagnostic.IDE0009.severity = silent
+dotnet_diagnostic.IDE0021.severity = silent
+dotnet_diagnostic.IDE0022.severity = silent
+dotnet_diagnostic.IDE0058.severity = silent
+dotnet_diagnostic.CC0079.severity = silent
+dotnet_diagnostic.CSE0003.severity = silent
+dotnet_diagnostic.CC0038.severity = silent
 dotnet_diagnostic.CC0045.severity = silent
 
 ##########################################

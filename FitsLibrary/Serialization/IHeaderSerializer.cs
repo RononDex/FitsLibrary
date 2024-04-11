@@ -1,11 +1,12 @@
 
 using System.IO.Pipelines;
+using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary.Serialization
 {
     public interface IHeaderSerializer
     {
-        void SerializeAsync(Header header, PipeWriter writer);
+        Task SerializeAsync(Header header, PipeWriter writer);
     }
 }
