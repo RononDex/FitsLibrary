@@ -22,7 +22,7 @@ namespace FitsLibrary.DocumentParts
         /// <summary>
         /// Initializes an empty header
         /// </summary>
-        public Header()
+        internal Header()
         {
             _entries = new List<HeaderEntry>();
         }
