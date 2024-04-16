@@ -3,6 +3,7 @@ using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
+using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Serialization
 {
@@ -20,24 +21,42 @@ namespace FitsLibrary.Serialization
             var headerEntryBuilder = new StringBuilder();
             foreach (var headerEntry in header.Entries)
             {
-                headerEntryBuilder.Clear();
-                headerEntryBuilder.Append(headerEntry.Key.PadRight(8));
+                _ = headerEntryBuilder.Clear();
+                _ = headerEntryBuilder.Append(headerEntry.Key.PadRight(8));
 
                 if (headerEntry.Value != null)
                 {
-                    headerEntryBuilder.Append("= ");
-                    headerEntryBuilder.Append(headerEntry.Value);
+                    _ = headerEntryBuilder.Append("= ");
+                    var serializedValue = GetSerializedValue(headerEntry.Value);
+
+                    // Handle strings and long strings
+                    if (headerEntry.Value is string)
+                    {
+                        var subStrings = serializedValue.SplitInParts(68);
+                    }
+                    else
+                    {
+                        _ = headerEntryBuilder.Append(serializedValue);
+                    }
+
+                    if (!string.IsNullOrEmpty(headerEntry.Comment))
+                    {
+                        _ = headerEntryBuilder.AppendFormat(" / {0}", headerEntry.Comment);
+                    }
                 }
                 else
                 {
-                    headerEntryBuilder.Append("  ");
+                    if (!string.IsNullOrEmpty(headerEntry.Comment))
+                    {
+                        _ = headerEntryBuilder.Append(headerEntry.Comment);
+                    }
                 }
 
-                headerBlockBuilder.Append(headerEntryBuilder.ToString().PadRight(HeaderEntryChunkSize));
+                _ = headerBlockBuilder.Append(headerEntryBuilder.ToString().PadRight(HeaderEntryChunkSize));
             }
 
 
-            headerBlockBuilder.Append("END".PadRight(HeaderEntryChunkSize));
+            _ = headerBlockBuilder.Append("END".PadRight(HeaderEntryChunkSize));
             var numberOfHeaderBlocks = headerBlockBuilder.Length / HeaderBlockSize;
             if (headerBlockBuilder.Length % HeaderBlockSize != 0)
             {
@@ -48,6 +67,16 @@ namespace FitsLibrary.Serialization
             var bytes = Encoding.ASCII.GetBytes(headerBlockBuilder.ToString().PadRight(length), writerMemory.Span);
             writer.Advance(bytes);
             return writer.FlushAsync().AsTask();
+        }
+
+        private static string GetSerializedValue(object value)
+        {
+            return value switch
+            {
+                bool bValue => bValue ? "T" : "F",
+                string sValue => sValue.Replace("'", "''"),
+                _ => value.ToString()
+            };
         }
     }
 }
