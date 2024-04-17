@@ -9,7 +9,7 @@ using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary.Tests.Benchmarking
 {
-    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 5, warmupCount: 5, iterationCount: 5)]
+    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net80, launchCount: 5, warmupCount: 5, iterationCount: 5)]
     [MemoryDiagnoser]
     public class HeaderDeserializerBenchmarks
     {
