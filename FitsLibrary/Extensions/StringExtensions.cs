@@ -6,7 +6,7 @@ namespace FitsLibrary.Extensions
 {
     public static class StringExtensions
     {
-        public static IEnumerable<string> SplitInParts(this string s, int partLength)
+        public static string[] SplitInParts(this string s, int partLength)
         {
             if (s == null)
             {
@@ -18,10 +18,12 @@ namespace FitsLibrary.Extensions
                 throw new ArgumentException("Part length has to be positive.", nameof(partLength));
             }
 
-            for (var i = 0; i < s.Length; i += partLength)
+            var strings = new string[s.Length % partLength == 0 ? s.Length / partLength : s.Length / partLength + 1];
+            for (var i = 0; i < strings.Length; i++)
             {
-                yield return s.Substring(i, Math.Min(partLength, s.Length - i));
+                strings[i] = s.Substring(i * partLength, Math.Min(partLength, s.Length - (i * partLength)));
             }
+            return strings;
         }
     }
 }

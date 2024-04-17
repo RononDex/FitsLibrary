@@ -3,6 +3,7 @@ using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
+using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Serialization
@@ -32,17 +33,18 @@ namespace FitsLibrary.Serialization
                     // Handle strings and long strings
                     if (headerEntry.Value is string)
                     {
-                        var subStrings = serializedValue.SplitInParts(68);
+                        HandleStringEntries(headerEntryBuilder, serializedValue, headerEntry);
                     }
                     else
                     {
                         _ = headerEntryBuilder.Append(serializedValue);
+
+                        if (!string.IsNullOrEmpty(headerEntry.Comment))
+                        {
+                            _ = headerEntryBuilder.AppendFormat(" / {0}", headerEntry.Comment);
+                        }
                     }
 
-                    if (!string.IsNullOrEmpty(headerEntry.Comment))
-                    {
-                        _ = headerEntryBuilder.AppendFormat(" / {0}", headerEntry.Comment);
-                    }
                 }
                 else
                 {
@@ -52,7 +54,9 @@ namespace FitsLibrary.Serialization
                     }
                 }
 
-                _ = headerBlockBuilder.Append(headerEntryBuilder.ToString().PadRight(HeaderEntryChunkSize));
+                _ = headerBlockBuilder.Append(headerEntryBuilder.ToString().PadRight(headerEntryBuilder.Length % HeaderEntryChunkSize == 0
+                            ? 0
+                            : (headerEntryBuilder.Length / HeaderEntryChunkSize + 1) * HeaderEntryChunkSize));
             }
 
 
@@ -69,6 +73,65 @@ namespace FitsLibrary.Serialization
             return writer.FlushAsync().AsTask();
         }
 
+        private static void HandleStringEntries(StringBuilder headerEntryBuilder, string serializedValue, HeaderEntry entry)
+        {
+            if (serializedValue.Length <= 70)
+            {
+                HandleSingleLineString(headerEntryBuilder, serializedValue);
+            }
+            else
+            {
+                HandleMultiLineString(headerEntryBuilder, serializedValue, entry);
+            }
+        }
+
+        private static void HandleMultiLineString(StringBuilder headerEntryBuilder, string serializedValue, HeaderEntry entry)
+        {
+            var subStrings = serializedValue.SplitInParts(67);
+            for (var i = 0; i < subStrings.Length; i++)
+            {
+                if (i != 0)
+                {
+                    headerEntryBuilder.Append("CONTINUE  ");
+                }
+                if (i != subStrings.Length - 1)
+                {
+                    headerEntryBuilder.AppendFormat("'{0}&'", subStrings[i]);
+                }
+                else
+                {
+                    if (entry.Comment == null || entry.Comment.Length <= HeaderEntryChunkSize - 10 - subStrings[i].Length - 2 - 3)
+                    {
+                        headerEntryBuilder.AppendFormat("'{0}'", subStrings[i]);
+                        if (entry.Comment != null)
+                        {
+                            headerEntryBuilder.AppendFormat(" / ", entry.Comment);
+                        }
+                    }
+                    else
+                    {
+                        var firstCommentPart = entry.Comment.Substring(0, HeaderEntryChunkSize - 10 - subStrings[i].Length - 3 - 3);
+                        var restOfComment = entry.Comment.Substring(firstCommentPart.Length);
+                        headerEntryBuilder.AppendFormat("'{0}&' / {1}", subStrings[i], firstCommentPart);
+
+                        var commentSplit = restOfComment.SplitInParts(HeaderEntryChunkSize - 10 - 3 - 3);
+                        for (var j = 0; j < commentSplit.Length; j++)
+                        {
+                            if (j != commentSplit.Length - 1)
+                            {
+                                headerEntryBuilder.AppendFormat("CONTINUE  '&' / {0}", commentSplit[j]);
+                            }
+                            else
+                            {
+                                headerEntryBuilder.AppendFormat("CONTINUE  '' / {0}", commentSplit[j]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void HandleSingleLineString(StringBuilder headerEntryBuilder, string serializedValue) => headerEntryBuilder.AppendFormat("'{0}'", serializedValue);
         private static string GetSerializedValue(object value)
         {
             return value switch

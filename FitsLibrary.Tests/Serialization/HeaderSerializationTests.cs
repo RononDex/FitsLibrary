@@ -35,7 +35,62 @@ namespace FitsLibrary.Tests.Serialization
             var actual = Encoding.ASCII.GetString(memory.ToArray());
 
             Assert.That(actual, Has.Length.EqualTo(2880));
-            Assert.That(actual[0..80], Is.EqualTo("Entry1  = Value1 / Comment1".PadRight(80)));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  = 'Value1' / Comment1".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithSingleQuoteInValue_EscapesSingleQuoteWithTwoSingleQuotes()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", "Value'1", "Comment1")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  = 'Value''1' / Comment1".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithVeryLongString_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", null)]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiu&'".PadRight(80)));
+            Assert.That(actual[80..160], Is.EqualTo("CONTINUE  'smod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad&'".PadRight(80)));
+            Assert.That(actual[160..240], Is.EqualTo("CONTINUE  ' minim veniam, quis nostrud exercitation ullamco laboris nisi ut al&'".PadRight(80)));
+            Assert.That(actual[240..320], Is.EqualTo("CONTINUE  'iquip ex ea commodo consequat.'".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithVeryLongStringAndLongComment_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry(
+                        "Entry1",
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiu&'".PadRight(80)));
+            Assert.That(actual[80..160], Is.EqualTo("CONTINUE  'smod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad&'".PadRight(80)));
+            Assert.That(actual[160..240], Is.EqualTo("CONTINUE  ' minim veniam, quis nostrud exercitation ullamco laboris nisi ut al&'".PadRight(80)));
+            Assert.That(actual[240..320], Is.EqualTo("CONTINUE  'iquip ex ea commodo consequat.&' / Lorem ipsum dolor sit amet, consec".PadRight(80)));
+            Assert.That(actual[320..400], Is.EqualTo("CONTINUE  '&' / tetur adipiscing elit, sed do eiusmod tempor incididunt ut labor".PadRight(80)));
+            Assert.That(actual[400..480], Is.EqualTo("CONTINUE  '&' / e et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud ".PadRight(80)));
+            Assert.That(actual[480..560], Is.EqualTo("CONTINUE  '&' / exercitation ullamco laboris nisi ut aliquip ex ea commodo conse".PadRight(80)));
+            Assert.That(actual[560..640], Is.EqualTo("CONTINUE  '' / quat.".PadRight(80)));
         }
 
         [Test]
@@ -53,7 +108,7 @@ namespace FitsLibrary.Tests.Serialization
         }
 
         [Test]
-        public async Task Serialize_WithBooleanValueBeeingTrue_CreatesHeaderBlock()
+        public async Task Serialize_WithBooleanValueBeingTrue_CreatesHeaderBlock()
         {
             var testee = new HeaderSerializer();
             using var memory = new MemoryStream();
@@ -67,7 +122,7 @@ namespace FitsLibrary.Tests.Serialization
         }
 
         [Test]
-        public async Task Serialize_WithBooleanValueBeeingFalse_CreatesHeaderBlock()
+        public async Task Serialize_WithBooleanValueBeingFalse_CreatesHeaderBlock()
         {
             var testee = new HeaderSerializer();
             using var memory = new MemoryStream();
