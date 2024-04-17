@@ -38,6 +38,14 @@ namespace FitsLibrary.Tests.Benchmarking
         {
             var reader = new FitsDocumentReader<short>();
             var document = await reader.ReadAsync("/home/cobra/M_101_Light_L_120_secs_2023-05-26T23-00-11_001.fits");
+
+            for (var x = 0; x < document.Header.AxisSizes[0]; x++)
+            {
+                for (var y = 0; y < document.Header.AxisSizes[1]; y++)
+                {
+                    var val = document.GetValueAt(x, y);
+                }
+            }
         }
     }
 }
