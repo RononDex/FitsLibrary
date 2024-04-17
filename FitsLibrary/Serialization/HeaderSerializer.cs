@@ -77,7 +77,7 @@ namespace FitsLibrary.Serialization
         {
             if (serializedValue.Length <= 70)
             {
-                HandleSingleLineString(headerEntryBuilder, serializedValue);
+                HandleSingleLineString(headerEntryBuilder, serializedValue, entry);
             }
             else
             {
@@ -105,7 +105,7 @@ namespace FitsLibrary.Serialization
                         headerEntryBuilder.AppendFormat("'{0}'", subStrings[i]);
                         if (entry.Comment != null)
                         {
-                            headerEntryBuilder.AppendFormat(" / ", entry.Comment);
+                            headerEntryBuilder.AppendFormat(" / {0}", entry.Comment);
                         }
                     }
                     else
@@ -131,14 +131,33 @@ namespace FitsLibrary.Serialization
             }
         }
 
-        private static void HandleSingleLineString(StringBuilder headerEntryBuilder, string serializedValue) => headerEntryBuilder.AppendFormat("'{0}'", serializedValue);
+        private static void HandleSingleLineString(StringBuilder headerEntryBuilder, string serializedValue, HeaderEntry entry)
+        {
+            if (entry.Comment == null)
+            {
+                headerEntryBuilder.AppendFormat("'{0}'", serializedValue);
+            }
+            else
+            {
+                headerEntryBuilder.AppendFormat("'{0}' / {1}", serializedValue, entry.Comment);
+            }
+        }
         private static string GetSerializedValue(object value)
         {
             return value switch
             {
                 bool bValue => bValue ? "T" : "F",
                 string sValue => sValue.Replace("'", "''"),
-                _ => value.ToString()
+                int iValue => string.Format("{0,20}", iValue),
+                uint iValue => string.Format("{0,20}", iValue),
+                long lValue => string.Format("{0,20}", lValue),
+                ulong lValue => string.Format("{0,20}", lValue),
+                float fValue => string.Format("{0,20}", fValue),
+                double dValue => string.Format("{0,20}", dValue),
+                short sValue => string.Format("{0,20}", sValue),
+                ushort sValue => string.Format("{0,20}", sValue),
+                byte bValue => string.Format("{0,20}", bValue),
+                _ => value.ToString()!
             };
         }
     }

@@ -8,7 +8,7 @@ namespace FitsLibrary.Tests.Validation.Header
     public class KeywordsMustBeUniqueValidatorTests
     {
         [Test]
-        public async Task Validate_WithOneHeaderEntry_ValidationSccessfulAsync()
+        public async Task Validate_WithOneHeaderEntry_ValidationSuccessfulAsync()
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
@@ -25,7 +25,7 @@ namespace FitsLibrary.Tests.Validation.Header
         }
 
         [Test]
-        public async Task Validate_WithTwoHeaderEntriesBeingUnique_ValidationSucessfulAsync()
+        public async Task Validate_WithTwoHeaderEntriesBeingUnique_ValidationSuccessfulAsync()
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
@@ -68,7 +68,7 @@ namespace FitsLibrary.Tests.Validation.Header
         [TestCase("", true)]
         [TestCase("COMMENT", true)]
         [TestCase("HISTORY", true)]
-        public async Task Validate_WithDupliaceHeaderEntry_ValidationAsExpectedAsync(string duplicateKeyEntry, bool expectedValidationSucessful)
+        public async Task Validate_WithDuplicateHeaderEntry_ValidationAsExpectedAsync(string duplicateKeyEntry, bool expectedValidationSuccessful)
         {
             // Arrange
             var testee = new KeywordsMustBeUniqueValidator();
@@ -82,8 +82,8 @@ namespace FitsLibrary.Tests.Validation.Header
             var validationResult = await testee.ValidateAsync(header);
 
             // Assert
-            validationResult.ValidationSuccessful.Should().Be(expectedValidationSucessful);
-            if (!expectedValidationSucessful)
+            validationResult.ValidationSuccessful.Should().Be(expectedValidationSuccessful);
+            if (!expectedValidationSuccessful)
             {
                 validationResult.ValidationFailureMessage.Should().Be(
                     $"Non unique KEYWORDS found. The header entries {duplicateKeyEntry} are contained more than once within the header.");

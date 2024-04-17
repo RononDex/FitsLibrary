@@ -41,6 +41,7 @@ namespace FitsLibrary
                     writeToStream,
                     new StreamPipeWriterOptions(minimumBufferSize: ChunkSize));
 
+            await headerSerializer.SerializeAsync(document.Header, pipeWriter);
         }
     }
 }

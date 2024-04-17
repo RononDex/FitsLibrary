@@ -38,7 +38,7 @@ for (int x = 0; x < document.Header.AxisSizes[0]; x++) {
  }
 ```
 
-Note that the generic parameter (`float` in the above example) has to match the datatype in the fits file.
+Note that the generic parameter (`float` in the above example) has to match the datatype in the fits file or you will only get jibberish data.
 
 If you do not know the datatype of the fits file beforehand, you can use `FitsDocumentHelper` to get the type of the data inside the file:
 

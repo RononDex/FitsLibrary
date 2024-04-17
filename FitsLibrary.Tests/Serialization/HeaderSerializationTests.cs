@@ -134,5 +134,75 @@ namespace FitsLibrary.Tests.Serialization
             Assert.That(actual, Has.Length.EqualTo(2880));
             Assert.That(actual[0..80], Is.EqualTo("Entry1  = F / Comment1".PadRight(80)));
         }
+
+        [Test]
+        public async Task Serialize_WithIntegerValue_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", 20, "Comment1")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  =                   20 / Comment1".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithNegativeIntegerValue_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", int.MinValue, "Comment1")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  =          -2147483648 / Comment1".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithLongValue_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", long.MaxValue, "Comment1")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  =  9223372036854775807 / Comment1".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithFloatValue_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", 1.03E10f, "Comment1")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  =             1.03E+10 / Comment1".PadRight(80)));
+        }
+
+        [Test]
+        public async Task Serialize_WithDoubleValue_CreatesHeaderBlock()
+        {
+            var testee = new HeaderSerializer();
+            using var memory = new MemoryStream();
+            var header = new Header([new HeaderEntry("Entry1", 1.03E10, "Comment1")]);
+
+            await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+            var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+            Assert.That(actual, Has.Length.EqualTo(2880));
+            Assert.That(actual[0..80], Is.EqualTo("Entry1  =          10300000000 / Comment1".PadRight(80)));
+        }
     }
 }

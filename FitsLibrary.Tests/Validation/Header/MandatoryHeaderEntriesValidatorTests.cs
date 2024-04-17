@@ -9,7 +9,7 @@ namespace FitsLibrary.Tests.Validation.Header
     public class MandatoryHeaderEntriesValidatorTests
     {
         [Test]
-        public async Task Validate_WithNoHeaderEntries_ValidationUnsucessfullAsync()
+        public async Task Validate_WithNoHeaderEntries_ValidationUnsuccessfulAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();
@@ -22,11 +22,11 @@ namespace FitsLibrary.Tests.Validation.Header
 
             // Assert
             result.ValidationSuccessful.Should().Be(false);
-            result.ValidationFailureMessage.Should().Be("The FITS header does not contain required fields.");
+            result.ValidationFailureMessage.Should().Be("The FITS header is missing required fields (or they are in the wrong location).");
         }
 
         [Test]
-        public async Task Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSucessfulAsync()
+        public async Task Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSuccessfulAsync()
         {
             // Arrange
             var testee = new MandatoryHeaderEntriesValidator();

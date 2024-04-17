@@ -13,13 +13,23 @@ namespace FitsLibrary.Validation.Header
         {
             return Task.Run(() =>
             {
-                var hasMandatoryFields = MandatoryFields.All(key => objToValidate.Entries.Any(entry => string.Equals(entry.Key, key, StringComparison.Ordinal)));
+                var hasMandatoryFields = objToValidate.Entries.Count >= MandatoryFields.Length;
+                if (hasMandatoryFields)
+                {
+                    for (int i = 0; i < MandatoryFields.Length; i++)
+                    {
+                        if (objToValidate.Entries[i].Key != MandatoryFields[i])
+                        {
+                            hasMandatoryFields = false;
+                        }
+                    }
+                }
 
                 if (!hasMandatoryFields)
                 {
                     return new ValidationResult(
                         validationSuccessful: false,
-                        validationFailureMessage: "The FITS header does not contain required fields.");
+                        validationFailureMessage: "The FITS header is missing required fields (or they are in the wrong location).");
                 }
 
                 var numberOfAxisObject = objToValidate.Entries
@@ -32,15 +42,14 @@ namespace FitsLibrary.Validation.Header
                         validationSuccessful: false,
                         validationFailureMessage: "The FITS header contains the field 'NAXIS' but it is not of type integer");
                 }
-
-                var hasAllRequiredNAXISKeywords = Enumerable.Range(1, Convert.ToInt32(numberOfAxis!.Value))
-                    .All(axis =>
-                            objToValidate.Entries
-                                .Any(entry =>
-                                    string.Equals(
-                                        entry.Key,
-                                        $"NAXIS{axis.ToString(CultureInfo.InvariantCulture)}",
-                                        StringComparison.Ordinal)));
+                var hasAllRequiredNAXISKeywords = objToValidate.Entries.Count >= MandatoryFields.Length + numberOfAxis;
+                for (var i = 0; i < numberOfAxis; i++)
+                {
+                    if (objToValidate.Entries[i + MandatoryFields.Length].Key != $"NAXIS{(i + 1).ToString(CultureInfo.InvariantCulture)}")
+                    {
+                        hasAllRequiredNAXISKeywords = false;
+                    }
+                }
 
                 return hasAllRequiredNAXISKeywords
                     ? new ValidationResult(
