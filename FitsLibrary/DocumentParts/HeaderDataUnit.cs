@@ -4,10 +4,11 @@ namespace FitsLibrary.DocumentParts;
 public class HeaderDataUnit<T, H> : HeaderDataUnit where H : Header
 {
     public T Data { get; }
-    public new H Header { get; }
+    public override H Header { get; }
 
     public HeaderDataUnit(HeaderDataUnitType type, H header, T data) : base(type, header)
     {
+        this.Header = header;
         this.Data = data;
     }
 }
@@ -19,6 +20,6 @@ public abstract class HeaderDataUnit
         this.Type = type;
         this.Header = header;
     }
-    public Header Header { get; }
+    public virtual Header Header { get; }
     public HeaderDataUnitType Type { get; }
 }

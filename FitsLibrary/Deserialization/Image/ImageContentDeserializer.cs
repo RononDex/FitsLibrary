@@ -18,7 +18,7 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
 
     public Task<(bool endOfStreamReached, ImageDataContent<T> data)> DeserializeAsync(PipeReader dataStream, Header header)
     {
-        var headerBoxed = (ImageHeader)header;
+        var headerBoxed = new ImageHeader(header.Entries);
         if (headerBoxed.NumberOfAxisInMainContent < 1)
         {
             // Return endOfStreamReached false, since this method is only called if endOfStreamReached was false
@@ -93,8 +93,9 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
         return await dataStream.ReadAsync().ConfigureAwait(false);
     }
 
-    Task<(bool endOfStreamReached, DataContent data)> IContentDeserializer.DeserializeAsync(PipeReader dataStream, Header header)
+    async Task<(bool endOfStreamReached, DataContent data)> IContentDeserializer.DeserializeAsync(PipeReader dataStream, Header header)
     {
-        return DeserializeAsync(dataStream, header).ContinueWith(t => ((bool endOfStreamReached, DataContent data))t.Result);
+        var (endOfStreamReached, data) = await DeserializeAsync(dataStream, header);
+        return (endOfStreamReached, data);
     }
 }

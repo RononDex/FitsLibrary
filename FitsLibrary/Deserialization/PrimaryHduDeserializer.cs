@@ -21,8 +21,9 @@ internal class PrimaryHduDeserializer<T> : IHduDeserializer<ImageDataContent<T>,
                 data: new ImageHeaderDataUnit<T>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), parsedContent));
     }
 
-    Task<(bool endOfStreamReached, HeaderDataUnit data)> IHduDeserializer.DeserializeAsync(PipeReader reader, Header header)
+    async Task<(bool endOfStreamReached, HeaderDataUnit data)> IHduDeserializer.DeserializeAsync(PipeReader reader, Header header)
     {
-        return DeserializeAsync(reader, header).ContinueWith(t => ((bool endOfStreamReached, HeaderDataUnit data))t.Result);
+        var (endOfStreamReached, data) = await DeserializeAsync(reader, header);
+        return (endOfStreamReached, data);
     }
 }

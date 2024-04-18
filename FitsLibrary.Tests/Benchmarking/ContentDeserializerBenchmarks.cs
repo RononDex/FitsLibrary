@@ -1,11 +1,9 @@
-using System;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using FitsLibrary.Deserialization.Image;
-using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.ImageData;
 
 namespace FitsLibrary.Tests.Benchmarking;
