@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using FitsLibrary.Deserialization;
+using FitsLibrary.Deserialization.Head;
 using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary.Tests.Benchmarking

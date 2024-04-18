@@ -1,27 +1,26 @@
 
 using System.Threading.Tasks;
-using FitsLibrary.DocumentParts;
+using FitsLibrary.DocumentParts.ImageData;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace FitsLibrary.Tests
+namespace FitsLibrary.Tests;
+
+public class FitsDocumentHelperTests
 {
-    public class FitsDocumentHelperTests
+    [Test]
+    public async Task ReadHeaderAsync_WithSampleFile_ReturnsHeader()
     {
-        [Test]
-        public async Task ReadHeaderAsync_WithSampleFile_ReturnsHeader()
-        {
-            var header = await FitsDocumentHelper.ReadHeaderAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+        var header = await FitsDocumentHelper.ReadHeaderAsync("SampleFiles/FOCx38i0101t_c0f.fits");
 
-            header.Should().NotBeNull();
-        }
+        header.Should().NotBeNull();
+    }
 
-        [Test]
-        public async Task GetDocumentContentType_WithSampleFile_ReturnsContentType()
-        {
-            var dataType = await FitsDocumentHelper.GetDocumentContentType("SampleFiles/FOCx38i0101t_c0f.fits").ConfigureAwait(false);
+    [Test]
+    public async Task GetDocumentContentType_WithSampleFile_ReturnsContentType()
+    {
+        var dataType = await FitsDocumentHelper.GetDocumentContentType("SampleFiles/FOCx38i0101t_c0f.fits").ConfigureAwait(false);
 
-            dataType.Should().Be(DataContentType.FLOAT);
-        }
+        dataType.Should().Be(DataContentType.FLOAT);
     }
 }

@@ -3,45 +3,46 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
-using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.Serialization;
 using FitsLibrary.Validation;
 
-namespace FitsLibrary
+namespace FitsLibrary;
+
+public class FitsDocumentWriter : IFitsDocumentWriter
 {
+    private readonly IReadOnlyList<IValidator<Header>> headerValidators;
+    private IHeaderSerializer headerSerializer;
 
-    public class FitsDocumentWriter<T> : IFitsDocumentWriter<T> where T : INumber<T>
+    internal const int ChunkSize = 2880;
+
+    public FitsDocumentWriter()
     {
-        private IReadOnlyList<IValidator<Header>> headerValidators;
-        private IHeaderSerializer headerSerializer;
+        UseValidatorsForWriting();
+        UseSerializersForWriting();
+    }
 
-        internal const int ChunkSize = 2880;
+    private void UseSerializersForWriting()
+    {
+        this.headerSerializer = new HeaderSerializer();
+    }
+    private void UseValidatorsForWriting() => throw new NotImplementedException();
 
-        public FitsDocumentWriter()
+    public Task WriteAsync(FitsDocument document, string filePath)
+    {
+        var fileStream = File.OpenWrite(filePath);
+        return WriteAsync(document, fileStream);
+    }
+    public async Task WriteAsync(FitsDocument document, Stream writeToStream)
+    {
+        var pipeWriter = PipeWriter.Create(
+                writeToStream,
+                new StreamPipeWriterOptions(minimumBufferSize: ChunkSize));
+
+        foreach (var hdu in document.HeaderDataUnits)
         {
-            UseValidatorsForWriting();
-            UseSerializersForWriting();
-        }
-
-        private void UseSerializersForWriting()
-        {
-            headerSerializer = new HeaderSerializer();
-        }
-        private void UseValidatorsForWriting() => throw new NotImplementedException();
-
-        public async Task WriteAsync(FitsDocument<T> document, string filePath)
-        {
-            var fileStream = File.OpenWrite(filePath);
-        }
-        public async Task WriteAsync(FitsDocument<T> document, Stream writeToStream)
-        {
-            var pipeWriter = PipeWriter.Create(
-                    writeToStream,
-                    new StreamPipeWriterOptions(minimumBufferSize: ChunkSize));
-
-            await headerSerializer.SerializeAsync(document.Header, pipeWriter);
+            await headerSerializer.SerializeAsync(hdu.Header, pipeWriter);
         }
     }
 }

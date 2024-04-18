@@ -1,7 +1,7 @@
 using System.IO;
 using System.IO.Pipelines;
 using System.Text;
-using FitsLibrary.Deserialization;
+using FitsLibrary.Deserialization.Head;
 
 namespace FitsLibrary.Tests
 {

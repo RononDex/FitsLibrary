@@ -1,13 +1,11 @@
 using System.IO;
-using System.Numerics;
 using System.Threading.Tasks;
 
-namespace FitsLibrary
-{
-    public interface IFitsDocumentWriter<T> where T : INumber<T>
-    {
-        Task WriteAsync(FitsDocument<T> document, string filePath);
+namespace FitsLibrary;
 
-        Task WriteAsync(FitsDocument<T> document, Stream writeToStream);
-    }
+public interface IFitsDocumentWriter
+{
+    Task WriteAsync(FitsDocument document, string filePath);
+
+    Task WriteAsync(FitsDocument document, Stream writeToStream);
 }

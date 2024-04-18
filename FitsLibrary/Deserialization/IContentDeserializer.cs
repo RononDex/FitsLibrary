@@ -1,13 +1,10 @@
-using System;
 using System.IO.Pipelines;
-using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 
-namespace FitsLibrary.Deserialization
+namespace FitsLibrary.Deserialization;
+
+internal interface IContentDeserializer
 {
-    public interface IContentDeserializer<T> where T : INumber<T>
-    {
-        public Task<(bool endOfStreamReached, Memory<T>? contentData)> DeserializeAsync(PipeReader dataStream, Header header);
-    }
+    Task<(bool endOfStreamReached, DataContent data)> DeserializeAsync(PipeReader dataStream, Header header);
 }
