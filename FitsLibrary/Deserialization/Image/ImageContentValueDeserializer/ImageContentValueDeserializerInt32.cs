@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 
 namespace FitsLibrary.Deserialization.Image.ImageContentValueDeserializer;
 
-public class ImageContentValueDeserializerInt32 : IImageContentValueDeserializer<int>
+internal class ImageContentValueDeserializerInt32 : IImageContentValueDeserializer<int>
 {
     public int ParseValue(ReadOnlySpan<byte> currentValueBytes)
     {

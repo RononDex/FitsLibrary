@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using FitsLibrary.DocumentParts;
 using nom.tam.fits;
 
 namespace FitsLibrary.Tests.Benchmarking;
@@ -35,15 +34,14 @@ public class FrameworkComparisonsTests
     [Benchmark]
     public async Task FitsLibraryAsync()
     {
-        var reader = new FitsDocumentReader();
+        var reader = new FitsDocumentReader<short>();
         var document = await reader.ReadAsync("/home/cobra/M_101_Light_L_120_secs_2023-05-26T23-00-11_001.fits");
-        var content = (ImageHeaderDataUnit<float>)document.HeaderDataUnits[0];
 
-        for (var x = 0; x < document.HeaderDataUnits[0].Header.AxisSizes[0]; x++)
+        for (var x = 0; x < document.PrimaryHdu.Header.AxisSizes[0]; x++)
         {
-            for (var y = 0; y < document.HeaderDataUnits[0].Header.AxisSizes[1]; y++)
+            for (var y = 0; y < document.PrimaryHdu.Header.AxisSizes[1]; y++)
             {
-                var val = content.Data.GetValueAt(x, y);
+                var val = document.PrimaryHdu.Data.GetValueAt(x, y);
             }
         }
     }

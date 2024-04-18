@@ -1,11 +1,12 @@
 
 namespace FitsLibrary.DocumentParts;
 
-public class HeaderDataUnit<T> : HeaderDataUnit
+public class HeaderDataUnit<T, H> : HeaderDataUnit where H : Header
 {
     public T Data { get; }
+    public new H Header { get; }
 
-    public HeaderDataUnit(HeaderDataUnitType type, Header header, T data) : base(type, header)
+    public HeaderDataUnit(HeaderDataUnitType type, H header, T data) : base(type, header)
     {
         this.Data = data;
     }

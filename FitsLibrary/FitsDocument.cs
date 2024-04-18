@@ -24,6 +24,7 @@ public class FitsDocument
 public class FitsDocument<PrimaryDataType> : FitsDocument where PrimaryDataType : INumber<PrimaryDataType>
 {
     public ImageHeaderDataUnit<PrimaryDataType> PrimaryHdu { get; }
+
     public FitsDocument(IList<HeaderDataUnit> hdus) : base(hdus)
     {
         this.PrimaryHdu = (ImageHeaderDataUnit<PrimaryDataType>)hdus[0];

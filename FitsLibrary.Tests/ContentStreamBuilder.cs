@@ -23,7 +23,7 @@ public class ContentStreamBuilder
         return this;
     }
 
-    public ContentStreamBuilder WithDataBeingInitializedWith(object defaultData, Header header)
+    public ContentStreamBuilder WithDataBeingInitializedWith(object defaultData, ImageHeader header)
     {
         var numberOfAxis = (int?)header["NAXIS"];
         var axisSizes = Enumerable.Range(1, numberOfAxis!.Value)
@@ -38,7 +38,7 @@ public class ContentStreamBuilder
         return this;
     }
 
-    public ContentStreamBuilder WithDataAtCoordinates(object value, Dictionary<uint, ulong> coordinates, Header header)
+    public ContentStreamBuilder WithDataAtCoordinates(object value, Dictionary<uint, ulong> coordinates, ImageHeader header)
     {
         var numberOfAxis = (int?)header["NAXIS"];
         var axisSizes = Enumerable.Range(1, numberOfAxis!.Value)
@@ -69,7 +69,7 @@ public class ContentStreamBuilder
         return this;
     }
 
-    private static byte[] GetValueInBytes(object value, Header header)
+    private static byte[] GetValueInBytes(object value, ImageHeader header)
     {
         return header.DataContentType switch
         {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipelines;
 using System.Numerics;
@@ -96,7 +97,7 @@ public class FitsDocumentReader : IFitsDocumentReader
             var type = first ? HeaderDataUnitType.PRIMARY : ParseHduType(headerResult.parsedHeader["XTENSION"] as string);
             IHduDeserializer hduDeserializer = type switch
             {
-                HeaderDataUnitType.PRIMARY => headerResult.parsedHeader.DataContentType switch
+                HeaderDataUnitType.PRIMARY => ExtractDataContentType(headerResult.parsedHeader) switch
                 {
                     DataContentType.BYTE => new PrimaryHduDeserializer<byte>(),
                     DataContentType.SHORT => new PrimaryHduDeserializer<short>(),
@@ -105,7 +106,7 @@ public class FitsDocumentReader : IFitsDocumentReader
                     DataContentType.FLOAT => new PrimaryHduDeserializer<float>(),
                     DataContentType.DOUBLE => new PrimaryHduDeserializer<double>(),
                 },
-                HeaderDataUnitType.IMAGE => headerResult.parsedHeader.DataContentType switch
+                HeaderDataUnitType.IMAGE => ExtractDataContentType(headerResult.parsedHeader) switch
                 {
                     DataContentType.BYTE => new ImageHduDeserializer<byte>(),
                     DataContentType.SHORT => new ImageHduDeserializer<short>(),
@@ -134,13 +135,20 @@ public class FitsDocumentReader : IFitsDocumentReader
         "TABLE" => HeaderDataUnitType.TABLE,
         _ => throw new InvalidDataException($"Unknown extension type {extensionType} encountered")
     };
+
+    private static DataContentType ExtractDataContentType(Header header) => (DataContentType)Convert.ToInt32(header["BITPIX"]!, CultureInfo.InvariantCulture);
 }
 
 public class FitsDocumentReader<PrimaryDataType> : FitsDocumentReader where PrimaryDataType : INumber<PrimaryDataType>
 {
-    public override async Task<FitsDocument> ReadAsync(Stream inputStream)
+    public new async Task<FitsDocument<PrimaryDataType>> ReadAsync(Stream inputStream)
     {
         var doc = await base.ReadAsync(inputStream).ConfigureAwait(false);
         return new FitsDocument<PrimaryDataType>(doc.HeaderDataUnits);
+    }
+
+    public new Task<FitsDocument<PrimaryDataType>> ReadAsync(string filePath)
+    {
+        return ReadAsync(File.OpenRead(filePath));
     }
 }

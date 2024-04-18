@@ -2,19 +2,22 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization.Head;
-using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.ImageData;
 
 namespace FitsLibrary;
 
+/// <summary>
+/// Contains several helper methods to deal with .fits files, like reading
+/// the primary header of the file without reading the whole file
+/// </summary>
 public static class FitsDocumentHelper
 {
-    public static async Task<Header> ReadHeaderAsync(string filePath)
+    public static Task<ImageHeader> ReadHeaderAsync(string filePath)
     {
-        return await ReadHeaderAsync(File.OpenRead(filePath));
+        return ReadHeaderAsync(File.OpenRead(filePath));
     }
 
-    public static async Task<Header> ReadHeaderAsync(Stream inputStream)
+    public static async Task<ImageHeader> ReadHeaderAsync(Stream inputStream)
     {
         var pipeReader = PipeReader.Create(
                 inputStream,
@@ -28,12 +31,12 @@ public static class FitsDocumentHelper
             .DeserializeAsync(pipeReader)
             .ConfigureAwait(false);
 
-        return headerResult.header;
+        return new ImageHeader(headerResult.header.Entries);
     }
 
-    public static async Task<DataContentType> GetDocumentContentType(string filePath)
+    public static Task<DataContentType> GetDocumentContentType(string filePath)
     {
-        return await GetDocumentContentType(File.OpenRead(filePath));
+        return GetDocumentContentType(File.OpenRead(filePath));
     }
 
     public static async Task<DataContentType> GetDocumentContentType(Stream inputStream)

@@ -15,9 +15,9 @@ namespace FitsLibrary.Tests.Benchmarking;
 public class ContentDeserializerBenchmarks
 {
     private PipeReader TestEmptyStream = null!;
-    private Header EmptyHeader = null!;
-    private Header HeaderWith1Axis = null!;
-    private Header HeaderWith2Axis = null!;
+    private ImageHeader EmptyHeader = null!;
+    private ImageHeader HeaderWith1Axis = null!;
+    private ImageHeader HeaderWith2Axis = null!;
     private PipeReader TestWith10IntValues = null!;
     private PipeReader TestWith1MillionFloatValues = null!;
     private ImageContentDeserializer<float> ContentDeserializer = null!;
@@ -28,25 +28,25 @@ public class ContentDeserializerBenchmarks
         TestEmptyStream = PipeReader.Create(new ContentStreamBuilder()
             .WithEmptyContent()
             .Build());
-        EmptyHeader = new HeaderBuilder()
+        EmptyHeader = new ImageHeader(new HeaderBuilder()
             .WithNumberOfAxis(0)
-            .Build();
+            .Build().Entries);
 
-        HeaderWith1Axis = new HeaderBuilder()
+        HeaderWith1Axis = new ImageHeader(new HeaderBuilder()
             .WithContentDataType(DataContentType.FLOAT)
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
-            .Build();
+            .Build().Entries);
         TestWith10IntValues = PipeReader.Create(new ContentStreamBuilder()
             .WithDataBeingInitializedWith(123, HeaderWith1Axis)
             .Build());
 
-        HeaderWith2Axis = new HeaderBuilder()
+        HeaderWith2Axis = new ImageHeader(new HeaderBuilder()
             .WithContentDataType(DataContentType.FLOAT)
             .WithNumberOfAxis(2)
             .WithAxisOfSize(dimensionIndex: 1, size: 1024)
             .WithAxisOfSize(dimensionIndex: 2, size: 1024)
-            .Build();
+            .Build().Entries);
         TestWith1MillionFloatValues = PipeReader.Create(new ContentStreamBuilder()
             .WithDataBeingInitializedWith(123.45f, HeaderWith2Axis)
             .Build());

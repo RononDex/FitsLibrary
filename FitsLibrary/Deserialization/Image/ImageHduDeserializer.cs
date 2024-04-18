@@ -6,9 +6,9 @@ using FitsLibrary.DocumentParts.ImageData;
 
 namespace FitsLibrary.Deserialization.Image;
 
-internal class ImageHduDeserializer<T> : IHduDeserializer<ImageDataContent<T>> where T : INumber<T>
+internal class ImageHduDeserializer<T> : IHduDeserializer<ImageDataContent<T>, ImageHeader> where T : INumber<T>
 {
-    public async Task<(bool endOfStreamReached, HeaderDataUnit<ImageDataContent<T>> data)> DeserializeAsync(PipeReader reader, Header header)
+    public async Task<(bool endOfStreamReached, HeaderDataUnit<ImageDataContent<T>, ImageHeader> data)> DeserializeAsync(PipeReader reader, Header header)
     {
         var contentDeserializer = new ImageContentDeserializer<T>();
 
@@ -16,7 +16,7 @@ internal class ImageHduDeserializer<T> : IHduDeserializer<ImageDataContent<T>> w
 
         return (
                 endOfStreamReached: endOfStreamReachedContent,
-                data: new ImageHeaderDataUnit<T>(HeaderDataUnitType.IMAGE, header, parsedContent));
+                data: new ImageHeaderDataUnit<T>(HeaderDataUnitType.IMAGE, new ImageHeader(header.Entries), parsedContent));
     }
 
     Task<(bool endOfStreamReached, HeaderDataUnit data)> IHduDeserializer.DeserializeAsync(PipeReader reader, Header header)

@@ -1,7 +1,6 @@
 
-namespace FitsLibrary.DocumentParts
+namespace FitsLibrary.DocumentParts;
+
+public abstract class DataContent
 {
-    public abstract class DataContent
-    {
-    }
 }
