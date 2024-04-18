@@ -1,4 +1,4 @@
-namespace FitsLibrary.DocumentParts
+namespace FitsLibrary.DocumentParts.ImageData
 {
     public enum DataContentType
     {

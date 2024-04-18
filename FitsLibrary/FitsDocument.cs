@@ -54,32 +54,5 @@ namespace FitsLibrary
         /// </summary>
         public Header Header { get; }
 
-        /// <summary>
-        /// A list of all extensions in the fits file
-        /// </summary>
-        public List<Extension> Extensions { get; }
-
-        /// <summary>
-        /// Returns the value at the given coordinates as a byte
-        /// </summary>
-        /// <param name="coordinates">coordinates inside the multi dimensional array</param>
-        public T GetValueAt(params int[] coordinates)
-        {
-            // TODO: Maybe move to different data structure for faster access code
-            var index = GetIndexByCoordinates(coordinates);
-            return RawData!.Value.Span[index];
-        }
-
-        private int GetIndexByCoordinates(params int[] coordinates)
-        {
-            var index = 0;
-            var axisIndexFactorsSpan = AxisIndexFactors.Span;
-            for (var i = 0; i < coordinates.Length; i++)
-            {
-                index += coordinates[i] * axisIndexFactorsSpan[i];
-            }
-
-            return index;
-        }
     }
 }
