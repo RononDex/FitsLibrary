@@ -42,25 +42,27 @@ public class HeaderDeserializer : IHeaderDeserializer
         PreValidateStream(dataStream);
 
         var endOfHeaderReached = false;
+        var endOfStreamReached = false;
         var headerEntries = new List<HeaderEntry>();
 
         while (!endOfHeaderReached)
         {
             var result = await dataStream.ReadAsync().ConfigureAwait(false);
-            endOfHeaderReached = result.IsCompleted;
             var headerBlock = result.Buffer;
 
-            if (result.IsCompleted || result.Buffer.Length < HeaderBlockSize)
+            headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
+            dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
+
+            if (!endOfHeaderReached && result.Buffer.Length <= HeaderBlockSize && result.IsCompleted)
             {
                 await dataStream.CompleteAsync().ConfigureAwait(false);
                 throw new InvalidDataException("No END marker found for the fits header, fits file might be corrupted");
             }
 
-            headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
-            dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
+            endOfStreamReached = endOfHeaderReached && result.IsCompleted && result.Buffer.Length <= HeaderBlockSize;
         }
 
-        return (endOfHeaderReached, header: new Header(headerEntries));
+        return (endOfStreamReached, header: new Header(headerEntries));
     }
 
     private static List<HeaderEntry> ParseHeaderBlock(ReadOnlySequence<byte> headerBlock, out bool endOfHeaderReached)

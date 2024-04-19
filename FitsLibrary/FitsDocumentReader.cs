@@ -59,7 +59,7 @@ public class FitsDocumentReader : IFitsDocumentReader
             .ConfigureAwait(false);
 
         var validatorTasks = new List<Task<ValidationResult>>();
-        foreach (var headerValidator in headerValidators)
+        foreach (var headerValidator in this.headerValidators)
         {
             validatorTasks.Add(headerValidator.ValidateAsync(header));
         }

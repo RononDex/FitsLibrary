@@ -47,6 +47,12 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
             var chunk = ReadContentDataStream(dataStream).GetAwaiter().GetResult();
             endOfStreamReached = chunk.IsCompleted;
             var blockSize = Math.Min(ChunkSize, contentSizeInBytes - bytesRead);
+            if (chunk.Buffer.Length > blockSize)
+            {
+                // If we dont read the whole buffer, we still have not reached
+                // the end of the stream
+                endOfStreamReached = false;
+            }
             if (blockSize == 0)
             {
                 break;
