@@ -69,8 +69,8 @@ public class HeaderDeserializer : IHeaderDeserializer
     {
         endOfHeaderReached = false;
         var currentIndex = 0;
-        Span<byte> headerBlockSpan = stackalloc byte[Convert.ToInt32(headerBlock.Length)];
-        headerBlock.CopyTo(headerBlockSpan);
+        Span<byte> headerBlockSpan = stackalloc byte[Convert.ToInt32(HeaderBlockSize)];
+        headerBlock.Slice(0, HeaderBlockSize).CopyTo(headerBlockSpan);
         var headerEntries = new List<HeaderEntry>();
         var isContinued = false;
 
@@ -130,6 +130,7 @@ public class HeaderDeserializer : IHeaderDeserializer
 
     private static HeaderEntry ParseHeaderEntryChunk(ReadOnlySpan<byte> headerEntryChunk)
     {
+        Console.WriteLine("Parsing " + Encoding.ASCII.GetString(headerEntryChunk));
         var key = Encoding.ASCII.GetString(headerEntryChunk.Slice(0, 8)).Trim();
         if (HeaderEntryChunkHasValueMarker(headerEntryChunk)
                 || HeaderEntryEntryChunkHasContinueMarker(key))

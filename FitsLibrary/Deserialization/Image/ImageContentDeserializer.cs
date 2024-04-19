@@ -67,7 +67,7 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
                 dataPoints[currentValueIndex++] = valueParser.ParseValue(currentValueBuffer);
             }
 
-            dataStream.AdvanceTo(chunk.Buffer.GetPosition(blockSize), chunk.Buffer.End);
+            dataStream.AdvanceTo(chunk.Buffer.GetPosition(ChunkSize), chunk.Buffer.End);
         }
 
         return Task.FromResult((endOfStreamReached, data: new ImageDataContent<T>(axisSizes, dataPointsMemory)));
