@@ -1,27 +1,23 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FitsLibrary.Validation.Header
+namespace FitsLibrary.Validation.Header;
+
+public class MandatoryHeaderEntriesValidator(IList<string> mandatoryFields) : IValidator<DocumentParts.Header>
 {
-    public class MandatoryHeaderEntriesValidator : IValidator<DocumentParts.Header>
+    private IList<string> MandatoryFields { get; } = mandatoryFields;
+
+    public override Task<ValidationResult> ValidateAsync(DocumentParts.Header objToValidate)
     {
-        public static readonly string[] MandatoryFields = new[] { "SIMPLE", "BITPIX", "NAXIS" };
-
-        public override Task<ValidationResult> ValidateAsync(DocumentParts.Header objToValidate)
+        return Task.Run(() =>
         {
-            return Task.Run(() =>
+            var hasMandatoryFields = ValidateMandatoryFields(objToValidate);
+
+            if (this.MandatoryFields.Contains("NAXIS"))
             {
-                var hasMandatoryFields = ValidateMandatoryFields(objToValidate);
-
-                if (!hasMandatoryFields)
-                {
-                    return new ValidationResult(
-                        validationSuccessful: false,
-                        validationFailureMessage: "The FITS header is missing required fields (or they are in the wrong location).");
-                }
-
                 var numberOfAxis = GetNumberOfAxis(objToValidate);
 
                 if (numberOfAxis == null)
@@ -31,54 +27,55 @@ namespace FitsLibrary.Validation.Header
                         validationFailureMessage: "The FITS header contains the field 'NAXIS' but it is not of type integer");
                 }
                 var hasAllRequiredNAXISKeywords = ValidateAllAxisDefinitionsPresent(objToValidate, numberOfAxis);
-
-                return hasAllRequiredNAXISKeywords
-                    ? new ValidationResult(
-                            validationSuccessful: true,
-                            validationFailureMessage: null)
-                    : new ValidationResult(
-                            validationSuccessful: false,
-                            validationFailureMessage: "The FITS header does not contain required fields.");
-            });
-        }
-
-        private static bool ValidateAllAxisDefinitionsPresent(DocumentParts.Header objToValidate, long? numberOfAxis)
-        {
-            var hasAllRequiredNAXISKeywords = objToValidate.Entries.Count >= MandatoryFields.Length + numberOfAxis;
-            for (var i = 0; i < numberOfAxis; i++)
-            {
-                if (objToValidate.Entries[i + MandatoryFields.Length].Key != $"NAXIS{(i + 1).ToString(CultureInfo.InvariantCulture)}")
-                {
-                    hasAllRequiredNAXISKeywords = false;
-                }
+                hasMandatoryFields = hasMandatoryFields && hasAllRequiredNAXISKeywords;
             }
 
-            return hasAllRequiredNAXISKeywords;
-        }
+            return hasMandatoryFields
+                ? new ValidationResult(
+                        validationSuccessful: true,
+                        validationFailureMessage: null)
+                : new ValidationResult(
+                        validationSuccessful: false,
+                        validationFailureMessage: "The FITS header is missing required fields (or they are in the wrong location).");
+        });
+    }
 
-        private static long? GetNumberOfAxis(DocumentParts.Header objToValidate)
+    private bool ValidateAllAxisDefinitionsPresent(DocumentParts.Header objToValidate, long? numberOfAxis)
+    {
+        var hasAllRequiredNAXISKeywords = objToValidate.Entries.Count >= this.MandatoryFields.Count + numberOfAxis;
+        for (var i = 0; i < numberOfAxis; i++)
         {
-            var numberOfAxisObject = objToValidate.Entries
-                .SingleOrDefault(entry => string.Equals(entry.Key, "NAXIS", StringComparison.Ordinal))?.Value;
-            var numberOfAxis = numberOfAxisObject as int? ?? numberOfAxisObject as long?;
-            return numberOfAxis;
-        }
-
-        private static bool ValidateMandatoryFields(DocumentParts.Header objToValidate)
-        {
-            var hasMandatoryFields = objToValidate.Entries.Count >= MandatoryFields.Length;
-            if (hasMandatoryFields)
+            if (objToValidate.Entries[i + this.MandatoryFields.Count].Key != $"NAXIS{(i + 1).ToString(CultureInfo.InvariantCulture)}")
             {
-                for (int i = 0; i < MandatoryFields.Length; i++)
+                hasAllRequiredNAXISKeywords = false;
+            }
+        }
+
+        return hasAllRequiredNAXISKeywords;
+    }
+
+    private static long? GetNumberOfAxis(DocumentParts.Header objToValidate)
+    {
+        var numberOfAxisObject = objToValidate.Entries
+            .SingleOrDefault(entry => string.Equals(entry.Key, "NAXIS", StringComparison.Ordinal))?.Value;
+        var numberOfAxis = numberOfAxisObject as int? ?? numberOfAxisObject as long?;
+        return numberOfAxis;
+    }
+
+    private bool ValidateMandatoryFields(DocumentParts.Header objToValidate)
+    {
+        var hasMandatoryFields = objToValidate.Entries.Count >= this.MandatoryFields.Count;
+        if (hasMandatoryFields)
+        {
+            for (var i = 0; i < this.MandatoryFields.Count; i++)
+            {
+                if (objToValidate.Entries[i].Key != this.MandatoryFields[i])
                 {
-                    if (objToValidate.Entries[i].Key != MandatoryFields[i])
-                    {
-                        hasMandatoryFields = false;
-                    }
+                    hasMandatoryFields = false;
                 }
             }
-
-            return hasMandatoryFields;
         }
+
+        return hasMandatoryFields;
     }
 }

@@ -12,7 +12,7 @@ public class MandatoryHeaderEntriesValidatorTests
     public async Task Validate_WithNoHeaderEntries_ValidationUnsuccessfulAsync()
     {
         // Arrange
-        var testee = new MandatoryHeaderEntriesValidator();
+        var testee = new MandatoryHeaderEntriesValidator(["SomeMandatoryField"]);
         var header = new HeaderBuilder()
             .WithEmptyHeader()
             .Build();
@@ -29,7 +29,7 @@ public class MandatoryHeaderEntriesValidatorTests
     public async Task Validate_WithAllMandatoryKeywordsWith0Axis_ValidationSuccessfulAsync()
     {
         // Arrange
-        var testee = new MandatoryHeaderEntriesValidator();
+        var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
             .WithContentDataType(DataContentType.SHORT)
@@ -49,7 +49,7 @@ public class MandatoryHeaderEntriesValidatorTests
     public async Task Validate_WithAllMandatoryKeywordsWith3Axis_ValidationSuccessfulAsync()
     {
         // Arrange
-        var testee = new MandatoryHeaderEntriesValidator();
+        var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
             .WithContentDataType(DataContentType.SHORT)
@@ -72,7 +72,7 @@ public class MandatoryHeaderEntriesValidatorTests
     public async Task Validate_WithAllMandatoryKeywordsWith3AxisButWronglyDefinedSizes_ValidationFailsAsync()
     {
         // Arrange
-        var testee = new MandatoryHeaderEntriesValidator();
+        var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
             .WithContentDataType(DataContentType.SHORT)
@@ -95,7 +95,7 @@ public class MandatoryHeaderEntriesValidatorTests
     public async Task Validate_WithAllMandatoryKeywordsWith3AxisButNotAllNAXIS_ValidationFailsAsync()
     {
         // Arrange
-        var testee = new MandatoryHeaderEntriesValidator();
+        var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
             .WithContentDataType(DataContentType.SHORT)
@@ -117,7 +117,7 @@ public class MandatoryHeaderEntriesValidatorTests
     public async Task Validate_WithAllMandatoryKeywordsButNAXISIsNotTypeInt_ValidationFailsAsync()
     {
         // Arrange
-        var testee = new MandatoryHeaderEntriesValidator();
+        var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
             .WithContentDataType(DataContentType.SHORT)

@@ -8,75 +8,20 @@ using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
 using FitsLibrary.Deserialization.Head;
 using FitsLibrary.Deserialization.Image;
+using FitsLibrary.Deserialization.Primary;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.ImageData;
-using FitsLibrary.Validation;
 using FitsLibrary.Validation.Header;
 
 namespace FitsLibrary;
 
 public class FitsDocumentReader : IFitsDocumentReader
 {
-    private IReadOnlyList<IValidator<Header>> headerValidators;
-
     internal const int ChunkSize = 2880;
-
-    public FitsDocumentReader()
-    {
-        UseValidatorsForReading();
-    }
-
-    /// <summary>
-    /// Used for Unit Testing
-    /// </summary>
-    /// <param name="headerDeserializer"></param>
-    /// <param name="headerValidators"></param>
-    /// <param name="contentDeserializer"></param>
-    internal FitsDocumentReader(
-            List<IValidator<Header>> headerValidators)
-    {
-        this.headerValidators = headerValidators;
-    }
-
-    private void UseValidatorsForReading()
-    {
-        headerValidators = new List<IValidator<Header>>
-        {
-            new KeywordsMustBeUniqueValidator(),
-            new MandatoryHeaderEntriesValidator(),
-        };
-    }
 
     public Task<FitsDocument> ReadAsync(string filePath)
     {
         return ReadAsync(File.OpenRead(filePath));
-    }
-
-    private async Task<(bool endOfStreamReached, Header parsedHeader)> ReadHeaderAsync(PipeReader pipeReader)
-    {
-        (var endOfStreamReachedHeader, var header) = await new HeaderDeserializer()
-            .DeserializeAsync(pipeReader)
-            .ConfigureAwait(false);
-
-        var validatorTasks = new List<Task<ValidationResult>>();
-        foreach (var headerValidator in this.headerValidators)
-        {
-            validatorTasks.Add(headerValidator.ValidateAsync(header));
-        }
-
-        var validationResults = await Task
-            .WhenAll(validatorTasks)
-            .ConfigureAwait(continueOnCapturedContext: false);
-
-        foreach (var validationResult in validationResults)
-        {
-            if (!validationResult.ValidationSuccessful)
-            {
-                throw new InvalidDataException($"Validation failed for the header of the fits file: {validationResult.ValidationFailureMessage}");
-            }
-        }
-
-        return (endOfStreamReachedHeader, header);
     }
 
     public virtual async Task<FitsDocument> ReadAsync(Stream inputStream)
@@ -93,33 +38,37 @@ public class FitsDocumentReader : IFitsDocumentReader
         var first = true;
         while (!endOfStreamReached)
         {
-            var headerResult = await ReadHeaderAsync(pipeReader).ConfigureAwait(false);
-            var type = first ? HeaderDataUnitType.PRIMARY : ParseHduType(headerResult.parsedHeader["XTENSION"] as string);
+            (var endOfStreamReachedHeader, var header) = await new HeaderDeserializer()
+                .DeserializeAsync(pipeReader)
+                .ConfigureAwait(false);
+            var type = first ? HeaderDataUnitType.PRIMARY : ParseHduType(header["XTENSION"] as string);
             IHduDeserializer hduDeserializer = type switch
             {
-                HeaderDataUnitType.PRIMARY => ExtractDataContentType(headerResult.parsedHeader) switch
+                HeaderDataUnitType.PRIMARY => ExtractDataContentType(header) switch
                 {
-                    DataContentType.BYTE => new PrimaryHduDeserializer<byte>(),
-                    DataContentType.SHORT => new PrimaryHduDeserializer<short>(),
-                    DataContentType.INTEGER => new PrimaryHduDeserializer<int>(),
-                    DataContentType.LONG => new PrimaryHduDeserializer<long>(),
-                    DataContentType.FLOAT => new PrimaryHduDeserializer<float>(),
-                    DataContentType.DOUBLE => new PrimaryHduDeserializer<double>(),
+                    DataContentType.BYTE => new PrimaryHduDeserializer<byte>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.SHORT => new PrimaryHduDeserializer<short>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.INTEGER => new PrimaryHduDeserializer<int>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.LONG => new PrimaryHduDeserializer<long>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.FLOAT => new PrimaryHduDeserializer<float>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.DOUBLE => new PrimaryHduDeserializer<double>(ValidationLists.PrimaryBlockHeaderValidators),
+                    _ => throw new NotImplementedException(),
                 },
-                HeaderDataUnitType.IMAGE => ExtractDataContentType(headerResult.parsedHeader) switch
+                HeaderDataUnitType.IMAGE => ExtractDataContentType(header) switch
                 {
-                    DataContentType.BYTE => new ImageHduDeserializer<byte>(),
-                    DataContentType.SHORT => new ImageHduDeserializer<short>(),
-                    DataContentType.INTEGER => new ImageHduDeserializer<int>(),
-                    DataContentType.LONG => new ImageHduDeserializer<long>(),
-                    DataContentType.FLOAT => new ImageHduDeserializer<float>(),
-                    DataContentType.DOUBLE => new ImageHduDeserializer<double>(),
+                    DataContentType.BYTE => new ImageHduDeserializer<byte>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.SHORT => new ImageHduDeserializer<short>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.INTEGER => new ImageHduDeserializer<int>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.LONG => new ImageHduDeserializer<long>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.FLOAT => new ImageHduDeserializer<float>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.DOUBLE => new ImageHduDeserializer<double>(ValidationLists.ImageExtensionHeaderValidators),
+                    _ => throw new NotImplementedException(),
                 },
                 _ => throw new NotImplementedException()
             };
 
             (var endOfStreamReachedHdu, var hdu) = await hduDeserializer
-                .DeserializeAsync(pipeReader, headerResult.parsedHeader)
+                .DeserializeAsync(pipeReader, header)
                 .ConfigureAwait(false);
 
             hdus.Add(hdu);
