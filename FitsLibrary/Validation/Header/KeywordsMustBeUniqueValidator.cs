@@ -5,7 +5,7 @@ namespace FitsLibrary.Validation.Header
 {
     public class KeywordsMustBeUniqueValidator : IValidator<DocumentParts.Header>
     {
-        public readonly string[] FieldsThatHaveToBeUnique = new[] { "SIMPLE", "XTENSION", "BITPIX", "NAXIS" };
+        public readonly string[] Exceptions = new[] { "COMMENT", "HISTORY", string.Empty };
 
         public override Task<ValidationResult> ValidateAsync(DocumentParts.Header objToValidate)
         {
@@ -13,7 +13,7 @@ namespace FitsLibrary.Validation.Header
             {
                 var nonUniqueEntries = objToValidate
                     .Entries
-                    .Where(entry => FieldsThatHaveToBeUnique.Contains(entry.Key, System.StringComparer.Ordinal))
+                    .Where(entry => !Exceptions.Contains(entry.Key, System.StringComparer.Ordinal))
                     .GroupBy(entries => entries.Key, System.StringComparer.Ordinal)
                     .Where(group => group.Skip(1).Any())
                     .Select(group => group.Key);

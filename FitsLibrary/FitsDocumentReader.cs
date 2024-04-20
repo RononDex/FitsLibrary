@@ -42,7 +42,7 @@ public class FitsDocumentReader : IFitsDocumentReader
                 .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
             var type = first ? HeaderDataUnitType.PRIMARY : ParseHduType(header["XTENSION"] as string);
-            IHduDeserializer hduDeserializer = type switch
+            IHduDeserializer? hduDeserializer = type switch
             {
                 HeaderDataUnitType.PRIMARY => ExtractDataContentType(header) switch
                 {
@@ -64,9 +64,14 @@ public class FitsDocumentReader : IFitsDocumentReader
                     DataContentType.DOUBLE => new ImageHduDeserializer<double>(ValidationLists.ImageExtensionHeaderValidators),
                     _ => throw new NotImplementedException(),
                 },
-                _ => throw new NotImplementedException()
+                _ => null,
             };
 
+            if (hduDeserializer == null)
+            {
+                Console.WriteLine($"Unknown xtension type {header["XTENSION"]} found, stopping parsing of file");
+                break;
+            }
             (var endOfStreamReachedHdu, var hdu) = await hduDeserializer
                 .DeserializeAsync(pipeReader, header)
                 .ConfigureAwait(false);

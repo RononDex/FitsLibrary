@@ -39,9 +39,9 @@ public class SampleFilesTests
     [Benchmark]
     public async Task OpenFitsFile_WithAccessingContent_IsAbleToAccessData()
     {
-        var reader = new FitsDocumentReader();
-        var document = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
-        var priamryHdu = (ImageHeaderDataUnit<float>)document.HeaderDataUnits[0];
+        var reader = new FitsDocumentReader<float>();
+        var document = await reader.ReadAsync("/home/cobra/M_101_Light_L_120_secs_2023-05-26T23-00-11_001.fits");
+        var priamryHdu = document.PrimaryHdu;
 
         for (int x = 0; x < priamryHdu.Header.AxisSizes[0]; x++)
         {

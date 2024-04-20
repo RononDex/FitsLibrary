@@ -9,7 +9,7 @@ public class NoInvalidCharactersInKeywordsValidator : IValidator<DocumentParts.H
     {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '_', '⁻',
+        '_', '-',
     };
 
     public override Task<ValidationResult> ValidateAsync(DocumentParts.Header objToValidate)
@@ -17,7 +17,6 @@ public class NoInvalidCharactersInKeywordsValidator : IValidator<DocumentParts.H
         return Task.Run(() =>
         {
             var firstInvalidEntry = objToValidate.Entries
-                .Where(entry => entry.Value is string)
                 .FirstOrDefault(entry =>
                         entry.Key.Any(keyChar => !this.ValidCharacters.Contains(keyChar)));
 

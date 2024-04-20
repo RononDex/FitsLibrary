@@ -13,7 +13,7 @@ public class FrameworkComparisonsTests
     [Benchmark]
     public void CSharpFITS()
     {
-        Fits f = new Fits("/home/cobra/M81_M82_Panel2_Light_Ha_300_secs_2023-02-21T20-13-27_003.fits");
+        Fits f = new Fits("/home/cobra/M_101_Light_L_120_secs_2023-05-26T23-00-11_001.fits");
         BasicHDU[] hdus = f.Read();
 
         for (int i = 0; i < hdus.Length; i += 1)
@@ -35,7 +35,7 @@ public class FrameworkComparisonsTests
     public async Task FitsLibraryAsync()
     {
         var reader = new FitsDocumentReader<short>();
-        var document = await reader.ReadAsync("/home/cobra/M81_M82_Panel2_Light_Ha_300_secs_2023-02-21T20-13-27_003.fits");
+        var document = await reader.ReadAsync("/home/cobra/M_101_Light_L_120_secs_2023-05-26T23-00-11_001.fits");
 
         for (var x = 0; x < document.PrimaryHdu.Header.AxisSizes[0]; x++)
         {

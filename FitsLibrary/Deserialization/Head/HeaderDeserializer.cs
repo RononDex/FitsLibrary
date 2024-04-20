@@ -130,7 +130,6 @@ public class HeaderDeserializer : IHeaderDeserializer
 
     private static HeaderEntry ParseHeaderEntryChunk(ReadOnlySpan<byte> headerEntryChunk)
     {
-        Console.WriteLine("Parsing " + Encoding.ASCII.GetString(headerEntryChunk));
         var key = Encoding.ASCII.GetString(headerEntryChunk.Slice(0, 8)).Trim();
         if (HeaderEntryChunkHasValueMarker(headerEntryChunk)
                 || HeaderEntryEntryChunkHasContinueMarker(key))

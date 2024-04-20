@@ -88,7 +88,7 @@ public class MandatoryHeaderEntriesValidatorTests
 
         // Assert
         result.ValidationSuccessful.Should().Be(false);
-        result.ValidationFailureMessage.Should().Be("The FITS header does not contain required fields.");
+        result.ValidationFailureMessage.Should().Be("The FITS header is missing required fields (or they are in the wrong location).");
     }
 
     [Test]
@@ -110,7 +110,7 @@ public class MandatoryHeaderEntriesValidatorTests
 
         // Assert
         result.ValidationSuccessful.Should().Be(false);
-        result.ValidationFailureMessage.Should().Be("The FITS header does not contain required fields.");
+        result.ValidationFailureMessage.Should().Be("The FITS header is missing required fields (or they are in the wrong location).");
     }
 
     [Test]
