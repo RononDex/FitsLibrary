@@ -14,10 +14,10 @@ public class ContentStreamBuilder
 
     public MemoryStream Build()
     {
-        var missingNulls = data.Count % 2880;
-        if (missingNulls != 0)
+        var danglingBytesCount = data.Count % 2880;
+        if (danglingBytesCount != 0)
         {
-            for (var i = 0; i < 2880 - missingNulls; i++)
+            for (var i = 0; i < 2880 - danglingBytesCount; i++)
             {
                 data.Add(0);
             }

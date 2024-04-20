@@ -42,23 +42,25 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
 
         var bytesRead = 0;
         var currentValueIndex = 0;
-        while (bytesRead <= contentSizeInBytes)
+
+        // Read one block further to check if its the end of the file (but don't advance the readers position)
+        while (bytesRead <= totalContentSizeInBytes)
         {
             var chunk = ReadContentDataStream(dataStream).GetAwaiter().GetResult();
             endOfStreamReached = chunk.IsCompleted;
             var blockSize = Math.Min(ChunkSize, contentSizeInBytes - bytesRead);
-            if (chunk.Buffer.Length > blockSize)
+            if (chunk.Buffer.Length > ChunkSize)
             {
                 // If we dont read the whole buffer, we still have not reached
                 // the end of the stream
                 endOfStreamReached = false;
             }
-            if (blockSize == 0)
+            if (blockSize <= 0)
             {
                 break;
             }
 
-            bytesRead += blockSize;
+            bytesRead += ChunkSize;
 
             for (var i = 0; i < blockSize; i += numberOfBytesPerValue)
             {

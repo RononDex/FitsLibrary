@@ -41,6 +41,10 @@ public class FitsDocumentReader : IFitsDocumentReader
             (var endOfStreamReachedHeader, var header) = await new HeaderDeserializer()
                 .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
+
+            if (endOfStreamReachedHeader && header == null)
+                break;
+
             var type = first ? HeaderDataUnitType.PRIMARY : ParseHduType(header["XTENSION"] as string);
             IHduDeserializer? hduDeserializer = type switch
             {
@@ -80,6 +84,7 @@ public class FitsDocumentReader : IFitsDocumentReader
             endOfStreamReached = endOfStreamReachedHdu;
             first = false;
         }
+        pipeReader.Complete();
         return new FitsDocument(hdus);
     }
 

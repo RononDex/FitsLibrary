@@ -6,5 +6,5 @@ namespace FitsLibrary.Deserialization;
 
 internal interface IHeaderDeserializer
 {
-    public abstract Task<(bool endOfStreamReached, Header header)> DeserializeAsync(PipeReader dataStream);
+    public abstract Task<(bool endOfStreamReached, Header? header)> DeserializeAsync(PipeReader dataStream);
 }

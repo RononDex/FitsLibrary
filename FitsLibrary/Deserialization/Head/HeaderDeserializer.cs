@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -37,7 +38,7 @@ public class HeaderDeserializer : IHeaderDeserializer
     /// </summary>
     /// <param name="dataStream">the stream from which to read the data from (should be at position 0)</param>
     /// <exception cref="InvalidDataException"></exception>
-    public async Task<(bool endOfStreamReached, Header header)> DeserializeAsync(PipeReader dataStream)
+    public async Task<(bool endOfStreamReached, Header? header)> DeserializeAsync(PipeReader dataStream)
     {
         PreValidateStream(dataStream);
 
@@ -49,6 +50,11 @@ public class HeaderDeserializer : IHeaderDeserializer
         {
             var result = await dataStream.ReadAsync().ConfigureAwait(false);
             var headerBlock = result.Buffer;
+            if (headerBlock.Length < HeaderBlockSize)
+            {
+                Console.WriteLine("WARNING: Failed to parse the header, it appears the file does not conform to the fits standard and has an invalid amount of bytes at the end");
+                return (true, null);
+            }
 
             headerEntries.AddRange(ParseHeaderBlock(headerBlock, out endOfHeaderReached));
             dataStream.AdvanceTo(result.Buffer.GetPosition(HeaderBlockSize), result.Buffer.End);
