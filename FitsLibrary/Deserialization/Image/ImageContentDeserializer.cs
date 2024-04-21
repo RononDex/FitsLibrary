@@ -39,6 +39,7 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
         Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
         var endOfStreamReached = false;
         var valueParser = GetContentValueParser<T>(headerBoxed.DataContentType);
+        ReadOnlySpan<byte> readerSpan = currentValueBuffer;
 
         var bytesRead = 0;
         var currentValueIndex = 0;
@@ -64,9 +65,17 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
 
             for (var i = 0; i < blockSize; i += numberOfBytesPerValue)
             {
-                chunk.Buffer.Slice(i, numberOfBytesPerValue).CopyTo(currentValueBuffer);
+                if (chunk.Buffer.FirstSpan.Length >= i + numberOfBytesPerValue)
+                {
+                    readerSpan = chunk.Buffer.FirstSpan.Slice(i, numberOfBytesPerValue);
+                }
+                else
+                {
+                    chunk.Buffer.Slice(i, numberOfBytesPerValue).CopyTo(currentValueBuffer);
+                    readerSpan = currentValueBuffer;
+                }
 
-                dataPoints[currentValueIndex++] = valueParser.ParseValue(currentValueBuffer);
+                dataPoints[currentValueIndex++] = valueParser.ParseValue(readerSpan);
             }
 
             dataStream.AdvanceTo(chunk.Buffer.GetPosition(ChunkSize), chunk.Buffer.End);
