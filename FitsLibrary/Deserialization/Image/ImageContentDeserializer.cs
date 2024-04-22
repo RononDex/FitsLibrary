@@ -18,16 +18,15 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
 
     public Task<(bool endOfStreamReached, ImageDataContent<T> data)> DeserializeAsync(PipeReader dataStream, Header header)
     {
-        var headerBoxed = new ImageHeader(header.Entries);
-        if (headerBoxed.NumberOfAxisInMainContent < 1)
+        if (header.NumberOfAxisInMainContent < 1)
         {
             // Return endOfStreamReached false, since this method is only called if endOfStreamReached was false
             // before calling this method, so since we did not read anything, it should still be false
-            return Task.FromResult((endOfStreamReached: false, data: new ImageDataContent<T>(new int[1] { 0 }, Memory<T>.Empty)));
+            return Task.FromResult((endOfStreamReached: false, data: new ImageDataContent<T>(new int[] { 0 }, Memory<T>.Empty)));
         }
 
-        var numberOfBytesPerValue = Math.Abs((int)headerBoxed.DataContentType / 8);
-        var numberOfAxis = headerBoxed.NumberOfAxisInMainContent;
+        var numberOfBytesPerValue = Math.Abs((int)header.DataContentType / 8);
+        var numberOfAxis = header.NumberOfAxisInMainContent;
         var axisSizes = Enumerable.Range(1, numberOfAxis)
             .Select(axisIndex => Convert.ToInt32(header[$"NAXIS{axisIndex}"], CultureInfo.InvariantCulture)).ToArray();
         var axisSizesSpan = new ReadOnlySpan<int>(axisSizes);
@@ -38,7 +37,7 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
         var totalContentSizeInBytes = Math.Ceiling(Convert.ToDouble(contentSizeInBytes) / Convert.ToDouble(ChunkSize)) * ChunkSize;
         Span<byte> currentValueBuffer = stackalloc byte[numberOfBytesPerValue];
         var endOfStreamReached = false;
-        var valueParser = GetContentValueParser<T>(headerBoxed.DataContentType);
+        var valueParser = GetContentValueParser<T>(header.DataContentType);
         ReadOnlySpan<byte> readerSpan = currentValueBuffer;
 
         var bytesRead = 0;
@@ -65,6 +64,8 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
 
             for (var i = 0; i < blockSize; i += numberOfBytesPerValue)
             {
+                // If the first span already has the value we are looking for
+                // we do not need to copy its value, saving a lot of performance
                 if (chunk.Buffer.FirstSpan.Length >= i + numberOfBytesPerValue)
                 {
                     readerSpan = chunk.Buffer.FirstSpan.Slice(i, numberOfBytesPerValue);

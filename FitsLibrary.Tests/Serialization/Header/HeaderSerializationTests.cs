@@ -2,12 +2,11 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
-using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.Objects;
-using FitsLibrary.Serialization;
+using FitsLibrary.Serialization.Header;
 using NUnit.Framework;
 
-namespace FitsLibrary.Tests.Serialization;
+namespace FitsLibrary.Tests.Serialization.Header;
 
 public class HeaderSerializationTests
 {
@@ -17,7 +16,7 @@ public class HeaderSerializationTests
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
 
-        await testee.SerializeAsync(new Header(), PipeWriter.Create(memory)).ConfigureAwait(false);
+        await testee.SerializeAsync(new FitsLibrary.DocumentParts.Header(), PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
 
         Assert.That(actual, Has.Length.EqualTo(2880));
@@ -29,7 +28,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", "Value1", "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", "Value1", "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -43,7 +42,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", "Value'1", "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", "Value'1", "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -57,7 +56,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", null)]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", null)]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -74,7 +73,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry(
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry(
                     "Entry1",
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")]);
@@ -98,7 +97,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", null, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", null, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -112,7 +111,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", true, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", true, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -126,7 +125,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", false, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", false, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -140,7 +139,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", 20, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", 20, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -154,7 +153,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", int.MinValue, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", int.MinValue, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -168,7 +167,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", long.MaxValue, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", long.MaxValue, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -182,7 +181,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", 1.03E10f, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", 1.03E10f, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());
@@ -196,7 +195,7 @@ public class HeaderSerializationTests
     {
         var testee = new HeaderSerializer();
         using var memory = new MemoryStream();
-        var header = new Header([new HeaderEntry("Entry1", 1.03E10, "Comment1")]);
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("Entry1", 1.03E10, "Comment1")]);
 
         await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
         var actual = Encoding.ASCII.GetString(memory.ToArray());

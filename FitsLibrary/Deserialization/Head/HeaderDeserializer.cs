@@ -1,7 +1,6 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -9,11 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.Objects;
-using FitsLibrary.Extensions;
 
 namespace FitsLibrary.Deserialization.Head;
 
-public class HeaderDeserializer : IHeaderDeserializer
+internal class HeaderDeserializer : IHeaderDeserializer
 {
     /// <summary>
     /// Length of a header entry chunk, containing a single header entry
@@ -29,9 +27,7 @@ public class HeaderDeserializer : IHeaderDeserializer
     /// "END" + 77 spaces in ASCII
     /// </summary>
     public static readonly byte[] END_MARKER =
-        new List<byte> { 0x45, 0x4e, 0x44 }
-            .Concat(Enumerable.Repeat(element: (byte)0x20, count: 77))
-            .ToArray();
+        [0x45, 0x4e, 0x44, .. Enumerable.Repeat(element: (byte)0x20, count: 77)];
 
     /// <summary>
     /// Deserializes the header part of the fits document

@@ -23,7 +23,7 @@ public class ImageHeaderDataUnitTests
             contentData.Span[i] = i;
         }
 
-        var testee = new ImageHeaderDataUnit<int>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), new ImageDataContent<int>([10, 10], contentData));
+        var testee = new ImageHeaderDataUnit<int>(HeaderDataUnitType.PRIMARY, header, new ImageDataContent<int>([10, 10], contentData));
 
         testee.Data.GetValueAt(0, 0).Should().Be(0);
         testee.Data.GetValueAt(0, 2).Should().Be(20);
@@ -46,7 +46,7 @@ public class ImageHeaderDataUnitTests
             contentData.Span[i] = (short)i;
         }
 
-        var testee = new ImageHeaderDataUnit<short>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), new ImageDataContent<short>([10, 10], contentData));
+        var testee = new ImageHeaderDataUnit<short>(HeaderDataUnitType.PRIMARY, header, new ImageDataContent<short>([10, 10], contentData));
 
         testee.Data.GetValueAt(0, 0).Should().Be(0);
         testee.Data.GetValueAt(0, 2).Should().Be(20);
@@ -69,7 +69,7 @@ public class ImageHeaderDataUnitTests
             contentData.Span[i] = (long)i;
         }
 
-        var testee = new ImageHeaderDataUnit<long>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), new ImageDataContent<long>([10, 10], contentData));
+        var testee = new ImageHeaderDataUnit<long>(HeaderDataUnitType.PRIMARY, header, new ImageDataContent<long>([10, 10], contentData));
 
         testee.Data.GetValueAt(0, 0).Should().Be(0);
         testee.Data.GetValueAt(0, 2).Should().Be(20);
@@ -92,7 +92,7 @@ public class ImageHeaderDataUnitTests
             contentData.Span[i] = (byte)i;
         }
 
-        var testee = new ImageHeaderDataUnit<byte>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), new ImageDataContent<byte>([10, 10], contentData));
+        var testee = new ImageHeaderDataUnit<byte>(HeaderDataUnitType.PRIMARY, header, new ImageDataContent<byte>([10, 10], contentData));
 
         testee.Data.GetValueAt(0, 0).Should().Be(0);
         testee.Data.GetValueAt(0, 2).Should().Be(20);
@@ -115,7 +115,7 @@ public class ImageHeaderDataUnitTests
             contentData.Span[i] = (float)i;
         }
 
-        var testee = new ImageHeaderDataUnit<float>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), new ImageDataContent<float>([10, 10], contentData));
+        var testee = new ImageHeaderDataUnit<float>(HeaderDataUnitType.PRIMARY, header, new ImageDataContent<float>([10, 10], contentData));
 
         testee.Data.GetValueAt(0, 0).Should().Be(0);
         testee.Data.GetValueAt(0, 2).Should().Be(20);
@@ -138,7 +138,7 @@ public class ImageHeaderDataUnitTests
             contentData.Span[i] = (double)i;
         }
 
-        var testee = new ImageHeaderDataUnit<double>(HeaderDataUnitType.PRIMARY, new ImageHeader(header.Entries), new ImageDataContent<double>([10, 10], contentData));
+        var testee = new ImageHeaderDataUnit<double>(HeaderDataUnitType.PRIMARY, header, new ImageDataContent<double>([10, 10], contentData));
 
         testee.Data.GetValueAt(0, 0).Should().Be(0);
         testee.Data.GetValueAt(0, 2).Should().Be(20);

@@ -3,20 +3,19 @@ using System.Globalization;
 using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
-using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.Objects;
 using FitsLibrary.Extensions;
 
-namespace FitsLibrary.Serialization;
+namespace FitsLibrary.Serialization.Header;
 
-public class HeaderSerializer : IHeaderSerializer
+internal class HeaderSerializer : IHeaderSerializer
 {
     public const char ContinuedStringMarker = '&';
     public const int HeaderBlockSize = 2880;
     public const int HeaderEntryChunkSize = 80;
     public const int LogicalValuePosition = 20;
 
-    public Task SerializeAsync(Header header, PipeWriter writer)
+    public Task SerializeAsync(DocumentParts.Header header, PipeWriter writer)
     {
         var headerBlockBuilder = new StringBuilder();
         var headerEntryBuilder = new StringBuilder();

@@ -9,16 +9,11 @@ using FitsLibrary.Validation;
 
 namespace FitsLibrary.Deserialization.Image;
 
-internal class ImageHduDeserializer<T> : IHduDeserializer<ImageDataContent<T>, ImageHeader> where T : INumber<T>
+internal class ImageHduDeserializer<T>(IList<IValidator<Header>> validators) : IHduDeserializer<ImageDataContent<T>> where T : INumber<T>
 {
-    private IList<IValidator<Header>> HeaderValidators { get; }
+    private IList<IValidator<Header>> HeaderValidators { get; } = validators;
 
-    public ImageHduDeserializer(IList<IValidator<Header>> validators)
-    {
-        this.HeaderValidators = validators;
-    }
-
-    public async Task<(bool endOfStreamReached, HeaderDataUnit<ImageDataContent<T>, ImageHeader> data)> DeserializeAsync(PipeReader reader, Header header)
+    public async Task<(bool endOfStreamReached, HeaderDataUnit<ImageDataContent<T>> data)> DeserializeAsync(PipeReader reader, Header header)
     {
         await ValidateHeader(header).ConfigureAwait(false);
 
@@ -28,7 +23,7 @@ internal class ImageHduDeserializer<T> : IHduDeserializer<ImageDataContent<T>, I
 
         return (
                 endOfStreamReached: endOfStreamReachedContent,
-                data: new ImageHeaderDataUnit<T>(HeaderDataUnitType.IMAGE, new ImageHeader(header.Entries), parsedContent));
+                data: new ImageHeaderDataUnit<T>(HeaderDataUnitType.IMAGE, header, parsedContent));
     }
 
     private async Task ValidateHeader(Header header)

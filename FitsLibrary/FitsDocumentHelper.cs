@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization.Head;
+using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.ImageData;
 
 namespace FitsLibrary;
@@ -12,12 +13,12 @@ namespace FitsLibrary;
 /// </summary>
 public static class FitsDocumentHelper
 {
-    public static Task<ImageHeader> ReadHeaderAsync(string filePath)
+    public static Task<Header> ReadHeaderAsync(string filePath)
     {
         return ReadHeaderAsync(File.OpenRead(filePath));
     }
 
-    public static async Task<ImageHeader> ReadHeaderAsync(Stream inputStream)
+    public static async Task<Header> ReadHeaderAsync(Stream inputStream)
     {
         var pipeReader = PipeReader.Create(
                 inputStream,
@@ -31,7 +32,7 @@ public static class FitsDocumentHelper
             .DeserializeAsync(pipeReader)
             .ConfigureAwait(false);
 
-        return new ImageHeader(headerResult.header.Entries);
+        return headerResult.header ?? throw new InvalidDataException("Fits file header could not be parsed, it might be corrupted");
     }
 
     public static Task<DataContentType> GetDocumentContentType(string filePath)

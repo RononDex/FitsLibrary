@@ -5,9 +5,9 @@ using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary.Deserialization;
 
-internal interface IHduDeserializer<T, H> : IHduDeserializer where H : Header
+internal interface IHduDeserializer<T> : IHduDeserializer
 {
-    new Task<(bool endOfStreamReached, HeaderDataUnit<T, H> data)> DeserializeAsync(PipeReader reader, Header header);
+    new Task<(bool endOfStreamReached, HeaderDataUnit<T> data)> DeserializeAsync(PipeReader reader, Header header);
 }
 
 internal interface IHduDeserializer

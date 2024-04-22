@@ -19,19 +19,19 @@ public class ContentStreamBuilder
         {
             for (var i = 0; i < 2880 - danglingBytesCount; i++)
             {
-                data.Add(0);
+                this.data.Add(0);
             }
         }
-        return new MemoryStream(data.ToArray());
+        return new MemoryStream(this.data.ToArray());
     }
 
     public ContentStreamBuilder WithEmptyContent()
     {
-        data.Clear();
+        this.data.Clear();
         return this;
     }
 
-    public ContentStreamBuilder WithDataBeingInitializedWith(object defaultData, ImageHeader header)
+    public ContentStreamBuilder WithDataBeingInitializedWith(object defaultData, Header header)
     {
         var numberOfAxis = (int?)header["NAXIS"];
         var axisSizes = Enumerable.Range(1, numberOfAxis!.Value)
@@ -39,14 +39,14 @@ public class ContentStreamBuilder
         var totalNumberOfValues = axisSizes.Aggregate((long?)1, (x, y) => x!.Value * y!.Value);
 
         var valueInBytes = GetValueInBytes(defaultData, header);
-        data.AddRange(Enumerable.Repeat(
+        this.data.AddRange(Enumerable.Repeat(
             valueInBytes,
             Convert.ToInt32(totalNumberOfValues!.Value)).SelectMany(_ => _).ToArray());
 
         return this;
     }
 
-    public ContentStreamBuilder WithDataAtCoordinates(object value, Dictionary<uint, ulong> coordinates, ImageHeader header)
+    public ContentStreamBuilder WithDataAtCoordinates(object value, Dictionary<uint, ulong> coordinates, Header header)
     {
         var numberOfAxis = (int?)header["NAXIS"];
         var axisSizes = Enumerable.Range(1, numberOfAxis!.Value)
@@ -65,7 +65,7 @@ public class ContentStreamBuilder
 
         for (var i = 0; i < valueInBytes.Length; i++)
         {
-            data[Convert.ToInt32(byteIndex) + i] = valueInBytes[i];
+            this.data[Convert.ToInt32(byteIndex) + i] = valueInBytes[i];
         }
 
         return this;
@@ -73,11 +73,11 @@ public class ContentStreamBuilder
 
     public ContentStreamBuilder WithAdditionalDataAfterContent()
     {
-        data.AddRange(Enumerable.Repeat((byte)0x01, 2880));
+        this.data.AddRange(Enumerable.Repeat((byte)0x01, 2880));
         return this;
     }
 
-    private static byte[] GetValueInBytes(object value, ImageHeader header)
+    private static byte[] GetValueInBytes(object value, Header header)
     {
         return header.DataContentType switch
         {

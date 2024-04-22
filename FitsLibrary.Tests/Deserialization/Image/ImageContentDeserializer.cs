@@ -38,9 +38,8 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith(123, headerBoxed)
+            .WithDataBeingInitializedWith(123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -61,9 +60,8 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith((short)123, headerBoxed)
+            .WithDataBeingInitializedWith((short)123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -84,9 +82,8 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith((byte)123, headerBoxed)
+            .WithDataBeingInitializedWith((byte)123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -107,9 +104,8 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith((double)123, headerBoxed)
+            .WithDataBeingInitializedWith((double)123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -130,9 +126,8 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith((float)123, headerBoxed)
+            .WithDataBeingInitializedWith((float)123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -153,9 +148,8 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith((long)123, headerBoxed)
+            .WithDataBeingInitializedWith((long)123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -176,13 +170,12 @@ public class ImageContentDeserializer
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith(123, headerBoxed)
+            .WithDataBeingInitializedWith(123, header)
             .WithDataAtCoordinates(
                     10,
                     new Dictionary<uint, ulong> { { 0, 4 } },
-                    headerBoxed)
+                    header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -205,9 +198,8 @@ public class ImageContentDeserializer
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 20)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith(123, headerBoxed)
+            .WithDataBeingInitializedWith(123, header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -229,9 +221,8 @@ public class ImageContentDeserializer
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 20)
             .Build();
-        var headerBoxed = new ImageHeader(header.Entries);
         var dataStream = new ContentStreamBuilder()
-            .WithDataBeingInitializedWith(123, headerBoxed)
+            .WithDataBeingInitializedWith(123, header)
             .WithDataAtCoordinates(
                     10,
                     new Dictionary<uint, ulong>
@@ -239,7 +230,7 @@ public class ImageContentDeserializer
                         { 0, 5 },
                         { 1, 2 },
                     },
-                    headerBoxed)
+                    header)
             .Build();
 
         var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
@@ -262,7 +253,56 @@ public class ImageContentDeserializer
             .ToArray()
             .Select((d, i) => (i, d))
             .Where(d => d.i != 5 + (2 * 10))
-            .All(d => (int)d.d == 123)
+            .All(d => d.d == 123)
+            .Should()
+            .BeTrue();
+    }
+
+    [Test]
+    public async Task DeserializeAsync_WithThreeAxisAndSomeValuesAndOneValueDifferent_ReturnsTheValuesAsync()
+    {
+        var deserializer = new ImageContentDeserializer<int>();
+        var header = new HeaderBuilder()
+            .WithContentDataType(DataContentType.INTEGER)
+            .WithNumberOfAxis(3)
+            .WithAxisOfSize(dimensionIndex: 1, size: 10)
+            .WithAxisOfSize(dimensionIndex: 2, size: 20)
+            .WithAxisOfSize(dimensionIndex: 3, size: 5)
+            .Build();
+        var dataStream = new ContentStreamBuilder()
+            .WithDataBeingInitializedWith(123, header)
+            .WithDataAtCoordinates(
+                    10,
+                    new Dictionary<uint, ulong>
+                    {
+                        { 0, 5 },
+                        { 1, 2 },
+                        { 2, 3 },
+                    },
+                    header)
+            .Build();
+
+        var deserilaizedContentResult = await deserializer.DeserializeAsync(PipeReader.Create(dataStream), header);
+        var deserilaizedContent = deserilaizedContentResult.data.RawData;
+
+        deserilaizedContentResult.endOfStreamReached.Should().BeTrue();
+        deserilaizedContent.Should().NotBeNull();
+        deserilaizedContent
+            .ToArray()
+            .Should()
+            .HaveCount(10 * 20 * 5);
+        deserilaizedContent
+            .ToArray()
+            .Select((d, i) => (i, d))
+            .Single(d => d.i == 5 + (2 * 10) + (3 * 200))
+            .d
+            .Should()
+            .Be(10);
+        deserilaizedContent
+            .ToArray()
+            .Select((d, i) => (i, d))
+            .Where(d => d.i != 5 + (2 * 10) + (3 * 200))
+            .All(d => d.d == 123)
             .Should()
             .BeTrue();
     }
