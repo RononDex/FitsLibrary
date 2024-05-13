@@ -35,9 +35,8 @@ public class SampleFilesTests
         Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
     }
 
-    [Test]
     [Benchmark]
-    public async Task OpenFitsFile_WithAccessingContent_IsAbleToAccessData()
+    public async Task OpenFitsFile_WithAccessingContent_Benchmark()
     {
         var reader = new FitsDocumentReader<short>();
         var document = await reader.ReadAsync("/home/cobra/M_101_Light_L_120_secs_2023-05-26T23-00-11_001.fits");

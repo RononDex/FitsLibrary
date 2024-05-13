@@ -15,7 +15,7 @@ public class ImageHeaderDataUnitTests
             .WithNumberOfAxis(2)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 10)
-            .WithContentDataType(DataContentType.INTEGER)
+            .WithContentDataType(DataContentType.INT32)
             .Build();
         Memory<int> contentData = new int[100];
         for (var i = 0; i < contentData.Length; i++)
@@ -38,7 +38,7 @@ public class ImageHeaderDataUnitTests
             .WithNumberOfAxis(2)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 10)
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .Build();
         Memory<short> contentData = new short[100];
         for (var i = 0; i < contentData.Length; i++)
@@ -61,7 +61,7 @@ public class ImageHeaderDataUnitTests
             .WithNumberOfAxis(2)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 10)
-            .WithContentDataType(DataContentType.LONG)
+            .WithContentDataType(DataContentType.INT64)
             .Build();
         Memory<long> contentData = new long[100];
         for (var i = 0; i < contentData.Length; i++)

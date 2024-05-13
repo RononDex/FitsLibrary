@@ -94,9 +94,9 @@ internal class ImageContentDeserializer<T> : IContentDeserializer where T : INum
                 DataContentType.DOUBLE => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerDouble(),
                 DataContentType.FLOAT => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerFloat(),
                 DataContentType.BYTE => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerByte(),
-                DataContentType.INTEGER => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerInt32(),
-                DataContentType.LONG => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerInt64(),
-                DataContentType.SHORT => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerInt16(),
+                DataContentType.INT32 => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerInt32(),
+                DataContentType.INT64 => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerInt64(),
+                DataContentType.INT16 => (IImageContentValueDeserializer<TData>)new ImageContentValueDeserializerInt16(),
                 _ => throw new ArgumentException("Tried to deserialize unimplemented datatype"),
             };
         }

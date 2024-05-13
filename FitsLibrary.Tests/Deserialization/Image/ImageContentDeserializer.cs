@@ -34,7 +34,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<int>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.INTEGER)
+            .WithContentDataType(DataContentType.INT32)
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
@@ -56,7 +56,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<short>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
@@ -144,7 +144,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<long>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.LONG)
+            .WithContentDataType(DataContentType.INT64)
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
@@ -166,7 +166,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<int>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.INTEGER)
+            .WithContentDataType(DataContentType.INT32)
             .WithNumberOfAxis(1)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .Build();
@@ -193,7 +193,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<int>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.INTEGER)
+            .WithContentDataType(DataContentType.INT32)
             .WithNumberOfAxis(2)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 20)
@@ -216,7 +216,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<int>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.INTEGER)
+            .WithContentDataType(DataContentType.INT32)
             .WithNumberOfAxis(2)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 20)
@@ -263,7 +263,7 @@ public class ImageContentDeserializer
     {
         var deserializer = new ImageContentDeserializer<int>();
         var header = new HeaderBuilder()
-            .WithContentDataType(DataContentType.INTEGER)
+            .WithContentDataType(DataContentType.INT32)
             .WithNumberOfAxis(3)
             .WithAxisOfSize(dimensionIndex: 1, size: 10)
             .WithAxisOfSize(dimensionIndex: 2, size: 20)

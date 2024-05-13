@@ -69,9 +69,9 @@ internal class ImageSerializer<T> : IContentSerializer where T : INumber<T>
                 DataContentType.DOUBLE => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerDouble(),
                 DataContentType.FLOAT => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerFloat(),
                 DataContentType.BYTE => (IImageContentValueSerializer<TData>)new ImageContentValueSerilaizerByte(),
-                DataContentType.INTEGER => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerInt(),
-                DataContentType.LONG => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerLong(),
-                DataContentType.SHORT => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerShort(),
+                DataContentType.INT32 => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerInt(),
+                DataContentType.INT64 => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerLong(),
+                DataContentType.INT16 => (IImageContentValueSerializer<TData>)new ImageContentValueSerializerShort(),
                 _ => throw new ArgumentException("Tried to serialize unimplemented datatype"),
             };
         }

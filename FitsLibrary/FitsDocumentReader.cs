@@ -51,9 +51,9 @@ public class FitsDocumentReader : IFitsDocumentReader
                 HeaderDataUnitType.PRIMARY => ExtractDataContentType(header) switch
                 {
                     DataContentType.BYTE => new PrimaryHduDeserializer<byte>(ValidationLists.PrimaryBlockHeaderValidators),
-                    DataContentType.SHORT => new PrimaryHduDeserializer<short>(ValidationLists.PrimaryBlockHeaderValidators),
-                    DataContentType.INTEGER => new PrimaryHduDeserializer<int>(ValidationLists.PrimaryBlockHeaderValidators),
-                    DataContentType.LONG => new PrimaryHduDeserializer<long>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.INT16 => new PrimaryHduDeserializer<short>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.INT32 => new PrimaryHduDeserializer<int>(ValidationLists.PrimaryBlockHeaderValidators),
+                    DataContentType.INT64 => new PrimaryHduDeserializer<long>(ValidationLists.PrimaryBlockHeaderValidators),
                     DataContentType.FLOAT => new PrimaryHduDeserializer<float>(ValidationLists.PrimaryBlockHeaderValidators),
                     DataContentType.DOUBLE => new PrimaryHduDeserializer<double>(ValidationLists.PrimaryBlockHeaderValidators),
                     _ => throw new NotImplementedException(),
@@ -61,9 +61,9 @@ public class FitsDocumentReader : IFitsDocumentReader
                 HeaderDataUnitType.IMAGE => ExtractDataContentType(header) switch
                 {
                     DataContentType.BYTE => new ImageHduDeserializer<byte>(ValidationLists.ImageExtensionHeaderValidators),
-                    DataContentType.SHORT => new ImageHduDeserializer<short>(ValidationLists.ImageExtensionHeaderValidators),
-                    DataContentType.INTEGER => new ImageHduDeserializer<int>(ValidationLists.ImageExtensionHeaderValidators),
-                    DataContentType.LONG => new ImageHduDeserializer<long>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.INT16 => new ImageHduDeserializer<short>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.INT32 => new ImageHduDeserializer<int>(ValidationLists.ImageExtensionHeaderValidators),
+                    DataContentType.INT64 => new ImageHduDeserializer<long>(ValidationLists.ImageExtensionHeaderValidators),
                     DataContentType.FLOAT => new ImageHduDeserializer<float>(ValidationLists.ImageExtensionHeaderValidators),
                     DataContentType.DOUBLE => new ImageHduDeserializer<double>(ValidationLists.ImageExtensionHeaderValidators),
                     _ => throw new NotImplementedException(),

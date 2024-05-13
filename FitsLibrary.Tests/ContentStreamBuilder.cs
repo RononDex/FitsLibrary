@@ -82,9 +82,9 @@ public class ContentStreamBuilder
         return header.DataContentType switch
         {
             DataContentType.BYTE => new[] { (byte)value },
-            DataContentType.SHORT => BitConverter.GetBytes((short)value).ConvertLittleEndianToBigEndianIfNecessary(),
-            DataContentType.INTEGER => BitConverter.GetBytes((int)value).ConvertLittleEndianToBigEndianIfNecessary(),
-            DataContentType.LONG => BitConverter.GetBytes((long)value).ConvertLittleEndianToBigEndianIfNecessary(),
+            DataContentType.INT16 => BitConverter.GetBytes((short)value).ConvertLittleEndianToBigEndianIfNecessary(),
+            DataContentType.INT32 => BitConverter.GetBytes((int)value).ConvertLittleEndianToBigEndianIfNecessary(),
+            DataContentType.INT64 => BitConverter.GetBytes((long)value).ConvertLittleEndianToBigEndianIfNecessary(),
             DataContentType.FLOAT => BitConverter.GetBytes((float)value).ConvertLittleEndianToBigEndianIfNecessary(),
             DataContentType.DOUBLE => BitConverter.GetBytes((double)value).ConvertLittleEndianToBigEndianIfNecessary(),
             _ => throw new Exception("Unexpected Case"),

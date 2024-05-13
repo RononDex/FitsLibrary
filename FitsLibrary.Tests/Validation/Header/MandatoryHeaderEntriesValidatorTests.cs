@@ -32,7 +32,7 @@ public class MandatoryHeaderEntriesValidatorTests
         var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .WithNumberOfAxis(0)
             .WithEndEntry()
             .Build();
@@ -52,7 +52,7 @@ public class MandatoryHeaderEntriesValidatorTests
         var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .WithNumberOfAxis(3)
             .WithAxisOfSize(1, 1000)
             .WithAxisOfSize(2, 1000)
@@ -75,7 +75,7 @@ public class MandatoryHeaderEntriesValidatorTests
         var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .WithNumberOfAxis(3)
             .WithAxisOfSize(1, 1000)
             .WithAxisOfSize(2, 1000)
@@ -98,7 +98,7 @@ public class MandatoryHeaderEntriesValidatorTests
         var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .WithNumberOfAxis(3)
             .WithAxisOfSize(1, 1000)
             .WithAxisOfSize(2, 1000)
@@ -120,7 +120,7 @@ public class MandatoryHeaderEntriesValidatorTests
         var testee = new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]);
         var header = new HeaderBuilder()
             .WithValidFitsFormat()
-            .WithContentDataType(DataContentType.SHORT)
+            .WithContentDataType(DataContentType.INT16)
             .WithNumberOfAxis("test")
             .WithEndEntry()
             .Build();
