@@ -2,7 +2,7 @@
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 
-namespace FitsLibrary.Serialization.Header;
+namespace FitsLibrary.Serialization;
 
 internal interface IHeaderSerializer
 {

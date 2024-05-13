@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -33,6 +35,29 @@ public class SampleFilesTests
 
         var endTime = DateTime.Now;
         Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
+    }
+
+    [Test]
+    [Benchmark]
+    public async Task OpenFitsFile_WithSimpleWFPFile_ReadsAndWritesFileAsync()
+    {
+        Console.WriteLine("Reading sample file");
+        var startTime = DateTime.Now;
+
+        var reader = new FitsDocumentReader();
+        var document = await reader.ReadAsync("SampleFiles/WFPC2ASSNu5780205bx.fits");
+        var priamryHdu = (ImageHeaderDataUnit<float>)document.HeaderDataUnits[0];
+
+        var endTime = DateTime.Now;
+        Console.WriteLine($"Sample file read in {(endTime - startTime).TotalSeconds}s");
+
+        startTime = DateTime.Now;
+
+        var writer = new FitsDocumentWriter();
+        // var path = Path.GetTempFileName();
+        var path = "test.fits";
+        await writer.WriteAsync(document, path);
+        var hashOriginal = SHA256.HashData(File.OpenRead("SampleFiles/WFPC2ASSNu5780205bx.fits"));
     }
 
     [Benchmark]

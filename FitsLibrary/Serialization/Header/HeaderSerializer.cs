@@ -19,20 +19,29 @@ internal class HeaderSerializer : IHeaderSerializer
     {
         var headerBlockBuilder = new StringBuilder();
         var headerEntryBuilder = new StringBuilder();
-        foreach (var headerEntry in header.Entries)
+        for (var i = 0; i < header.Entries.Count; i++)
         {
+            var headerEntry = header.Entries[i];
             headerEntryBuilder.Clear();
             headerEntryBuilder.Append(headerEntry.Key.PadRight(8));
 
             if (headerEntry.Value != null)
             {
-                _ = headerEntryBuilder.Append("= ");
+                if (IsCommentOrHistoryField(headerEntry))
+                {
+                    _ = headerEntryBuilder.Append("  ");
+                }
+                else
+                {
+                    _ = headerEntryBuilder.Append("= ");
+                }
+
                 var serializedValue = GetSerializedValue(headerEntry.Value);
 
                 // Handle strings and long strings
                 if (headerEntry.Value is string)
                 {
-                    HandleStringEntries(headerEntryBuilder, serializedValue, headerEntry);
+                    HandleStringEntries(headerEntryBuilder, serializedValue, headerEntry, header);
                 }
                 else
                 {
@@ -147,9 +156,26 @@ internal class HeaderSerializer : IHeaderSerializer
         }
     }
 
-    private static void HandleStringEntries(StringBuilder headerEntryBuilder, string serializedValue, HeaderEntry entry)
+    private static void HandleCommentOrHistoryField(StringBuilder headerEntryBuilder, string serializedValue, HeaderEntry entry, DocumentParts.Header fullHeader)
     {
-        if (serializedValue.Length <= 70)
+        var boxedValue = (string)entry.Value;
+
+        if (boxedValue.Length > 70)
+        {
+            var newEntry = new HeaderEntry(entry.Key, boxedValue[70..], null);
+            entry.Value = boxedValue[..70];
+        }
+
+        headerEntryBuilder.AppendFormat("{0}", entry.Value);
+    }
+
+    private static void HandleStringEntries(StringBuilder headerEntryBuilder, string serializedValue, HeaderEntry entry, DocumentParts.Header fullHeader)
+    {
+        if (IsCommentOrHistoryField(entry))
+        {
+            HandleCommentOrHistoryField(headerEntryBuilder, serializedValue, entry, fullHeader);
+        }
+        else if (serializedValue.Length <= 70)
         {
             HandleSingleLineString(headerEntryBuilder, serializedValue, entry);
         }
@@ -157,5 +183,10 @@ internal class HeaderSerializer : IHeaderSerializer
         {
             HandleMultiLineString(headerEntryBuilder, serializedValue, entry);
         }
+    }
+
+    private static bool IsCommentOrHistoryField(HeaderEntry entry)
+    {
+        return entry.Key == "COMMENT" || entry.Key == "HISTORY";
     }
 }

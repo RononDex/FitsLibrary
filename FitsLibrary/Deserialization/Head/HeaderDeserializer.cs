@@ -133,20 +133,22 @@ internal class HeaderDeserializer : IHeaderDeserializer
     private static HeaderEntry ParseHeaderEntryChunk(ReadOnlySpan<byte> headerEntryChunk)
     {
         var key = Encoding.ASCII.GetString(headerEntryChunk.Slice(0, 8)).Trim();
+        var isCommentOrHistoryEntry = IsCommentOrHistoryEntry(key);
         if (HeaderEntryChunkHasValueMarker(headerEntryChunk)
-                || HeaderEntryEntryChunkHasContinueMarker(key))
+                || HeaderEntryEntryChunkHasContinueMarker(key)
+                || isCommentOrHistoryEntry)
         {
             ReadOnlySpan<char> value = Encoding.ASCII.GetString(headerEntryChunk.Slice(10, 70)).Trim();
             if (value.IndexOf('/') != -1)
             {
                 var comment = value[(value.IndexOf('/') + 1)..].Trim().Trim('\0');
                 value = value[0..value.IndexOf('/')].Trim();
-                var parsedValue = ParseValue(value);
+                var parsedValue = ParseValue(value, isCommentOrHistoryEntry);
                 return new HeaderEntry(key, parsedValue, new string(comment));
             }
             else
             {
-                var parsedValue = ParseValue(value);
+                var parsedValue = ParseValue(value, isCommentOrHistoryEntry);
                 return new HeaderEntry(
                     key: key,
                     value: parsedValue,
@@ -160,34 +162,39 @@ internal class HeaderDeserializer : IHeaderDeserializer
             comment: null);
     }
 
+    private static bool IsCommentOrHistoryEntry(string key)
+    {
+        return key == "HISTORY" || key == "COMMENT";
+    }
+
     private static bool HeaderEntryEntryChunkHasContinueMarker(string key)
     {
         return string.Equals(key, ContinueKeyWord, StringComparison.Ordinal);
     }
 
-    private static object? ParseValue(ReadOnlySpan<char> value)
+    private static object? ParseValue(ReadOnlySpan<char> value, bool isCommentOrHistoryEntry)
     {
         value = value.Trim('\0').Trim(' ');
         if (value.Length == 0)
         {
             return null;
         }
-
-        if (value[0] == '\'')
+        else if (value[0] == '\'')
         {
             return new String(value[1..^1]);
         }
-
-        if (value.IndexOf('.') != -1)
+        else if (isCommentOrHistoryEntry)
+        {
+            return new String(value);
+        }
+        else if (value.IndexOf('.') != -1)
         {
             return double.Parse(value);
         }
-
-        if (value.Length == 1 && (value[0] == 'T' || value[0] == 'F'))
+        else if (value.Length == 1 && (value[0] == 'T' || value[0] == 'F'))
         {
             return value[0] == 'T';
         }
-
         return long.Parse(value);
     }
 

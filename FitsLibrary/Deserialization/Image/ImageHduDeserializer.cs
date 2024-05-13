@@ -1,21 +1,19 @@
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Pipelines;
 using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.ImageData;
-using FitsLibrary.Validation;
+using FitsLibrary.Validation.Header;
 
 namespace FitsLibrary.Deserialization.Image;
 
-internal class ImageHduDeserializer<T>(IList<IValidator<Header>> validators) : IHduDeserializer<ImageDataContent<T>> where T : INumber<T>
+internal class ImageHduDeserializer<T>(HeaderValidator headerValidator) : IHduDeserializer<ImageDataContent<T>> where T : INumber<T>
 {
-    private IList<IValidator<Header>> HeaderValidators { get; } = validators;
+    private HeaderValidator HeaderValidator { get; } = headerValidator;
 
     public async Task<(bool endOfStreamReached, HeaderDataUnit<ImageDataContent<T>> data)> DeserializeAsync(PipeReader reader, Header header)
     {
-        await ValidateHeader(header).ConfigureAwait(false);
+        await this.HeaderValidator.ValidateHeader(header).ConfigureAwait(false);
 
         var contentDeserializer = new ImageContentDeserializer<T>();
 
@@ -24,27 +22,6 @@ internal class ImageHduDeserializer<T>(IList<IValidator<Header>> validators) : I
         return (
                 endOfStreamReached: endOfStreamReachedContent,
                 data: new ImageHeaderDataUnit<T>(HeaderDataUnitType.IMAGE, header, parsedContent));
-    }
-
-    private async Task ValidateHeader(Header header)
-    {
-        var validatorTasks = new List<Task<ValidationResult>>();
-        foreach (var headerValidator in this.HeaderValidators)
-        {
-            validatorTasks.Add(headerValidator.ValidateAsync(header));
-        }
-
-        var validationResults = await Task
-            .WhenAll(validatorTasks)
-            .ConfigureAwait(continueOnCapturedContext: false);
-
-        foreach (var validationResult in validationResults)
-        {
-            if (!validationResult.ValidationSuccessful)
-            {
-                throw new InvalidDataException($"Validation failed for the header of the fits file: {validationResult.ValidationFailureMessage}");
-            }
-        }
     }
 
     Task<(bool endOfStreamReached, HeaderDataUnit data)> IHduDeserializer.DeserializeAsync(PipeReader reader, Header header)

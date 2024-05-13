@@ -203,4 +203,32 @@ public class HeaderSerializationTests
         Assert.That(actual, Has.Length.EqualTo(2880));
         Assert.That(actual[0..80], Is.EqualTo("Entry1  =          10300000000 / Comment1".PadRight(80)));
     }
+
+    [Test]
+    public async Task Serialize_WithCommentValue_CreatesHeaderBlock()
+    {
+        var testee = new HeaderSerializer();
+        using var memory = new MemoryStream();
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("COMMENT", "some random comment", null)]);
+
+        await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+        var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+        Assert.That(actual, Has.Length.EqualTo(2880));
+        Assert.That(actual[0..80], Is.EqualTo("COMMENT   some random comment".PadRight(80)));
+    }
+
+    [Test]
+    public async Task Serialize_WithHistoryValue_CreatesHeaderBlock()
+    {
+        var testee = new HeaderSerializer();
+        using var memory = new MemoryStream();
+        var header = new FitsLibrary.DocumentParts.Header([new HeaderEntry("HISTORY", "some random history entry", null)]);
+
+        await testee.SerializeAsync(header, PipeWriter.Create(memory)).ConfigureAwait(false);
+        var actual = Encoding.ASCII.GetString(memory.ToArray());
+
+        Assert.That(actual, Has.Length.EqualTo(2880));
+        Assert.That(actual[0..80], Is.EqualTo("HISTORY   some random history entry".PadRight(80)));
+    }
 }

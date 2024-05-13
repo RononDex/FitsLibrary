@@ -447,5 +447,62 @@ public class HeaderDeserializerTests
         act.Should().ThrowAsync<InvalidDataException>();
     }
 
+    [Test]
+    public async Task Deserilaize_WithHistoryValues_ParsesHistoryValues()
+    {
+        // Arrange
+        var testData = new byte[2881];
+        testData = TestUtils.AddHeaderEntry(
+            data: testData,
+            startIndex: 0,
+            key: "HISTORY",
+            value: "Some History entry",
+            comment: null);
+        testData = TestUtils.AddContentToArray(
+            data: testData,
+            startIndex: 80,
+            content: HeaderDeserializer.END_MARKER);
+        var testStream = TestUtils.ByteArrayToStream(testData);
+        var testee = new HeaderDeserializer();
+
+        // Act
+        var result = await testee.DeserializeAsync(testStream);
+        var parsedHeader = result.header;
+
+        // Assert
+        result.Should().NotBeNull();
+        parsedHeader.Should().NotBeNull();
+        parsedHeader!.Entries.First().Key.Should().Be("HISTORY");
+        parsedHeader!.Entries.First().Value.Should().Be("Some History entry");
+    }
+
+    [Test]
+    public async Task Deserilaize_WithCommentValues_ParsesHistoryValues()
+    {
+        // Arrange
+        var testData = new byte[2881];
+        testData = TestUtils.AddHeaderEntry(
+            data: testData,
+            startIndex: 0,
+            key: "COMMENT",
+            value: "Some comment entry",
+            comment: null);
+        testData = TestUtils.AddContentToArray(
+            data: testData,
+            startIndex: 80,
+            content: HeaderDeserializer.END_MARKER);
+        var testStream = TestUtils.ByteArrayToStream(testData);
+        var testee = new HeaderDeserializer();
+
+        // Act
+        var result = await testee.DeserializeAsync(testStream);
+        var parsedHeader = result.header;
+
+        // Assert
+        result.Should().NotBeNull();
+        parsedHeader.Should().NotBeNull();
+        parsedHeader!.Entries.First().Key.Should().Be("COMMENT");
+        parsedHeader!.Entries.First().Value.Should().Be("Some comment entry");
+    }
     // TODO Add mote tests for header parsing (error cases)
 }
