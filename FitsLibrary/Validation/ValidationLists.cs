@@ -1,7 +1,9 @@
 
 using System.Collections.Generic;
+using FitsLibrary.Validation.FitsDocument;
+using FitsLibrary.Validation.Header;
 
-namespace FitsLibrary.Validation.Header;
+namespace FitsLibrary.Validation;
 
 internal static class ValidationLists
 {
@@ -15,5 +17,9 @@ internal static class ValidationLists
             new KeywordsMustBeUniqueValidator(),
             new MandatoryHeaderEntriesValidator(["SIMPLE", "BITPIX", "NAXIS"]),
             new NoInvalidCharactersInKeywordsValidator(),
+    ];
+
+    public static List<IValidator<FitsLibrary.FitsDocument>> FitsDocumentValidators = [
+        new HasPrimaryDataUnit()
     ];
 }

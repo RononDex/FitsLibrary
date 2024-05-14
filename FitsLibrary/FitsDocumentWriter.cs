@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
@@ -29,6 +28,15 @@ public class FitsDocumentWriter : IFitsDocumentWriter
                 new StreamPipeWriterOptions(minimumBufferSize: ChunkSize));
 
         var headerSerializer = new HeaderSerializer();
+
+        foreach (var validator in ValidationLists.FitsDocumentValidators)
+        {
+            var result = await validator.ValidateAsync(document);
+            if (!result.ValidationSuccessful)
+            {
+                throw new InvalidDataException($"Tried to write invalid FitsDocument: {result.ValidationFailureMessage}");
+            }
+        }
 
         foreach (var hdu in document.HeaderDataUnits)
         {
