@@ -11,6 +11,7 @@ using FitsLibrary.Deserialization.Image;
 using FitsLibrary.Deserialization.Primary;
 using FitsLibrary.DocumentParts;
 using FitsLibrary.DocumentParts.ImageData;
+using FitsLibrary.Validation;
 using FitsLibrary.Validation.Header;
 
 namespace FitsLibrary;

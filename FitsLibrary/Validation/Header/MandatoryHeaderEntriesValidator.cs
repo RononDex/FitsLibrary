@@ -15,6 +15,12 @@ public class MandatoryHeaderEntriesValidator(IList<string> mandatoryFields) : IV
         return Task.Run(() =>
         {
             var hasMandatoryFields = ValidateMandatoryFields(objToValidate);
+            if ((bool)objToValidate["SIMPLE"] != true)
+            {
+                return new ValidationResult(
+                        validationSuccessful: false,
+                        validationFailureMessage: "SIMPLE has to be set to true to mark this fits file to conform with the standard");
+            }
 
             if (this.MandatoryFields.Contains("NAXIS"))
             {

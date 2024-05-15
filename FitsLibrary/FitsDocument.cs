@@ -29,7 +29,7 @@ public class FitsDocument
         this.HeaderDataUnits = new List<HeaderDataUnit>();
 
         var primaryHeader = new Header([
-                new HeaderEntry("SIMPLE"),
+                new HeaderEntry("SIMPLE", true),
                 new HeaderEntry("BITPIX", (int)primaryDocumentType),
                 new HeaderEntry("NAXIS", axisSizes.Length),
         ]);

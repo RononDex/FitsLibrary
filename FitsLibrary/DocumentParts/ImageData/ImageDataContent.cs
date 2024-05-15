@@ -32,6 +32,21 @@ public class ImageDataContent<T> : DataContent where T : INumber<T>
     }
 
     /// <summary>
+    /// Sets the value at the given coordinates
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="coordinates">coordinates inside the multi dimensional array</param>
+    public void SetValueAt(T value, params int[] coordinates)
+    {
+        var slice = this.RawData;
+        for (var i = coordinates.Length - 1; i > 0; i--)
+        {
+            slice = slice.Slice(coordinates[i] * this.AxisIndexFactors[i], this.PreCalcedAxisBounds[i - 1]);
+        }
+        slice.Span[coordinates[0]] = value;
+    }
+
+    /// <summary>
     /// Returns the value at the given coordinates as a byte
     /// </summary>
     /// <param name="coordinates">coordinates inside the multi dimensional array</param>
