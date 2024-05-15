@@ -44,27 +44,27 @@ public class FitsDocument
             DataContentType.BYTE => new ImageHeaderDataUnit<byte>(
                     HeaderDataUnitType.PRIMARY,
                     primaryHeader,
-                    new ImageDataContent<byte>(axisSizes, new Memory<byte>(new byte[axisSizes.Aggregate((x, y) => x * y)]))),
+                    new ImageDataContent<byte>(axisSizes, new Memory<byte>(new byte[axisSizes.Aggregate(1, (x, y) => x * y)]))),
             DataContentType.FLOAT => new ImageHeaderDataUnit<float>(
                     HeaderDataUnitType.PRIMARY,
                     primaryHeader,
-                    new ImageDataContent<float>(axisSizes, new Memory<float>(new float[axisSizes.Aggregate((x, y) => x * y)]))),
+                    new ImageDataContent<float>(axisSizes, new Memory<float>(new float[axisSizes.Aggregate(1, (x, y) => x * y)]))),
             DataContentType.DOUBLE => new ImageHeaderDataUnit<double>(
                     HeaderDataUnitType.PRIMARY,
                     primaryHeader,
-                    new ImageDataContent<double>(axisSizes, new Memory<double>(new double[axisSizes.Aggregate((x, y) => x * y)]))),
+                    new ImageDataContent<double>(axisSizes, new Memory<double>(new double[axisSizes.Aggregate(1, (x, y) => x * y)]))),
             DataContentType.INT16 => new ImageHeaderDataUnit<short>(
                     HeaderDataUnitType.PRIMARY,
                     primaryHeader,
-                    new ImageDataContent<short>(axisSizes, new Memory<short>(new short[axisSizes.Aggregate((x, y) => x * y)]))),
+                    new ImageDataContent<short>(axisSizes, new Memory<short>(new short[axisSizes.Aggregate(1, (x, y) => x * y)]))),
             DataContentType.INT32 => new ImageHeaderDataUnit<int>(
                     HeaderDataUnitType.PRIMARY,
                     primaryHeader,
-                    new ImageDataContent<int>(axisSizes, new Memory<int>(new int[axisSizes.Aggregate((x, y) => x * y)]))),
+                    new ImageDataContent<int>(axisSizes, new Memory<int>(new int[axisSizes.Aggregate(1, (x, y) => x * y)]))),
             DataContentType.INT64 => new ImageHeaderDataUnit<long>(
                     HeaderDataUnitType.PRIMARY,
                     primaryHeader,
-                    new ImageDataContent<long>(axisSizes, new Memory<long>(new long[axisSizes.Aggregate((x, y) => x * y)]))),
+                    new ImageDataContent<long>(axisSizes, new Memory<long>(new long[axisSizes.Aggregate(1, (x, y) => x * y)]))),
             _ => throw new NotImplementedException()
         });
     }

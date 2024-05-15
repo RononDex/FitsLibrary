@@ -38,12 +38,14 @@ public class ImageDataContent<T> : DataContent where T : INumber<T>
     /// <param name="coordinates">coordinates inside the multi dimensional array</param>
     public void SetValueAt(T value, params int[] coordinates)
     {
-        var slice = this.RawData;
-        for (var i = coordinates.Length - 1; i > 0; i--)
-        {
-            slice = slice.Slice(coordinates[i] * this.AxisIndexFactors[i], this.PreCalcedAxisBounds[i - 1]);
-        }
-        slice.Span[coordinates[0]] = value;
+        var index = GetIndexByCoordinates(coordinates);
+        this.RawData.Span[index] = value;
+        // var slice = this.RawData;
+        // for (var i = coordinates.Length - 1; i > 0; i--)
+        // {
+        //     slice = slice.Slice(coordinates[i] * this.AxisIndexFactors[i], this.PreCalcedAxisBounds[i - 1]);
+        // }
+        // slice.Span[coordinates[0]] = value;
     }
 
     /// <summary>

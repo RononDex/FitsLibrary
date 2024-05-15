@@ -6,6 +6,7 @@ using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using nom.tam.fits;
 using nom.tam.util;
+using NUnit.Framework;
 
 namespace FitsLibrary.Tests.Benchmarking;
 
@@ -17,6 +18,7 @@ public class FrameworkWriteComparisonsTests
     Fits? cSharpLibraryDocument = null;
 
     [GlobalSetup]
+    [SetUp]
     public async Task Setup()
     {
         fitsLibraryDocument = new FitsDocument<short>([4000, 3000, 3]);
@@ -35,6 +37,7 @@ public class FrameworkWriteComparisonsTests
     }
 
     [Benchmark]
+    [Test]
     public async Task FitsLibraryAsyncWrite()
     {
         var tempFilePath = Path.GetTempFileName();
