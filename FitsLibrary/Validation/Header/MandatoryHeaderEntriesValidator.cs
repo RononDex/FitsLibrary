@@ -15,7 +15,7 @@ public class MandatoryHeaderEntriesValidator(IList<string> mandatoryFields) : IV
         return Task.Run(() =>
         {
             var hasMandatoryFields = ValidateMandatoryFields(objToValidate);
-            if ((bool)objToValidate["SIMPLE"] != true)
+            if (hasMandatoryFields && (bool)objToValidate["SIMPLE"] != true)
             {
                 return new ValidationResult(
                         validationSuccessful: false,
