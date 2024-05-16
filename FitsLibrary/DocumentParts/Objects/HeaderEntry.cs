@@ -8,7 +8,7 @@ public class HeaderEntry
 
     public string? Comment { get; set; }
 
-    public HeaderEntry(string key, object? value = null, string? comment = null)
+    public HeaderEntry(string key, object? value, string? comment = null)
     {
         this.Key = key;
         this.Value = value;
