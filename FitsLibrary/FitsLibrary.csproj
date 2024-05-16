@@ -32,13 +32,14 @@
       For more information / documentation see the github repository README
     </Description>
     <PackageProjectUrl>https://github.com/RononDex/FitsLibrary</PackageProjectUrl>
-    <PackageReadmeFile>../README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="../LICENSE" Pack="true" PackagePath="LICENSE" />
+    <None Include="../README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
 
   <ItemGroup>
