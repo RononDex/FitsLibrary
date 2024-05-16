@@ -9,16 +9,6 @@ FitsLibrary is a native C# / dotnet core implementation using the most up to dat
 The library focuses on being fast and easy to use.
 It makes use of the newer C# generic maths features, which require net8.0.
 
-# Table of Contents  
-* [Current Development state](#devState)  
-* [Usage](#usage)
-  * [Accessing header](#readingHeader)
-  * [Accessing data](#readingContent)
-  * [Accessing raw data](#readingRawContent)
-  * [Getting the datatype of priamry hdu](#readingDataType)
-  * [Getting the datatype of priamry hdu](#readingDataType)
-
-<a name="devState"/>
 # Current Development state
 
 ## What currently works
@@ -32,10 +22,8 @@ It makes use of the newer C# generic maths features, which require net8.0.
 
 -   Reading / writing of extensions of type TABLE and BINTABLE
 
-<a name="usage"/>
 # Usage
 
-<a name="readingHeader"/>
 ## Reading header data
 
 Every HDU comes with a header with meta-information:
@@ -63,7 +51,6 @@ header.Entries.Add(new HeaderEntry("exampleKey", exampleValue));
 header.Entries.Add(new HeaderEntry("exampleKey", exampleValue, "some Comment"));
 ```
 
-<a name="readingContent"/>
 ## Reading content data
 
 This library can open Fits files in a strong typed way (if you know the type of data inside the primary hdu beforehand) or a type unspecific way.
@@ -106,7 +93,6 @@ for (var x = 0; x < fitsFile.HeaderDataUnits[0].Header.AxisSizes[0]; x++)
 }
 ```
 
-<a name="readingRawContent"/>
 ## Accessing Raw data
 
 By accessing `hdu.Data.RawData` (which is of type `Memory<T>`, use .Span to access data or much slower .ToArray())
@@ -118,7 +104,6 @@ index = indexAxis1 + (axisSize1 * indexAxis2)
 fitsFile.Content.Span[index];
 ```
 
-<a name="readingDataType"/>
 ## Find the datatype of a Header Data Unit (HDU):
 
 If you want to know the data type stored in the primary hdu of a fits file, without opening the whole file you can do:
