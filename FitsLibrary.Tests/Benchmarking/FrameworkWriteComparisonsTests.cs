@@ -42,7 +42,7 @@ public class FrameworkWriteComparisonsTests
     {
         var tempFilePath = Path.GetTempFileName();
         var writer = new FitsDocumentWriter();
-        await writer.WriteAsync(fitsLibraryDocument!, "/home/cobra/test.fits");
+        await writer.WriteAsync(fitsLibraryDocument!, "test.fits");
     }
 
     // [Benchmark]
