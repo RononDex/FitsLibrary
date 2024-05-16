@@ -22,7 +22,7 @@ It makes use of the newer C# generic maths features, which require net8.0.
 
 -   Reading / writing of extensions of type TABLE and BINTABLE
 
-# Usage
+# Reading files
 
 ## Reading header data
 
@@ -116,4 +116,13 @@ If you have already opened the file, you can do
 ```csharp
 var reader = new FitsDocumentReader<float>();
 var fitsFile = await reader.ReadAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+```
+
+# Writing files
+
+Files can be written using the `FitsDocumentWriter`:
+
+```csharp
+var reader = new FitsDocumentWriter();
+await reader.WriteAsync(fitsFile, "SampleFiles/FOCx38i0101t_c0f.fits");
 ```
