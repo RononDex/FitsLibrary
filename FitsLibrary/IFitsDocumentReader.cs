@@ -1,13 +1,11 @@
 using System.IO;
-using System.Numerics;
 using System.Threading.Tasks;
 
-namespace FitsLibrary
-{
-    public interface IFitsDocumentReader<T> where T : INumber<T>
-    {
-        Task<FitsDocument<T>> ReadAsync(Stream inputStream);
+namespace FitsLibrary;
 
-        Task<FitsDocument<T>> ReadAsync(string filePath);
-    }
+public interface IFitsDocumentReader
+{
+    Task<FitsDocument> ReadAsync(Stream inputStream);
+
+    Task<FitsDocument> ReadAsync(string filePath);
 }

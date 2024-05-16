@@ -1,46 +1,49 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>FitsLibrary</RootNamespace>
     <Nullable>enable</Nullable>
-    <LangVersion>10.0</LangVersion>
-
+    <LangVersion>latest</LangVersion>
     <Authors>RononDex</Authors>
     <Company />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>0.3.0.0-pre</FileVersion>
-    <Version>0.3.0-pre</Version>
+    <FileVersion>0.4.0.0-pre</FileVersion>
+    <Version>0.4.0-pre</Version>
     <PackageReleaseNotes>
-      - Increased performance by ~200%
-      - Drastically decreased memory usage
-      - Added some more helper functions for data access
+      - Now with fits file writing support!
+      - Drastically inreased reading performance
+      - Reads all hdus now (instead of just the first one)
+      - Support for extension headers (only type IMAGE so far)
     </PackageReleaseNotes>
-    <PackageDescription>
+    <Description>
       FitsLibrary is a native C# / dotnet core implementation using the most up to date FITS 4.0 specification for writing and reading astronomical FITS files.
 
       The library focuses on being fast and easy to use.
 
       What currently works
-        - Loading of header data
+        - Reading of .fits files (PRIMARY and IMAGE hdus)
         - Validation of header content
         - Reading of N-Dimensional data arrays
-
-      What doesn't work (yet)
-        - Extension Headers
         - Writing .fits files
 
+      What doesn't work (yet)
+        - Extension Headers (TABLE and BINTABLE)
+
       For more information / documentation see the github repository README
-    </PackageDescription>
+    </Description>
     <PackageProjectUrl>https://github.com/RononDex/FitsLibrary</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="../LICENSE" Pack="true" PackagePath="LICENSE" />
+    <None Include="../README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

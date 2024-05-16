@@ -1,119 +1,114 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipelines;
 using System.Numerics;
 using System.Threading.Tasks;
 using FitsLibrary.Deserialization;
+using FitsLibrary.Deserialization.Head;
+using FitsLibrary.Deserialization.Image;
+using FitsLibrary.Deserialization.Primary;
 using FitsLibrary.DocumentParts;
+using FitsLibrary.DocumentParts.ImageData;
 using FitsLibrary.Validation;
 using FitsLibrary.Validation.Header;
 
-namespace FitsLibrary
+namespace FitsLibrary;
+
+public class FitsDocumentReader : IFitsDocumentReader
 {
-    public class FitsDocumentReader<T> : IFitsDocumentReader<T> where T : INumber<T>
+    internal const int ChunkSize = 2880;
+
+    public Task<FitsDocument> ReadAsync(string filePath)
     {
-        private IReadOnlyList<IValidator<Header>> headerValidators;
-        private IHeaderDeserializer headerDeserializer;
-        private IExtensionDeserializer extensionsDeserializer;
-        private IContentDeserializer<T> contentDeserializer;
+        return ReadAsync(File.OpenRead(filePath));
+    }
 
-        internal const int ChunkSize = 2880;
+    public virtual async Task<FitsDocument> ReadAsync(Stream inputStream)
+    {
+        var pipeReader = PipeReader.Create(
+                inputStream,
+                new StreamPipeReaderOptions(
+                    bufferSize: ChunkSize,
+                    minimumReadSize: ChunkSize))!;
 
-        public FitsDocumentReader()
+        var hdus = new List<HeaderDataUnit>();
+
+        var endOfStreamReached = false;
+        var first = true;
+        while (!endOfStreamReached)
         {
-            UseValidatorsForReading();
-            UseDeserializersForReading();
-        }
-
-        private void UseDeserializersForReading()
-        {
-            headerDeserializer = new HeaderDeserializer();
-            contentDeserializer = new ContentDeserializer<T>();
-            // extensionsDeserializer = new ExtensionDeserializer(headerDeserializer, contentDeserializer);
-        }
-
-        /// <summary>
-        /// Used for Unit Testing
-        /// </summary>
-        /// <param name="headerDeserializer"></param>
-        /// <param name="headerValidators"></param>
-        /// <param name="contentDeserializer"></param>
-        internal FitsDocumentReader(
-                IHeaderDeserializer headerDeserializer,
-                List<IValidator<Header>> headerValidators,
-                IContentDeserializer<T> contentDeserializer)
-        {
-            this.headerValidators = headerValidators;
-            this.contentDeserializer = contentDeserializer;
-            this.headerDeserializer = headerDeserializer;
-        }
-
-        private void UseValidatorsForReading()
-        {
-            headerValidators = new List<IValidator<Header>>
-            {
-                new KeywordsMustBeUniqueValidator(),
-                new MandatoryHeaderEntriesValidator(),
-            };
-        }
-
-        public Task<FitsDocument<T>> ReadAsync(string filePath)
-        {
-            return ReadAsync(File.OpenRead(filePath));
-        }
-
-        public async Task<FitsDocument<T>> ReadAsync(Stream inputStream)
-        {
-            var pipeReader = PipeReader.Create(
-                    inputStream,
-                    new StreamPipeReaderOptions(
-                        bufferSize: ChunkSize,
-                        minimumReadSize: ChunkSize))!;
-
-            var headerResult = await headerDeserializer
+            (var endOfStreamReachedHeader, var header) = await new HeaderDeserializer()
                 .DeserializeAsync(pipeReader)
                 .ConfigureAwait(false);
 
-            var validatorTasks = new List<Task<ValidationResult>>();
-            foreach (var headerValidator in headerValidators)
-            {
-                validatorTasks.Add(headerValidator.ValidateAsync(headerResult.parsedHeader));
-            }
+            if (endOfStreamReachedHeader && header == null)
+                break;
 
-            var validationResults = await Task.WhenAll(validatorTasks).ConfigureAwait(continueOnCapturedContext: false);
-
-            foreach (var validationResult in validationResults)
+            var type = first ? HeaderDataUnitType.PRIMARY : ParseHduType(header["XTENSION"] as string);
+            IHduDeserializer? hduDeserializer = type switch
             {
-                if (!validationResult.ValidationSuccessful)
+                HeaderDataUnitType.PRIMARY => ExtractDataContentType(header) switch
                 {
-                    throw new InvalidDataException($"Validation failed for the header of the fits file: {validationResult.ValidationFailureMessage}");
-                }
-            }
+                    DataContentType.BYTE => new PrimaryHduDeserializer<byte>(new HeaderValidator(ValidationLists.PrimaryBlockHeaderValidators)),
+                    DataContentType.INT16 => new PrimaryHduDeserializer<short>(new HeaderValidator(ValidationLists.PrimaryBlockHeaderValidators)),
+                    DataContentType.INT32 => new PrimaryHduDeserializer<int>(new HeaderValidator(ValidationLists.PrimaryBlockHeaderValidators)),
+                    DataContentType.INT64 => new PrimaryHduDeserializer<long>(new HeaderValidator(ValidationLists.PrimaryBlockHeaderValidators)),
+                    DataContentType.FLOAT => new PrimaryHduDeserializer<float>(new HeaderValidator(ValidationLists.PrimaryBlockHeaderValidators)),
+                    DataContentType.DOUBLE => new PrimaryHduDeserializer<double>(new HeaderValidator(ValidationLists.PrimaryBlockHeaderValidators)),
+                    _ => throw new NotImplementedException(),
+                },
+                HeaderDataUnitType.IMAGE => ExtractDataContentType(header) switch
+                {
+                    DataContentType.BYTE => new ImageHduDeserializer<byte>(new HeaderValidator(ValidationLists.ImageExtensionHeaderValidators)),
+                    DataContentType.INT16 => new ImageHduDeserializer<short>(new HeaderValidator(ValidationLists.ImageExtensionHeaderValidators)),
+                    DataContentType.INT32 => new ImageHduDeserializer<int>(new HeaderValidator(ValidationLists.ImageExtensionHeaderValidators)),
+                    DataContentType.INT64 => new ImageHduDeserializer<long>(new HeaderValidator(ValidationLists.ImageExtensionHeaderValidators)),
+                    DataContentType.FLOAT => new ImageHduDeserializer<float>(new HeaderValidator(ValidationLists.ImageExtensionHeaderValidators)),
+                    DataContentType.DOUBLE => new ImageHduDeserializer<double>(new HeaderValidator(ValidationLists.ImageExtensionHeaderValidators)),
+                    _ => throw new NotImplementedException(),
+                },
+                _ => null,
+            };
 
-            (bool endOfStreamReached, Memory<T>? contentData)? contentResult = null;
-            if (!headerResult.endOfStreamReached
-                    && headerResult.parsedHeader.NumberOfAxisInMainContent > 0)
+            if (hduDeserializer == null)
             {
-                contentResult = await contentDeserializer
-                    .DeserializeAsync(pipeReader, headerResult.parsedHeader)
-                    .ConfigureAwait(false);
+                Console.WriteLine($"Unknown xtension type {header["XTENSION"]} found, stopping parsing of file");
+                break;
             }
+            (var endOfStreamReachedHdu, var hdu) = await hduDeserializer
+                .DeserializeAsync(pipeReader, header)
+                .ConfigureAwait(false);
 
-            var extensions = new List<Extension>();
-            var endOfStreamReached = contentResult?.endOfStreamReached == true || headerResult.endOfStreamReached;
-
-            while (!endOfStreamReached)
-            {
-                var extensionResult = await extensionsDeserializer.DeserializeAsync(pipeReader).ConfigureAwait(false);
-                endOfStreamReached = extensionResult.endOfStreamReached;
-                extensions.Add(extensionResult.parsedExtension);
-            }
-
-            return new FitsDocument<T>(
-                header: headerResult.parsedHeader,
-                content: contentResult?.contentData,
-                extensions: extensions);
+            hdus.Add(hdu);
+            endOfStreamReached = endOfStreamReachedHdu;
+            first = false;
         }
+        pipeReader.Complete();
+        return new FitsDocument(hdus);
+    }
+
+    private static HeaderDataUnitType ParseHduType(string extensionType) => extensionType.Trim() switch
+    {
+        "IMAGE" => HeaderDataUnitType.IMAGE,
+        "TABLE" => HeaderDataUnitType.TABLE,
+        _ => throw new InvalidDataException($"Unknown extension type {extensionType} encountered")
+    };
+
+    private static DataContentType ExtractDataContentType(Header header) => (DataContentType)Convert.ToInt32(header["BITPIX"]!, CultureInfo.InvariantCulture);
+}
+
+public class FitsDocumentReader<PrimaryDataType> : FitsDocumentReader where PrimaryDataType : INumber<PrimaryDataType>
+{
+    public new async Task<FitsDocument<PrimaryDataType>> ReadAsync(Stream inputStream)
+    {
+        var doc = await base.ReadAsync(inputStream).ConfigureAwait(false);
+        return new FitsDocument<PrimaryDataType>(doc.HeaderDataUnits);
+    }
+
+    public new Task<FitsDocument<PrimaryDataType>> ReadAsync(string filePath)
+    {
+        return ReadAsync(File.OpenRead(filePath));
     }
 }

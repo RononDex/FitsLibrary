@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using FitsLibrary.Deserialization;
+using FitsLibrary.Deserialization.Head;
 using FitsLibrary.DocumentParts;
 
 namespace FitsLibrary.Tests.Benchmarking
 {
-    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net70, launchCount: 5, warmupCount: 5, iterationCount: 5)]
+    [SimpleJob(RunStrategy.ColdStart, RuntimeMoniker.Net80, launchCount: 5, warmupCount: 5, iterationCount: 5)]
     [MemoryDiagnoser]
     public class HeaderDeserializerBenchmarks
     {
@@ -37,5 +37,11 @@ namespace FitsLibrary.Tests.Benchmarking
 
         [Benchmark]
         public Task<(bool, Header?)> ParseHeader_WithOneEntry() => headerDeserializer.DeserializeAsync(headerDataWithOneEntry);
+
+        [Benchmark]
+        public async Task ParseHeader_WithExampleFile()
+        {
+            var header = await FitsDocumentHelper.ReadHeaderAsync("SampleFiles/FOCx38i0101t_c0f.fits");
+        }
     }
 }
