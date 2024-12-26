@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -189,7 +190,7 @@ internal class HeaderDeserializer : IHeaderDeserializer
         }
         else if (value.IndexOf('.') != -1)
         {
-            return double.Parse(value);
+            return double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
         }
         else if (value.Length == 1 && (value[0] == 'T' || value[0] == 'F'))
         {

@@ -504,5 +504,37 @@ public class HeaderDeserializerTests
         parsedHeader!.Entries.First().Key.Should().Be("COMMENT");
         parsedHeader!.Entries.First().Value.Should().Be("Some comment entry");
     }
+
+    [Test]
+    public async Task Deserialize_WithAFloatingPointValueAsString_ReturnsHeaderWithOneEntryAsync()
+    {
+        // Arrange
+        var testData = new byte[2881];
+        testData = TestUtils.AddHeaderEntry(
+            data: testData,
+            startIndex: 0,
+            key: "TEST",
+            value: "1.53",
+            comment: "some test comment");
+        testData = TestUtils.AddContentToArray(
+            data: testData,
+            startIndex: 80,
+            content: HeaderDeserializer.END_MARKER);
+        var testStream = TestUtils.ByteArrayToStream(testData);
+        var testee = new HeaderDeserializer();
+
+        // Act
+        var result = await testee.DeserializeAsync(testStream);
+        var parsedHeader = result.header;
+
+        // Assert
+        result.Should().NotBeNull();
+        parsedHeader.Should().NotBeNull();
+        parsedHeader!.Entries.Should().HaveCount(1);
+        parsedHeader!.Entries.First().Key.Should().Be("TEST");
+        parsedHeader!.Entries.First().Value.Should().Be(1.53);
+        parsedHeader!.Entries.First().Comment.Should().Be("some test comment");
+    }
+
     // TODO Add mote tests for header parsing (error cases)
 }
